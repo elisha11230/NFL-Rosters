@@ -748,12 +748,25 @@ body.simple #timebar{display:none}
 #simplebtn[aria-pressed="true"]{border-color:var(--team);color:var(--chalk)}
 
 /* ---------- live strip ---------- */
+/* Three states, three treatments. Only a game actually in progress earns the
+   red: dressing a scheduled kickoff as live is alarming and wrong. */
 #livebar{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:7px 11px;margin-bottom:9px;border-radius:var(--r);
-  background:color-mix(in srgb,#C25B5B 12%,transparent);
-  border:1px solid color-mix(in srgb,#C25B5B 35%,transparent);
+  background:#141C20;border:1px solid var(--line);
 }
+#livebar.live{
+  background:color-mix(in srgb,#C25B5B 12%,transparent);
+  border-color:color-mix(in srgb,#C25B5B 35%,transparent);
+}
+#livebar.final{background:#141C20;border-color:var(--line)}
+#livebar .when{
+  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--mute);
+}
+#livebar .vs{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--chalk)}
+#livebar.live .livelab{color:#E4A4A4}
+#livebar .livelab{color:var(--mute)}
 #livebar[hidden]{display:none}
 .livedot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:0 0 auto}
 .livedot.on{background:#E05B5B;animation:pulse 1.6s ease-in-out infinite}
@@ -2915,27 +2928,32 @@ function liveLineFor(player){
 
 async function refreshLive(){
   const ok = await fetchLive();
-  if(!ok){ renderLiveStrip(false); return; }
+  if(!ok){ renderLiveStrip(false); return false; }
   const g = LIVE.byTeam[team];
   if(g && g.state !== "pre") await fetchBox(g.id);
   renderLiveStrip(true);
   if(sel) paintSel();
   renderField();
+  return true;
 }
 
 function renderLiveStrip(ok){
   const bar = $("#livebar");
+  bar.className = "";
   if(!ok || !LIVE.games.length){ bar.hidden = true; return; }
   const g = LIVE.byTeam[team];
   bar.innerHTML = "";
+
+  // No game for this team today. Only worth a strip if something else is live.
   if(!g){
-    // No game for this team, but show the league state so the strip is useful.
     const live = LIVE.games.filter(x => x.state === "in");
     if(!live.length){ bar.hidden = true; return; }
     bar.hidden = false;
-    const t = el("span","livelab", live.length
-      + (live.length === 1 ? " game in progress" : " games in progress"));
-    bar.appendChild(t);
+    bar.className = "live";
+    const dot = el("span","livedot on");
+    bar.appendChild(dot);
+    bar.appendChild(el("span","livelab", live.length
+      + (live.length === 1 ? " game in progress" : " games in progress")));
     live.slice(0,4).forEach(x=>{
       const a = x.teams.find(t=>!t.home) || {}, h = x.teams.find(t=>t.home) || {};
       bar.appendChild(el("span","livegame",
@@ -2943,23 +2961,41 @@ function renderLiveStrip(ok){
     });
     return;
   }
+
   bar.hidden = false;
+  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+  const opp = normTeam((a.ab === team ? h.ab : a.ab) || "");
+  const home = normTeam(h.ab) === team;
+  const oppName = DATA.teams[opp] ? DATA.teams[opp].nick : opp;
+
+  if(g.state === "pre"){
+    // Not kicked off. No score exists yet, so do not invent a 0-0.
+    bar.appendChild(el("span","when", "Next"));
+    bar.appendChild(el("span","vs", (home ? "vs " : "at ") + oppName));
+    bar.appendChild(el("span","livelab", g.detail || ""));
+    return;
+  }
+
+  bar.className = g.state === "in" ? "live" : "final";
   const dot = el("span","livedot");
   if(g.state === "in") dot.classList.add("on");
   bar.appendChild(dot);
-  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
   bar.appendChild(el("span","livescore",
-    a.ab + " " + (a.score ?? 0) + "  \u2013  " + h.ab + " " + (h.score ?? 0)));
+    normTeam(a.ab) + " " + (a.score ?? 0) + "  \u2013  " + normTeam(h.ab) + " " + (h.score ?? 0)));
   bar.appendChild(el("span","livelab", g.detail || ""));
 }
 
 function startLive(){
-  refreshLive();
+  refreshLive().then(schedulePoll);
+}
+
+/* The gap has to be re-evaluated after every refresh, not fixed at startup: a
+   game that is scheduled when the page loads will kick off later, and the app
+   should tighten up when it does. */
+function schedulePoll(){
   clearInterval(livePoll);
-  // Thirty seconds while something is live, five minutes otherwise. These
-  // endpoints are not ours; polling harder would be rude and would risk being
-  // cut off.
-  livePoll = setInterval(refreshLive, LIVE.on ? 30000 : 300000);
+  const gap = LIVE.on ? 30000 : 300000;
+  livePoll = setInterval(() => refreshLive().then(schedulePoll), gap);
 }
 
 /* ---------------- learn mode ----------------
