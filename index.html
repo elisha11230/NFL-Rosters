@@ -784,6 +784,34 @@ body.simple #timebar{display:none}
   letter-spacing:.05em;color:#E05B5B;
 }
 
+/* ---------- box score popup ---------- */
+#box{position:fixed;inset:0;z-index:75;background:rgba(8,12,14,.97);
+  display:flex;flex-direction:column;padding:16px 18px}
+#box[hidden]{display:none}
+#boxbody{flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
+.boxscore-line{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.boxscore-line .bt{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.boxscore-line .bd{color:var(--dim)}
+.boxscore-line .bs{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.boxtabs{display:flex;gap:6px;margin:14px 0 4px}
+.boxtabs button{
+  padding:7px 14px;border:1px solid var(--line);border-radius:var(--r);
+  font-family:'Barlow Condensed',sans-serif;font-size:12.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--mute);
+}
+.boxtabs button[aria-pressed="true"]{border-color:var(--team);color:#fff;
+  background:color-mix(in srgb,var(--team) 20%,transparent)}
+table.boxteam td.mid{text-align:center;font-family:'Barlow Condensed',sans-serif;
+  font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+table.car td.bxname{max-width:170px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:var(--mute)}
+table.car td.bxname.link{color:var(--chalk);cursor:pointer}
+table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
+/* The score is a button now, so it has to look like one. */
+.scoreclick{cursor:pointer;border-bottom:1px dotted color-mix(in srgb,#fff 35%,transparent)}
+.scoreclick:hover{color:#fff}
+
 /* ---------- live game panel ---------- */
 #livebar .dd{font-family:'Archivo Black',sans-serif;font-size:11.5px;color:#fff;
   padding:2px 7px;border-radius:2px;background:rgba(255,255,255,.09)}
@@ -1103,6 +1131,14 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
     <div class="lcats" id="lcats"></div>
     <div class="lrows" id="lrows"></div>
   </div>
+</div>
+
+<div id="box" hidden role="dialog" aria-modal="true" aria-label="Box score">
+  <div class="lhead">
+    <div id="boxhead"></div>
+    <button class="qx" id="boxclose">Close</button>
+  </div>
+  <div id="boxbody"></div>
 </div>
 
 <div id="quiz" hidden role="dialog" aria-modal="true" aria-label="Learn the rosters">
@@ -2571,6 +2607,7 @@ document.addEventListener("keydown", e=>{
     e.preventDefault(); $("#q").focus();
   }
   if(e.key === "Escape" && !$("#cmp").hidden) closeCompare();
+  if(e.key === "Escape" && !$("#box").hidden) closeBox();
 });
 
 /* ---------------- navigation ---------------- */
@@ -2919,7 +2956,8 @@ const ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 const espnUrl = path => (PROXY ? PROXY + encodeURIComponent(ESPN + path) : ESPN + path);
 
 const LIVE = {games:[], byTeam:{}, stats:{}, situation:null, drives:[],
-              wp:null, active:new Set(), at:0, on:false, gameId:null};
+              wp:null, active:new Set(), box:[], teamStats:[], err:null,
+              at:0, on:false, gameId:null};
 let livePoll = null;
 
 const TEAMFIX = {WSH:"WAS", LAR:"LA", JAC:"JAX"};
@@ -2996,24 +3034,50 @@ async function fetchLive(){
 async function fetchGame(gameId){
   try {
     const j = await getJSON("/summary?event=" + gameId);
-    const stats = {}, active = new Set();
+    const stats = {}, active = new Set(), box = [];
 
+    // Two shapes are kept from the same payload: a flat lookup keyed by athlete
+    // id, which is what puts a line under a chip, and the original structure,
+    // which is what a real box score needs.
     ((j.boxscore || {}).players || []).forEach(team=>{
+      const ab = normTeam(((team.team || {}).abbreviation) || "");
+      const cats = [];
       (team.statistics || []).forEach(cat=>{
         const labels = cat.labels || [];
+        const rows = [];
         (cat.athletes || []).forEach(a=>{
-          const id = (a.athlete || {}).id;
-          if(!id) return;
+          const ath = a.athlete || {};
+          const id = ath.id;
           const line = {};
           (a.stats || []).forEach((v,i)=>{ if(labels[i]) line[labels[i]] = v; });
-          stats[id] = stats[id] || {};
-          stats[id][cat.name || "stats"] = line;
-          active.add(String(id));
+          if(id){
+            stats[id] = stats[id] || {};
+            stats[id][cat.name || "stats"] = line;
+            active.add(String(id));
+          }
+          rows.push({
+            eid: id ? String(id) : null,
+            name: ath.displayName || ath.shortName || "",
+            pos: (ath.position || {}).abbreviation || "",
+            stats: a.stats || [],
+          });
+        });
+        if(rows.length) cats.push({
+          name: cat.name || "", label: cat.text || cat.name || "",
+          labels, rows,
         });
       });
+      if(cats.length) box.push({team: ab, cats});
     });
 
-    // Drives, newest first. Shapes vary, so read defensively.
+    // Team totals, for the comparison at the top of the box score.
+    const teamStats = ((j.boxscore || {}).teams || []).map(t=>({
+      team: normTeam(((t.team || {}).abbreviation) || ""),
+      stats: (t.statistics || []).map(x=>({
+        label: x.label || x.name, value: x.displayValue,
+      })),
+    }));
+
     const dr = j.drives || {};
     const list = [...(dr.previous || [])];
     if(dr.current) list.push(dr.current);
@@ -3026,24 +3090,26 @@ async function fetchGame(gameId){
       scoring: !!d.isScore,
     }));
 
-    // Win probability: a series, we only need the current home figure.
     const wp = j.winprobability;
     if(Array.isArray(wp) && wp.length){
       const last = wp[wp.length - 1];
       const home = num(last.homeWinPercentage);
       LIVE.wp = home == null ? null : {
         home: Math.round(home * 100),
-        series: wp.slice(-60).map(p => num(p.homeWinPercentage))
-                  .filter(v => v != null),
+        series: wp.slice(-60).map(p => num(p.homeWinPercentage)).filter(v => v != null),
       };
     } else LIVE.wp = null;
 
     LIVE.stats = stats;
     LIVE.active = active;
+    LIVE.box = box;
+    LIVE.teamStats = teamStats;
     LIVE.gameId = gameId;
+    liveLog("box score:", box.map(b => b.team + " " + b.cats.length + " cats").join(", "));
     return true;
   } catch(e){
-    LIVE.drives = []; LIVE.wp = null;
+    LIVE.drives = []; LIVE.wp = null; LIVE.box = []; LIVE.teamStats = [];
+    liveLog("summary failed:", e.message);
     return false;
   }
 }
@@ -3188,8 +3254,14 @@ function renderLiveStrip(ok){
   const dot = el("span","livedot");
   if(g.state === "in") dot.classList.add("on");
   bar.appendChild(dot);
-  bar.appendChild(el("span","livescore",
-    a.ab + " " + (a.score ?? 0) + "  \u2013  " + h.ab + " " + (h.score ?? 0)));
+  const scoreEl = el("span","livescore",
+    a.ab + " " + (a.score ?? 0) + "  \u2013  " + h.ab + " " + (h.score ?? 0));
+  if(LIVE.box && LIVE.box.length){
+    scoreEl.classList.add("scoreclick");
+    scoreEl.title = "Full box score";
+    scoreEl.onclick = openBox;
+  }
+  bar.appendChild(scoreEl);
   bar.appendChild(el("span","livelab", g.detail || ""));
 
   // Down and distance, if the feed is carrying it.
@@ -3223,6 +3295,14 @@ function sectionGame(d){
   sc.appendChild(el("span","t", a.ab + " " + (a.score ?? 0)));
   sc.appendChild(el("span","d", "\u2013"));
   sc.appendChild(el("span","t", h.ab + " " + (h.score ?? 0)));
+  if(LIVE.box && LIVE.box.length){
+    const bx = el("button", null, "Box score");
+    bx.style.cssText = "margin-left:auto;font-family:'Barlow Condensed',sans-serif;"
+      + "font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--mute);"
+      + "border:1px solid var(--line);padding:5px 10px;border-radius:3px";
+    bx.onclick = openBox;
+    sc.appendChild(bx);
+  }
   sec.appendChild(sc);
 
   // Field position. Drawn as its own bar rather than on the formation, because
@@ -3317,6 +3397,129 @@ function sectionGame(d){
       body.appendChild(n);
     });
   }
+}
+
+/* ---------------- full box score ----------------
+   Opened by clicking any score. Renders whatever categories the feed happens to
+   carry rather than a fixed list, because they differ between a game in progress
+   and a finished one, and between preseason and regular season. */
+let boxTeam = null;
+
+function openBox(){
+  if(!LIVE.box || !LIVE.box.length) return;
+  $("#box").hidden = false;
+  const g = LIVE.byTeam[team];
+  // Default to the team being viewed if it is playing, else the first side.
+  if(!boxTeam || !LIVE.box.some(b => b.team === boxTeam))
+    boxTeam = LIVE.box.some(b => b.team === team) ? team : LIVE.box[0].team;
+  renderBox();
+}
+function closeBox(){ $("#box").hidden = true; }
+
+function renderBox(){
+  const g = LIVE.byTeam[team] || LIVE.games.find(x => x.id === LIVE.gameId);
+  const head = $("#boxhead"), body = $("#boxbody");
+  head.innerHTML = ""; body.innerHTML = "";
+
+  if(g){
+    const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+    const sc = el("div","boxscore-line");
+    sc.appendChild(el("span","bt", a.ab + " " + (a.score ?? 0)));
+    sc.appendChild(el("span","bd","\u2013"));
+    sc.appendChild(el("span","bt", h.ab + " " + (h.score ?? 0)));
+    sc.appendChild(el("span","bs", g.detail || ""));
+    head.appendChild(sc);
+  }
+
+  // Team totals side by side, when the feed carries them.
+  if(LIVE.teamStats && LIVE.teamStats.length === 2){
+    const [A, B] = LIVE.teamStats;
+    const labels = A.stats.map(x=>x.label)
+      .filter(l => B.stats.some(y => y.label === l));
+    if(labels.length){
+      const t = document.createElement("table");
+      t.className = "car boxteam";
+      const thead = document.createElement("thead");
+      const hr = document.createElement("tr");
+      [A.team, "", B.team].forEach((x,i)=>{
+        const th = document.createElement("th");
+        th.textContent = x;
+        if(i === 1) th.style.textAlign = "center";
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr); t.appendChild(thead);
+      const tb = document.createElement("tbody");
+      labels.slice(0,14).forEach(l=>{
+        const av = (A.stats.find(x=>x.label===l)||{}).value;
+        const bv = (B.stats.find(x=>x.label===l)||{}).value;
+        const tr = document.createElement("tr");
+        const c1 = document.createElement("td"); c1.textContent = av ?? "\u2013";
+        const c2 = document.createElement("td"); c2.className = "mid"; c2.textContent = l;
+        const c3 = document.createElement("td"); c3.textContent = bv ?? "\u2013";
+        tr.append(c1, c2, c3); tb.appendChild(tr);
+      });
+      t.appendChild(tb);
+      const w = el("div","carwrap"); w.appendChild(t); body.appendChild(w);
+    }
+  }
+
+  // Team switcher
+  const tabs = el("div","boxtabs");
+  LIVE.box.forEach(b=>{
+    const btn = el("button", null, (DATA.teams[b.team] || {}).nick || b.team);
+    btn.setAttribute("aria-pressed", b.team === boxTeam);
+    btn.onclick = () => { boxTeam = b.team; renderBox(); };
+    tabs.appendChild(btn);
+  });
+  body.appendChild(tabs);
+
+  const side = LIVE.box.find(b => b.team === boxTeam);
+  if(!side){ body.appendChild(el("div","carnote","No box score for that side yet.")); return; }
+
+  side.cats.forEach(cat=>{
+    body.appendChild(el("div","advsub", cat.label || cat.name));
+    const w = el("div","carwrap");
+    const t = document.createElement("table");
+    t.className = "car";
+    const thead = document.createElement("thead");
+    const hr = document.createElement("tr");
+    const th0 = document.createElement("th");
+    th0.textContent = "Player"; th0.style.textAlign = "left";
+    hr.appendChild(th0);
+    cat.labels.forEach(l=>{
+      const th = document.createElement("th");
+      th.textContent = l;
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr); t.appendChild(thead);
+    const tb = document.createElement("tbody");
+    cat.rows.forEach(r=>{
+      const tr = document.createElement("tr");
+      const nameCell = document.createElement("td");
+      nameCell.className = "tm bxname";
+      // Only link players we actually hold; the rest are plain text.
+      const mine = r.eid && Object.values(DATA.players).find(p => p.eid === r.eid);
+      nameCell.textContent = r.name + (r.pos ? "  " + r.pos : "");
+      if(mine){
+        nameCell.classList.add("link");
+        nameCell.onclick = () => { closeBox(); goPlayer(mine.id); };
+      }
+      tr.appendChild(nameCell);
+      cat.labels.forEach((_l,i)=>{
+        const td = document.createElement("td");
+        td.textContent = r.stats[i] ?? "\u2013";
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); w.appendChild(t); body.appendChild(w);
+  });
+
+  const n = el("div","carnote");
+  n.textContent = "Live from ESPN. Names in white are on a depth chart in this "
+    + "app \u2014 tap one to open his profile.";
+  body.appendChild(n);
+  body.scrollTop = 0;
 }
 
 /* ---------------- learn mode ----------------
@@ -3925,6 +4128,8 @@ function renderLeaders(){
 
 $("#leadbtn").onclick = () => { $("#lead").hidden = false; renderLeaders(); };
 $("#leadclose").onclick = () => { $("#lead").hidden = true; };
+$("#boxclose").onclick = closeBox;
+$("#box").addEventListener("click", e=>{ if(e.target.id === "box") closeBox(); });
 
 $("#learnbtn").onclick = () => { $("#quiz").hidden = false; renderQuizSetup(); };
 $("#qclose").onclick = () => { $("#quiz").hidden = true; };
