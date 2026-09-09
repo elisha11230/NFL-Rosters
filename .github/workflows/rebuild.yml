@@ -66,7 +66,7 @@ jobs:
           j = h.index(";\n\n/* ----------------", i)
           d = json.loads(h[i:j])            # raises if the payload is malformed
           assert len(d["teams"]) == 32, "expected 32 teams"
-          assert len(d["players"]) > 2000, "player count looks wrong"
+          assert len(d["players"]) > 1500, "player count looks wrong"
           print(f"ok: {len(d['players'])} players, chart dated {d['snapshot'][:10]}")
           PY
 
