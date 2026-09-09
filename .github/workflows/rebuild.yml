@@ -1,0 +1,83 @@
+name: Rebuild depth charts
+
+# Tuesday mornings: the NFL week has settled by then, injury reports are out and
+# depth charts have absorbed the weekend. Also runnable by hand from the Actions
+# tab, which is what you want after changing anything in pipeline/.
+on:
+  schedule:
+    - cron: "0 11 * * 2"
+  workflow_dispatch:
+
+# Needed so the job can commit the rebuilt page back to the repository.
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install libraries
+        run: pip install --quiet pandas pyarrow Pillow
+
+      - name: Download data sources
+        working-directory: pipeline
+        run: |
+          chmod +x fetch_sources.sh
+          ./fetch_sources.sh
+
+      # A build is only worth publishing if the inputs are sound. This catches
+      # the two failure modes that have actually happened: a source that quietly
+      # went stale, and a 404 page saved to disk as if it were data.
+      - name: Verify every source
+        working-directory: pipeline
+        run: python3 verify_sources.py
+
+      - name: Build the data payload
+        working-directory: pipeline
+        run: python3 build_data.py
+
+      - name: Check the field layout still fits
+        working-directory: pipeline
+        run: python3 check_layout.py
+
+      - name: Assemble the page
+        working-directory: pipeline
+        run: |
+          python3 make_icon.py
+          python3 build_app.py
+          cp index.html ../index.html
+
+      - name: Confirm the page is valid before publishing
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          h = open("index.html").read()
+          i = h.index("const DATA = ") + 13
+          j = h.index(";\n\n/* ----------------", i)
+          d = json.loads(h[i:j])            # raises if the payload is malformed
+          assert len(d["teams"]) == 32, "expected 32 teams"
+          assert len(d["players"]) > 2000, "player count looks wrong"
+          print(f"ok: {len(d['players'])} players, chart dated {d['snapshot'][:10]}")
+          PY
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "no change this week"
+          else
+            git commit -m "Rebuild: depth charts as of $(date -u +%Y-%m-%d)"
+            git push
+          fi
