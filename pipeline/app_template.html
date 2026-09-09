@@ -851,6 +851,84 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- visual: face wall ---------- */
+#wall{position:fixed;inset:0;z-index:73;background:rgba(8,12,14,.97);
+  display:flex;flex-direction:column;padding:16px 18px}
+#wall[hidden]{display:none}
+#wallbody{flex:1 1 auto;overflow-y:auto;max-width:900px;margin:0 auto;width:100%}
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));
+  gap:10px;margin-bottom:6px}
+.wcard{text-align:center;padding:0}
+.wface{position:relative;width:100%;aspect-ratio:1;border-radius:50%;
+  overflow:visible;background:#0B1113;border:2px solid var(--line);
+  transition:border-color .13s,transform .13s}
+.wcard:hover .wface{border-color:var(--team-accent);transform:scale(1.06)}
+.wface img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  border-radius:50%}
+.wfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--dim)}
+.wt100{position:absolute;left:-3px;top:-3px;background:var(--brass);color:#181200;
+  font-family:'Archivo Black',sans-serif;font-size:9px;padding:2px 4px;
+  border-radius:8px;border:2px solid var(--ink)}
+.winj{position:absolute;right:-3px;top:-3px;background:#D06A6A;color:#fff;
+  font-size:9px;width:17px;height:17px;border-radius:50%;border:2px solid var(--ink);
+  display:flex;align-items:center;justify-content:center}
+.wn{margin-top:6px;font-family:'Barlow Condensed',sans-serif;font-size:12px;
+  color:var(--chalk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp2{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.07em;
+  color:var(--dim)}
+
+/* ---------- visual: charts ---------- */
+svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
+.chartnote{font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.chartkey{display:flex;gap:12px;flex-wrap:wrap;margin:2px 0 10px}
+.chartkey span{display:flex;align-items:center;gap:5px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--dim)}
+.chartkey i{width:9px;height:9px;border-radius:50%;display:block}
+.gapgrid{display:flex;gap:6px;margin:6px 0 4px;max-width:340px}
+.gapcol{flex:1 1 0}
+.gaphd{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);text-align:center;margin-bottom:4px}
+.gapcell{border:1px solid var(--line);border-radius:2px;padding:7px 4px;
+  margin-bottom:4px;text-align:center}
+.gapcell.empty{opacity:.35}
+.gapcell.hastd{border-color:var(--brass)}
+.gapcell .gn{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.gapcell .ga{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--dim)}
+
+/* ---------- visual: season strip ---------- */
+.sstrip{display:flex;align-items:flex-end;gap:5px;margin:8px 0 4px;height:56px}
+.sblockwrap{flex:1 1 0;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-end;height:100%}
+.sblock{width:100%;border-radius:2px 2px 0 0;
+  background:color-mix(in srgb,var(--team-accent) 45%,transparent)}
+.sblock.po{background:color-mix(in srgb,var(--team-accent) 80%,transparent)}
+.sblock.sb{background:var(--brass)}
+.syr{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;color:var(--dim);
+  margin-top:3px}
+
+/* ---------- visual: treemap ---------- */
+.tmap{display:flex;gap:3px;height:92px;margin:8px 0 10px;border-radius:var(--r);
+  overflow:hidden}
+.tcell{position:relative;min-width:26px;display:flex;align-items:flex-end;
+  border-radius:2px;overflow:hidden}
+.tin{padding:6px;width:100%}
+.tg{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.07em;
+  text-transform:uppercase;color:rgba(0,0,0,.72);white-space:nowrap;overflow:hidden}
+.tp{font-family:'Archivo Black',sans-serif;font-size:12px;color:rgba(0,0,0,.85)}
+
+/* ---------- visual: play arrows ---------- */
+#playlayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
+  z-index:5}
+#facesbtn{
+  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
+  padding:5px 10px;border-radius:var(--r);
+}
+#facesbtn:hover{color:var(--chalk);border-color:var(--team)}
+
 /* ---------- watch mode ----------
    Sized for glancing at from across a room, not reading. */
 #watch{position:fixed;inset:0;z-index:80;background:var(--ink);
@@ -1318,6 +1396,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
       </div>
       <div id="fieldbar">
         <div class="hint" id="formlab"></div>
+        <button id="facesbtn">Faces</button>
         <button id="simplebtn" aria-pressed="false">Simple</button>
         <button id="t100btn" aria-pressed="false">Top 100</button>
         <button id="scoresbtn">Scores</button>
@@ -1326,6 +1405,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
       </div>
       <div id="field">
         <svg id="turf" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <svg id="playlayer" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div id="chips"></div>
       </div>
     </div>
@@ -1357,6 +1437,14 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   </div>
   <div id="scoresnav"></div>
   <div id="scoresbody"></div>
+</div>
+
+<div id="wall" hidden role="dialog" aria-modal="true" aria-label="Roster faces">
+  <div class="lhead">
+    <h2 class="blk" id="wallhead">Faces</h2>
+    <button class="qx" id="wallclose">Close</button>
+  </div>
+  <div id="wallbody"></div>
 </div>
 
 <div id="watch" hidden role="dialog" aria-modal="true" aria-label="Watch mode">
@@ -1990,6 +2078,45 @@ function renderDetail(grp,slot,idx){
   }
   d.appendChild(ss);
 
+  // where he works
+  const tc = targetChart(p), rc = runChart(p);
+  if(tc || rc){
+    disclose(d, "where", "Where he works", null, body=>{
+      if(tc){
+        const t = p.tgt;
+        const w = el("div");
+        w.innerHTML = tc;
+        body.appendChild(w.firstElementChild);
+        const key = el("div","chartkey");
+        [["var(--team-accent)","caught"],["transparent","incomplete"],
+         ["var(--brass)","touchdown"],["var(--fall)","intercepted"]].forEach(([c,lab])=>{
+          const sp = el("span");
+          const i = el("i");
+          i.style.background = c;
+          i.style.border = "1.5px solid " + (c === "transparent" ? "var(--team-accent)" : c);
+          sp.appendChild(i);
+          sp.appendChild(document.createTextNode(lab));
+          key.appendChild(sp);
+        });
+        body.appendChild(key);
+        const n = el("div","carnote");
+        n.textContent = t.n + " targets, " + t.c + " caught. Average depth "
+          + t.adot + " yards, " + t.deep + " thrown twenty or more downfield. "
+          + "Height on the chart is how far the ball travelled in the air, not "
+          + "how far he ran with it.";
+        body.appendChild(n);
+      }
+      if(rc){
+        body.appendChild(el("div","advsub","Where he runs"));
+        body.appendChild(rc);
+        const n = el("div","carnote");
+        n.textContent = p.run.n + " carries, " + p.run.avg + " a go. Darker means "
+          + "more carries through that gap; a gold border means he scored there.";
+        body.appendChild(n);
+      }
+    });
+  }
+
   // career, year by year
   if(p.car && p.car.length){
     const bucket = POSBUCKET[p.pos];
@@ -2004,6 +2131,16 @@ function renderDetail(grp,slot,idx){
           const vals = p.car.map(r=>r[c.k]).filter(v=>v!=null);
           if(vals.length > 1) best[c.k] = Math.max(...vals);
         });
+
+        // The shape first, then the numbers.
+        const arc = careerChart(p, cols[0].k, cols[0].l);
+        if(arc){
+          const aw = el("div");
+          aw.innerHTML = arc;
+          body.appendChild(aw.firstElementChild);
+          body.appendChild(el("div","chartnote",
+            cols[0].l + " by season \u00b7 best year marked"));
+        }
 
         const w = el("div","carwrap");
         const t = document.createElement("table");
@@ -2340,6 +2477,7 @@ function sectionCap(d){
   if(!rv || !rv.cap.groups.length) return;
   const c = rv.cap;
   disclose(d, "cap", "Where the money goes", "$"+c.total.toFixed(0)+"M", body=>{
+    body.appendChild(capTreemap(c.groups, CAPCOLS));
     const bar = el("div","cap");
     c.groups.forEach((g,i)=>{
       const seg = el("i");
@@ -2520,6 +2658,10 @@ function sectionHistory(d){
       + " division titles \u00b7 " + h.titles
       + (h.titles === 1 ? " Super Bowl" : " Super Bowls");
     body.appendChild(line);
+
+    body.appendChild(seasonStrip(h.seasons));
+    body.appendChild(el("div","chartnote",
+      "Each block is a season, sized by points difference \u00b7 gold is a title"));
 
     const peak = Math.max(...h.seasons.map(s=>s.w), 1);
     const w = el("div","wins");
@@ -2930,6 +3072,7 @@ document.addEventListener("keydown", e=>{
   }
   if(e.key === "Escape" && !$("#cmp").hidden) closeCompare();
   if(e.key === "Escape" && !$("#box").hidden) closeBox();
+  else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
   else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
   else if(e.key === "Escape" && !$("#scores").hidden) closeScores();
@@ -3505,10 +3648,13 @@ async function refreshLive(){
   if(!ok){ renderLiveStrip(false); return false; }
   const g = LIVE.byTeam[team];
   LIVE.situation = g && g.state === "in" ? g.situation : null;
-  if(g && g.state !== "pre") await fetchGame(g.id);
+  if(g && g.state !== "pre"){ await fetchGame(g.id); await fetchPlays(g.id); }
   else { LIVE.stats = {}; LIVE.active = new Set(); LIVE.drives = []; LIVE.wp = null; }
   renderLiveStrip(true);
   renderField();
+  // Sketch the most recent play onto the formation.
+  const latest = (LIVE.plays || [])[0];
+  drawPlayArrow(latest && !isPast() ? playGeometry(latest.text) : null);
   if(sel){ paintSel(); } else { renderTeam(); }
   return true;
 }
@@ -3952,6 +4098,266 @@ async function fetchPlays(gameId){
     LIVE.plays = extractPlays(j);
     return true;
   } catch(e){ LIVE.plays = []; return false; }
+}
+
+/* ---------------- face wall ----------------
+   The field diagram explains structure. Structure is not the hard part when you
+   are learning a league -- faces are. This is every player on a roster as a
+   photograph, grouped by position, with nothing else competing for attention. */
+const WALL_GROUPS = [
+  ["QB", ["QB"]], ["Running backs", ["RB","FB"]], ["Receivers", ["WR"]],
+  ["Tight ends", ["TE"]], ["Offensive line", ["T","G","C","OL","OT","OG"]],
+  ["Defensive line", ["DE","DT","NT","DL"]],
+  ["Linebackers", ["LB","ILB","OLB","MLB"]],
+  ["Defensive backs", ["CB","S","SS","FS","DB"]],
+  ["Specialists", ["K","PK","P","LS"]],
+];
+
+function renderWall(host){
+  const rows = DATA.depth[team] || [];
+  const best = {};
+  rows.forEach(r=>{
+    const cur = best[r.pid];
+    if(!cur || r.rank < cur) best[r.pid] = r.rank;
+  });
+  const roster = Object.keys(best)
+    .map(pid => DATA.players[pid]).filter(Boolean);
+
+  WALL_GROUPS.forEach(([label, positions])=>{
+    const mine = roster.filter(p => positions.includes(p.pos))
+      .sort((a,b) => (best[a.id] - best[b.id]) || a.name.localeCompare(b.name));
+    if(!mine.length) return;
+    host.appendChild(el("div","advsub", label + "  \u00b7  " + mine.length));
+    const grid = el("div","wall");
+    mine.forEach(p=>{
+      const c = el("button","wcard");
+      const f = el("div","wface");
+      const u = imgUrl(p);
+      if(u){ const im = new Image(); im.src = u; im.alt = ""; f.appendChild(im); }
+      else f.appendChild(el("div","wfb", p.num == null ? "\u2013" : String(p.num)));
+      if(p.t100) f.appendChild(el("span","wt100", "#" + p.t100));
+      if(p.inj && p.inj.sev >= 3) f.appendChild(el("span","winj","\u26A0"));
+      c.appendChild(f);
+      c.appendChild(el("div","wn", shortName(p.name)));
+      c.appendChild(el("div","wp2",
+        (p.num != null ? "#" + p.num + "  " : "") + p.pos));
+      c.onclick = () => { $("#wall").hidden = true; goPlayer(p.id); };
+      grid.appendChild(c);
+    });
+    host.appendChild(grid);
+  });
+
+  const n = el("div","carnote");
+  n.textContent = "Everyone on the depth chart, starters first within each group. "
+    + "Tap a face for the full profile.";
+  host.appendChild(n);
+}
+
+/* ---------------- target chart ----------------
+   Every pass thrown at a receiver, plotted by how far downfield it travelled and
+   which third of the field it went to. Filled means caught. The scatter shows a
+   role that no stat line does. */
+function targetChart(p){
+  const t = p.tgt;
+  if(!t || !t.pts.length) return null;
+  const W = 300, H = 240, PAD = 26;
+  const depths = t.pts.map(x => x[0]);
+  const lo = Math.min(-6, Math.floor(Math.min(...depths) / 5) * 5);
+  const hi = Math.max(22, Math.ceil(Math.max(...depths) / 5) * 5);
+  const y = d => PAD + (hi - d) / (hi - lo) * (H - PAD * 2);
+  const x = dir => PAD + (dir + 0.5) / 3 * (W - PAD * 2);
+
+  const bits = [];
+  bits.push(`<rect x="${PAD}" y="${PAD}" width="${W-PAD*2}" height="${H-PAD*2}"
+    fill="var(--field)" stroke="var(--line)"/>`);
+  // depth guides every ten yards, plus the line of scrimmage
+  for(let d = Math.ceil(lo/10)*10; d <= hi; d += 10){
+    const yy = y(d);
+    const los = d === 0;
+    bits.push(`<line x1="${PAD}" y1="${yy}" x2="${W-PAD}" y2="${yy}"
+      stroke="${los ? "var(--team-accent)" : "var(--chalk)"}"
+      stroke-opacity="${los ? .7 : .16}" stroke-width="${los ? 1.6 : 1}"
+      ${los ? "" : 'stroke-dasharray="3 4"'}/>`);
+    bits.push(`<text x="${PAD-5}" y="${yy+3}" text-anchor="end"
+      font-family="Barlow Condensed" font-size="9" fill="var(--dim)">${d}</text>`);
+  }
+  ["Left","Middle","Right"].forEach((lab,i)=>{
+    bits.push(`<text x="${x(i)}" y="${H-PAD+13}" text-anchor="middle"
+      font-family="Barlow Condensed" font-size="9" letter-spacing="1"
+      fill="var(--dim)">${lab.toUpperCase()}</text>`);
+    if(i) bits.push(`<line x1="${PAD+i*(W-PAD*2)/3}" y1="${PAD}"
+      x2="${PAD+i*(W-PAD*2)/3}" y2="${H-PAD}" stroke="var(--chalk)"
+      stroke-opacity=".1"/>`);
+  });
+  // Jitter horizontally so overlapping targets stay countable.
+  t.pts.forEach((pt, i)=>{
+    const [d, dir, f] = pt;
+    const jx = x(dir) + ((i * 37) % 40 - 20) * 0.9;
+    const caught = f & 1, td = f & 2, pick = f & 4;
+    const fill = td ? "var(--brass)" : pick ? "var(--fall)"
+               : caught ? "var(--team-accent)" : "none";
+    bits.push(`<circle cx="${jx.toFixed(1)}" cy="${y(d).toFixed(1)}"
+      r="${td ? 4.5 : 3.4}" fill="${fill}"
+      stroke="${td ? "var(--brass)" : pick ? "var(--fall)" : "var(--team-accent)"}"
+      stroke-width="1.2" opacity="${caught || td ? .95 : .55}"/>`);
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img"
+    aria-label="Target chart">${bits.join("")}</svg>`;
+}
+
+/* ---------------- run gap chart ----------------
+   Nine buckets, so a grid says more than a scatter would. */
+function runChart(p){
+  const r = p.run;
+  if(!r || !r.cells.length) return null;
+  const order = ["end","tackle","guard","middle"];
+  const cells = {};
+  r.cells.forEach(c=>{ cells[c.loc + "|" + c.gap] = c; });
+  const max = Math.max(...r.cells.map(c => c.n));
+  const wrap = el("div","gapgrid");
+  [0,1,2].forEach(loc=>{
+    const col = el("div","gapcol");
+    col.appendChild(el("div","gaphd", ["Left","Middle","Right"][loc]));
+    order.forEach(gap=>{
+      const c = cells[loc + "|" + gap];
+      const cell = el("div","gapcell");
+      if(c){
+        const strength = c.n / max;
+        cell.style.background =
+          `color-mix(in srgb, var(--team-accent) ${Math.round(12 + strength*58)}%, transparent)`;
+        cell.appendChild(el("div","gn", String(c.n)));
+        cell.appendChild(el("div","ga", c.avg + " avg"));
+        cell.title = c.n + " carries through the " + gap + ", " + c.avg
+          + " a go" + (c.td ? ", " + c.td + " touchdowns" : "");
+        if(c.td) cell.classList.add("hastd");
+      } else {
+        cell.classList.add("empty");
+        cell.appendChild(el("div","gn","\u2013"));
+      }
+      col.appendChild(cell);
+    });
+    wrap.appendChild(col);
+  });
+  return wrap;
+}
+
+/* ---------------- career arc ----------------
+   The table gives you the numbers; this gives you the shape. A rise, a peak, an
+   injury year -- those read instantly as a line and slowly as rows. */
+function careerChart(p, key, label){
+  const rows = (p.car || []).filter(r => r[key] != null);
+  if(rows.length < 3) return null;
+  const W = 300, H = 130, L = 30, R = 8, T = 12, B = 20;
+  const vals = rows.map(r => r[key]);
+  const max = Math.max(...vals), min = Math.min(0, Math.min(...vals));
+  const x = i => L + (rows.length === 1 ? 0 : i / (rows.length - 1)) * (W - L - R);
+  const y = v => T + (1 - (v - min) / ((max - min) || 1)) * (H - T - B);
+  const peak = vals.indexOf(max);
+
+  const bits = [];
+  [min, (min + max) / 2, max].forEach(v=>{
+    bits.push(`<line x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}"
+      stroke="var(--chalk)" stroke-opacity=".1" stroke-dasharray="3 4"/>`);
+    bits.push(`<text x="${L-5}" y="${y(v)+3}" text-anchor="end"
+      font-family="Barlow Condensed" font-size="9"
+      fill="var(--dim)">${Math.round(v).toLocaleString()}</text>`);
+  });
+  const pts = rows.map((r,i)=>`${x(i).toFixed(1)},${y(r[key]).toFixed(1)}`).join(" ");
+  bits.push(`<polyline points="${pts}" fill="none" stroke="var(--team-accent)"
+    stroke-width="2" stroke-linejoin="round"/>`);
+  rows.forEach((r,i)=>{
+    const top = i === peak;
+    bits.push(`<circle cx="${x(i).toFixed(1)}" cy="${y(r[key]).toFixed(1)}"
+      r="${top ? 4.5 : 3}" fill="${top ? "var(--rise)" : "var(--ink)"}"
+      stroke="${top ? "var(--rise)" : "var(--team-accent)"}" stroke-width="1.6"/>`);
+    if(i === 0 || i === rows.length - 1 || top)
+      bits.push(`<text x="${x(i)}" y="${H-6}" text-anchor="middle"
+        font-family="Barlow Condensed" font-size="9"
+        fill="var(--dim)">'${String(r.y).slice(-2)}</text>`);
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img"
+    aria-label="${label} by season">${bits.join("")}</svg>`;
+}
+
+/* ---------------- season strip ----------------
+   One block per game, coloured by result and sized by margin, so a season reads
+   as a pattern rather than a list. */
+function seasonStrip(seasons){
+  const wrap = el("div","sstrip");
+  seasons.forEach(s=>{
+    const cell = el("div","sblock" + (s.champ ? " sb" : s.playoff ? " po" : ""));
+    const diff = (s.pf || 0) - (s.pa || 0);
+    const h = Math.max(14, Math.min(46, 30 + diff / 6));
+    cell.style.height = h + "px";
+    cell.title = s.y + ": " + s.rec + (s.fin !== "\u2013" ? " \u00b7 " + s.fin : "")
+      + " \u00b7 " + (diff > 0 ? "+" : "") + diff + " points";
+    const w = el("div","sblockwrap");
+    w.appendChild(cell);
+    w.appendChild(el("div","syr", "'" + String(s.y).slice(-2)));
+    wrap.appendChild(w);
+  });
+  return wrap;
+}
+
+/* ---------------- cap treemap ----------------
+   Area reads proportion better than a stacked bar does, and money is a
+   proportion question. Squarified enough to be readable without being fussy. */
+function capTreemap(groups, cols){
+  const total = groups.reduce((a,g) => a + g.m, 0) || 1;
+  const wrap = el("div","tmap");
+  groups.forEach((g,i)=>{
+    const cell = el("div","tcell");
+    cell.style.flexGrow = String(Math.max(0.06, g.m / total));
+    cell.style.background = cols[i % cols.length];
+    cell.title = g.g + ": $" + g.m.toFixed(1) + "M (" + g.pct + "%)";
+    const inner = el("div","tin");
+    inner.appendChild(el("div","tg", g.g));
+    inner.appendChild(el("div","tp", g.pct + "%"));
+    cell.appendChild(inner);
+    wrap.appendChild(cell);
+  });
+  return wrap;
+}
+
+/* ---------------- live play arrows ----------------
+   Draw the play you just read onto the formation. Direction comes from the play
+   text, depth from the yardage, so this is a sketch of what happened rather than
+   a tracking replay -- which is all the text supports. */
+function playGeometry(text){
+  if(!text) return null;
+  const t = text.toLowerCase();
+  const yards = (t.match(/for (-?\d+) yard/) || [])[1];
+  const gain = yards == null ? null : parseInt(yards, 10);
+  const dir = /left/.test(t) ? -1 : /right/.test(t) ? 1 : 0;
+  let kind = null;
+  if(/ pass /.test(t) || / sacked /.test(t)) kind = "pass";
+  else if(/(left|right|middle) (end|tackle|guard)|scramble|kneel/.test(t)) kind = "run";
+  if(!kind) return null;
+  const depth = /deep/.test(t) ? 2 : /short/.test(t) ? 1 : 0;
+  return {kind, dir, gain, depth, td: /touchdown/.test(t),
+          turnover: /intercepted|fumbles/.test(t)};
+}
+
+function drawPlayArrow(geo){
+  const layer = document.getElementById("playlayer");
+  if(!layer) return;
+  layer.innerHTML = "";
+  if(!geo) return;
+  // Start at the quarterback's spot in the offensive formation.
+  const x0 = 50, y0 = geo.kind === "pass" ? 48 : 26;
+  const reach = geo.kind === "pass"
+    ? (geo.depth === 2 ? 22 : geo.depth === 1 ? 12 : 8)
+    : Math.min(20, Math.max(5, (geo.gain || 4)));
+  const x1 = Math.max(6, Math.min(94, x0 + geo.dir * (geo.kind === "pass" ? 26 : 14)));
+  const y1 = Math.max(4, y0 - reach);
+  const col = geo.td ? "var(--brass)"
+            : geo.turnover ? "var(--fall)" : "var(--rise)";
+  layer.innerHTML = `
+    <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="5" refY="3.2"
+      orient="auto"><path d="M0,0 L6,3.2 L0,6.4 z" fill="${col}"/></marker></defs>
+    <path d="M ${x0*10} ${y0*7} Q ${(x0+geo.dir*8)*10} ${((y0+y1)/2)*7}
+      ${x1*10} ${y1*7}" fill="none" stroke="${col}" stroke-width="3.5"
+      stroke-linecap="round" marker-end="url(#ah)" opacity=".95"/>`;
 }
 
 /* ---------------- watch mode ----------------
@@ -5229,6 +5635,12 @@ $("#leadclose").onclick = () => { $("#lead").hidden = true; };
 $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
+$("#facesbtn").onclick = () => {
+  $("#wall").hidden = false;
+  $("#wallhead").textContent = (DATA.teams[team] || {}).name || "Faces";
+  const b = $("#wallbody"); b.innerHTML = ""; renderWall(b); b.scrollTop = 0;
+};
+$("#wallclose").onclick = () => { $("#wall").hidden = true; };
 $("#prev").addEventListener("click", e=>{ if(e.target.id === "prev") closePreview(); });
 $("#scoresbtn").onclick = openScores;
 $("#scoresclose").onclick = closeScores;

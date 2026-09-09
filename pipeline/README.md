@@ -196,6 +196,30 @@ request. It is labelled as the market's view rather than a recommendation.
 It is a route inside the app rather than a separate file, so a name in a box
 score still opens that player's profile.
 
+## Visual views
+
+- **Faces** (button above the field) is every player on the roster as a
+  photograph, grouped by position, starters first. The field diagram explains
+  structure; structure is not the hard part when you are learning a league.
+- **Target charts** plot every pass thrown at a receiver by how far it travelled
+  in the air and which third of the field it went to. Filled means caught, gold
+  means a touchdown. The scatter shows a role no stat line does: Puka Nacua's
+  average depth is 10.1 yards, Saquon Barkley's is 0.6.
+- **Run gap charts** put a back's carries in the nine location/gap buckets, shaded
+  by volume. Nine cells say more than a cloud of dots would.
+- **Career arcs** draw the season table as a line with the best year marked, so a
+  rise, a peak or an injury year reads instantly.
+- **Season strips** show ten years as blocks sized by points difference.
+- **Cap treemaps** use area rather than a stacked bar, because money is a
+  proportion question and area reads proportion better.
+- **Play arrows** sketch the most recent live play onto the formation. Direction
+  comes from the play text and depth from the yardage, so it is a sketch of what
+  happened, not a tracking replay — which is all the text supports. A play with no
+  derivable geometry, like a field goal, draws nothing rather than guessing.
+
+`build_charts.py` stores a target as `[air_yards, direction, flags]` — three small
+numbers, because a busy receiver has over two hundred of them.
+
 ## Watch mode
 
 A **Watch** button appears on the live strip while a game is actually in progress.

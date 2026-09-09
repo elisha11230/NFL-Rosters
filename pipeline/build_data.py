@@ -393,6 +393,22 @@ print(f"battles    {sum(len(v) for v in battles.values())} contested spots "
 
 # ---------------------------------------------------------------- situational
 situational = build_situational.build(set(players), BUCKETS, pbp=PBP)
+
+import build_charts
+_chart_cols = [c for c in build_charts.COLUMNS if c in PBP.columns]
+_missing = [c for c in build_charts.COLUMNS if c not in PBP.columns]
+if _missing:
+    PBP2 = pd.read_parquet("pbp2025.parquet", columns=build_charts.COLUMNS)
+else:
+    PBP2 = PBP
+tgt, rns = build_charts.build(set(players), pbp=PBP2)
+for pid, t in tgt.items():
+    players[pid]["tgt"] = t
+for pid, r in rns.items():
+    players[pid]["run"] = r
+print(f"charts     {len(tgt)} target charts, {len(rns)} run charts")
+if _missing:
+    del PBP2
 del PBP
 gc.collect()
 for pid, rows in situational.items():
