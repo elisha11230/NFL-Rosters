@@ -196,6 +196,28 @@ request. It is labelled as the market's view rather than a recommendation.
 It is a route inside the app rather than a separate file, so a name in a box
 score still opens that player's profile.
 
+## Watch mode
+
+A **Watch** button appears on the live strip while a game is actually in progress.
+It opens a full-screen view meant to sit beside a television: large score, clock,
+down and distance, field position, win probability, and a reverse-chronological
+play feed that refreshes every twenty seconds.
+
+**Every name in the play feed is tappable.** Play text arrives as
+`J.Hurts pass short right to D.Smith for 8 yards`, and knowing who those people
+are is the entire point of this app, so names are matched against the two rosters
+in the game and turned into links to the player's profile.
+
+Matching is first-initial plus surname, scoped to the two teams playing rather
+than the whole league, which keeps collisions rare. Where a club genuinely has
+two players sharing a key, the one higher on the depth chart wins — announcers
+mean the starter far more often than his backup. Suffixes (Jr, III) are stripped
+before matching, and the `NE-K.Byard` form the feed uses for recoveries and
+returns still resolves.
+
+Play text is built as DOM nodes rather than markup, so nothing arriving from the
+feed is ever interpreted as HTML.
+
 ## Live game day
 
 The app polls ESPN's undocumented scoreboard endpoint. No key, no account. When

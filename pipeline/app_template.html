@@ -851,6 +851,65 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- watch mode ----------
+   Sized for glancing at from across a room, not reading. */
+#watch{position:fixed;inset:0;z-index:80;background:var(--ink);
+  display:flex;flex-direction:column;padding:12px 14px}
+#watch[hidden]{display:none}
+.whead{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;flex:0 0 auto}
+.wlive{display:flex;align-items:center;gap:7px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:#E4A4A4}
+.wlive i{width:8px;height:8px;border-radius:50%;background:#E05B5B;
+  animation:pulse 1.6s ease-in-out infinite}
+#watchbody{flex:1 1 auto;overflow-y:auto;max-width:620px;margin:0 auto;width:100%}
+.wsc{display:flex;gap:12px;margin-bottom:6px}
+.wside{flex:1 1 0;display:flex;align-items:center;gap:10px;padding:12px 14px;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.wlogo{width:34px;height:34px;object-fit:contain;flex:0 0 auto}
+.wab{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.1em;
+  color:var(--mute);flex:1 1 auto}
+.wpts{font-family:'Archivo Black',sans-serif;font-size:32px;color:#fff;line-height:1}
+.wstat{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:12.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+.wdd{text-align:center;font-family:'Archivo Black',sans-serif;font-size:24px;
+  color:#fff;margin-bottom:10px}
+.wfield{position:relative;height:16px;border-radius:3px;background:#1B252B;
+  overflow:hidden;margin-bottom:6px}
+.wfield .rz{position:absolute;right:0;top:0;bottom:0;width:20%;
+  background:color-mix(in srgb,#C25B5B 24%,transparent)}
+.wfield .ball{position:absolute;top:2px;bottom:2px;width:4px;border-radius:2px;
+  background:var(--brass);transform:translateX(-50%)}
+.wfl{display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;
+  font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);
+  margin-bottom:14px}
+.wfl .hot{color:#E0A4A4}
+.wwp{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+.wfeed{border-top:1px solid var(--line);padding-top:10px}
+.wplay{padding:10px 0;border-bottom:1px solid var(--rule)}
+.wplay:last-child{border-bottom:0}
+.wplay.score{background:color-mix(in srgb,var(--rise) 9%,transparent);
+  margin:0 -10px;padding-left:10px;padding-right:10px;border-radius:var(--r)}
+.wpm{display:flex;gap:10px;margin-bottom:4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim)}
+.wpm .wpt{color:var(--team-accent);font-weight:700}
+.wpm .wpd{margin-left:auto}
+.ptext{font-size:14.5px;line-height:1.5;color:var(--chalk)}
+/* A name you can tap is the entire point of this view. */
+.pname2{font-size:14.5px;line-height:1.5;color:var(--team-accent);font-weight:600;
+  border-bottom:1px dotted color-mix(in srgb,var(--team-accent) 55%,transparent);
+  padding:0}
+.pname2:hover{color:#fff}
+#watchbtn{
+  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--team2);background:#D06A6A;
+  padding:5px 12px;border-radius:var(--r);font-weight:600;
+}
+#watchbtn[hidden]{display:none}
+
 /* ---------- game preview ---------- */
 #prev{position:fixed;inset:0;z-index:74;background:rgba(8,12,14,.97);
   display:flex;flex-direction:column;padding:16px 18px}
@@ -1298,6 +1357,14 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   </div>
   <div id="scoresnav"></div>
   <div id="scoresbody"></div>
+</div>
+
+<div id="watch" hidden role="dialog" aria-modal="true" aria-label="Watch mode">
+  <div class="whead">
+    <span class="wlive"><i></i>Live</span>
+    <button class="qx" id="watchclose">Close</button>
+  </div>
+  <div id="watchbody"></div>
 </div>
 
 <div id="prev" hidden role="dialog" aria-modal="true" aria-label="Game preview">
@@ -2863,6 +2930,7 @@ document.addEventListener("keydown", e=>{
   }
   if(e.key === "Escape" && !$("#cmp").hidden) closeCompare();
   if(e.key === "Escape" && !$("#box").hidden) closeBox();
+  else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
   else if(e.key === "Escape" && !$("#scores").hidden) closeScores();
 });
@@ -3222,8 +3290,8 @@ const ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 const espnUrl = path => (PROXY ? PROXY + encodeURIComponent(ESPN + path) : ESPN + path);
 
 const LIVE = {games:[], byTeam:{}, stats:{}, situation:null, drives:[],
-              wp:null, active:new Set(), box:[], teamStats:[], err:null,
-              at:0, on:false, gameId:null};
+              wp:null, active:new Set(), box:[], teamStats:[], plays:[],
+              err:null, at:0, on:false, gameId:null};
 let livePoll = null;
 
 const TEAMFIX = {WSH:"WAS", LAR:"LA", JAC:"JAX"};
@@ -3529,6 +3597,12 @@ function renderLiveStrip(ok){
   }
   bar.appendChild(scoreEl);
   bar.appendChild(el("span","livelab", g.detail || ""));
+  if(g.state === "in"){
+    const wb = el("button", null, "Watch");
+    wb.id = "watchbtn";
+    wb.onclick = () => openWatch(g.id);
+    bar.appendChild(wb);
+  }
 
   // Down and distance, if the feed is carrying it.
   const st = LIVE.situation;
@@ -3786,6 +3860,206 @@ function renderBox(){
     + "app \u2014 tap one to open his profile.";
   body.appendChild(n);
   body.scrollTop = 0;
+}
+
+/* ---------------- live play feed ----------------
+   Play text arrives as "J.Hurts pass short right to D.Smith for 8 yards." The
+   whole point of this app is knowing who those people are, so every name that
+   matches somebody on either roster becomes a link to his profile.
+
+   Names are matched as first-initial + surname against the two teams playing,
+   not the whole league, which keeps collisions rare. Where a team really does
+   have two players sharing a key, the one higher on the depth chart wins --
+   announcers mean the starter far more often than his backup. */
+let feedIndex = null, feedFor = null;
+
+function buildFeedIndex(teamsInGame){
+  const idx = {};
+  teamsInGame.forEach(tm=>{
+    (DATA.depth[tm] || []).forEach(r=>{
+      const p = DATA.players[r.pid];
+      if(!p) return;
+      const parts = p.name.trim().split(/\s+/);
+      if(parts.length < 2) return;
+      const last = parts.slice(1).join(" ")
+        .replace(/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i, "");
+      const key = (parts[0][0] + "." + last).toLowerCase();
+      const cur = idx[key];
+      if(!cur || r.rank < cur.rank) idx[key] = {pid: p.id, rank: r.rank};
+    });
+  });
+  return idx;
+}
+
+/* Split play text into plain words and player links. Built as DOM nodes rather
+   than markup, so nothing from the feed is ever interpreted as HTML. */
+function playText(text, idx){
+  const wrap = el("span","ptext");
+  // Matches D.Smith, T.J.Watt, D.Smith-Jones, Ja'Marr style surnames.
+  const re = /\b([A-Z][A-Za-z]?\.(?:[A-Z]\.)?[A-Z][A-Za-z'’-]+)/g;
+  let last = 0, m;
+  while((m = re.exec(text)) !== null){
+    if(m.index > last) wrap.appendChild(document.createTextNode(text.slice(last, m.index)));
+    const raw = m[1];
+    const key = raw.toLowerCase().replace(/^([a-z])\.[a-z]\./, "$1.");
+    const hit = idx[key] || idx[raw.toLowerCase()];
+    if(hit && DATA.players[hit.pid]){
+      const a = el("button","pname2", raw);
+      a.onclick = (e) => {
+        e.stopPropagation();
+        closeWatch(); $("#box").hidden = true; $("#scores").hidden = true;
+        goPlayer(hit.pid);
+      };
+      wrap.appendChild(a);
+    } else {
+      wrap.appendChild(document.createTextNode(raw));
+    }
+    last = m.index + raw.length;
+  }
+  if(last < text.length) wrap.appendChild(document.createTextNode(text.slice(last)));
+  return wrap;
+}
+
+/* Pull the play list out of a summary payload. Drives hold plays; shapes vary,
+   so everything is read defensively and anything unrecognised is skipped. */
+function extractPlays(j){
+  const dr = j.drives || {};
+  const all = [...(dr.previous || [])];
+  if(dr.current) all.push(dr.current);
+  const out = [];
+  all.forEach(d=>{
+    const tm = normTeam(((d.team || {}).abbreviation) || "");
+    (d.plays || []).forEach(p=>{
+      const txt = p.text || (p.type || {}).text;
+      if(!txt) return;
+      out.push({
+        team: tm,
+        text: txt,
+        clock: ((p.clock || {}).displayValue) || null,
+        period: ((p.period || {}).number) || null,
+        score: p.scoringPlay ? ((p.awayScore ?? "") + "-" + (p.homeScore ?? "")) : null,
+        scoring: !!p.scoringPlay,
+        down: p.start ? p.start.downDistanceText : null,
+      });
+    });
+  });
+  return out.reverse();          // newest first
+}
+
+async function fetchPlays(gameId){
+  try {
+    const j = await getJSON("/summary?event=" + gameId);
+    LIVE.plays = extractPlays(j);
+    return true;
+  } catch(e){ LIVE.plays = []; return false; }
+}
+
+/* ---------------- watch mode ----------------
+   Built to sit next to a television. Everything else in this app is for reading;
+   this is for glancing at, so it is large, sparse, and refreshes itself. */
+let watchOn = false, watchPoll = null, watchGame = null;
+
+function openWatch(gameId){
+  watchGame = gameId || (LIVE.byTeam[team] || {}).id || LIVE.gameId;
+  if(!watchGame) return;
+  watchOn = true;
+  $("#watch").hidden = false;
+  document.body.classList.add("watching");
+  refreshWatch();
+  clearInterval(watchPoll);
+  watchPoll = setInterval(refreshWatch, 20000);
+}
+function closeWatch(){
+  watchOn = false;
+  clearInterval(watchPoll);
+  $("#watch").hidden = true;
+  document.body.classList.remove("watching");
+}
+
+async function refreshWatch(){
+  if(!watchOn) return;
+  await fetchLive();
+  const g = LIVE.games.find(x => x.id === watchGame) || LIVE.byTeam[team];
+  if(g){
+    LIVE.situation = g.state === "in" ? g.situation : null;
+    if(g.state !== "pre"){
+      await fetchGame(g.id);
+      await fetchPlays(g.id);
+    }
+  }
+  renderWatch(g);
+}
+
+function renderWatch(g){
+  const b = $("#watchbody");
+  b.innerHTML = "";
+  if(!g){
+    b.appendChild(el("div","carnote","No game to follow right now."));
+    return;
+  }
+  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+
+  // score
+  const sc = el("div","wsc");
+  [[a, false], [h, true]].forEach(([t, home])=>{
+    const side = el("div","wside");
+    const tm = DATA.teams[t.ab] || {};
+    const lg = el("img","wlogo");
+    if(tm.logo){ lg.src = tm.logo; lg.alt = ""; }
+    side.appendChild(lg);
+    side.appendChild(el("div","wab", t.ab));
+    side.appendChild(el("div","wpts", String(t.score ?? 0)));
+    sc.appendChild(side);
+  });
+  b.appendChild(sc);
+
+  const st = el("div","wstat", g.detail || "");
+  b.appendChild(st);
+
+  // down, distance, field position
+  const sit = LIVE.situation;
+  if(sit){
+    const dd = sit.downDistanceText || sit.shortDownDistanceText;
+    if(dd) b.appendChild(el("div","wdd", dd));
+    const yl = num(sit.yardLine);
+    if(yl != null){
+      const bar = el("div","wfield");
+      const rz = el("i","rz"); bar.appendChild(rz);
+      const ball = el("i","ball");
+      ball.style.left = Math.max(0, Math.min(100, yl)) + "%";
+      bar.appendChild(ball);
+      b.appendChild(bar);
+      const lab = el("div","wfl");
+      lab.appendChild(el("span", null, sit.possessionText || ""));
+      if(sit.isRedZone) lab.appendChild(el("span","hot","Red zone"));
+      b.appendChild(lab);
+    }
+  }
+
+  if(LIVE.wp){
+    const home = h.ab === team;
+    const mine = home ? LIVE.wp.home : 100 - LIVE.wp.home;
+    b.appendChild(el("div","wwp",
+      ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  " + mine + "% to win"));
+  }
+
+  // the feed
+  const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
+  const feed = el("div","wfeed");
+  if(!LIVE.plays.length){
+    feed.appendChild(el("div","carnote","Waiting for the first play."));
+  } else LIVE.plays.slice(0, 40).forEach(p=>{
+    const row = el("div","wplay" + (p.scoring ? " score" : ""));
+    const meta = el("div","wpm");
+    meta.appendChild(el("span","wpt", p.team || ""));
+    if(p.clock) meta.appendChild(el("span", null,
+      (p.period ? "Q" + p.period + "  " : "") + p.clock));
+    if(p.down) meta.appendChild(el("span","wpd", p.down));
+    row.appendChild(meta);
+    row.appendChild(playText(p.text, idx));
+    feed.appendChild(row);
+  });
+  b.appendChild(feed);
 }
 
 /* ---------------- scores page ----------------
@@ -4954,6 +5228,7 @@ $("#leadbtn").onclick = () => { $("#lead").hidden = false; renderLeaders(); };
 $("#leadclose").onclick = () => { $("#lead").hidden = true; };
 $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
+$("#watchclose").onclick = closeWatch;
 $("#prev").addEventListener("click", e=>{ if(e.target.id === "prev") closePreview(); });
 $("#scoresbtn").onclick = openScores;
 $("#scoresclose").onclick = closeScores;
