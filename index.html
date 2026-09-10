@@ -989,6 +989,15 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 /* ---------- visual: play arrows ---------- */
 #playlayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
   z-index:5}
+/* The men involved in the last play, marked on the field. Worth doing even when
+   no line can be drawn -- knowing who was involved is most of the value. */
+.chip.inplay .face{border-color:var(--rise);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--rise) 30%,transparent)}
+.chip.inplay2 .face{border-color:#E0A15B;
+  box-shadow:0 0 0 4px color-mix(in srgb,#E0A15B 28%,transparent)}
+.chip.inplay,.chip.inplay2{z-index:6}
+@keyframes flash{0%{opacity:.25}100%{opacity:.95}}
+#playlayer path{animation:flash .45s ease-out}
 #facesbtn{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
@@ -1054,6 +1063,34 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   padding:5px 12px;border-radius:var(--r);font-weight:600;
 }
 #watchbtn[hidden]{display:none}
+
+/* ---------- defensive credit ---------- */
+.dcred{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.dtag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;
+  border-radius:10px;background:var(--rule);
+  border:1px solid transparent}
+.dtag.big{background:color-mix(in srgb,#E0A15B 16%,transparent);
+  border-color:color-mix(in srgb,#E0A15B 45%,transparent)}
+.dlab{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--dim)}
+.dtag.big .dlab{color:#E0B48A}
+.dnm2{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;
+  color:var(--chalk);padding:0;border-bottom:1px dotted color-mix(in srgb,var(--chalk) 40%,transparent)}
+.dnm2.plain{border-bottom:0;color:var(--mute)}
+.dnm2:hover{color:#fff}
+.wsub{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin:4px 0 6px}
+.dlead{margin-bottom:14px}
+.dlrow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:6px 0;border-bottom:1px solid var(--rule)}
+.dlrow:last-child{border-bottom:0}
+.dlrow:hover .dln{color:#fff}
+.dlt{flex:0 0 32px;font-family:'Archivo Black',sans-serif;font-size:10px;
+  color:var(--team-accent)}
+.dln{flex:1 1 auto;font-size:13px;color:var(--chalk);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.dls{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap}
 
 /* ---------- game preview ---------- */
 #prev{position:fixed;inset:0;z-index:74;background:rgba(8,12,14,.97);
@@ -3779,9 +3816,13 @@ async function refreshLive(){
   else { LIVE.stats = {}; LIVE.active = new Set(); LIVE.drives = []; LIVE.wp = null; }
   renderLiveStrip(true);
   renderField();
-  // Sketch the most recent play onto the formation.
+  // Draw the most recent play, but only onto a present-day view of a team that
+  // is actually in the game.
   const latest = (LIVE.plays || [])[0];
-  drawPlayArrow(latest && !isPast() ? playGeometry(latest.text) : null);
+  const g2 = LIVE.byTeam[team];
+  if(latest && !isPast() && g2 && g2.state === "in"){
+    drawPlay(latest, buildFeedIndex(g2.teams.map(t => t.ab).filter(Boolean)));
+  } else clearPlayArrow();
   if(sel){ paintSel(); } else { renderTeam(); }
   return true;
 }
@@ -4450,41 +4491,136 @@ function capTreemap(groups, cols){
    Draw the play you just read onto the formation. Direction comes from the play
    text, depth from the yardage, so this is a sketch of what happened rather than
    a tracking replay -- which is all the text supports. */
-function playGeometry(text){
+/* ---------------- live play, drawn on the formation ----------------
+   The first version guessed: a fixed start point, a direction from the word
+   "left", and a length from the yardage. It ignored the one thing this app
+   actually has, which is every player's position on the field.
+
+   This version reads the participants out of the play text, finds their chips
+   where they are actually rendered, and draws between them. If the men involved
+   are not on the view you are looking at -- wrong team, wrong unit, a backup who
+   is not on the chart -- it draws nothing rather than inventing a line. */
+
+function playParticipants(text){
   if(!text) return null;
-  const t = text.toLowerCase();
-  const yards = (t.match(/for (-?\d+) yard/) || [])[1];
-  const gain = yards == null ? null : parseInt(yards, 10);
-  const dir = /left/.test(t) ? -1 : /right/.test(t) ? 1 : 0;
-  let kind = null;
-  if(/ pass /.test(t) || / sacked /.test(t)) kind = "pass";
-  else if(/(left|right|middle) (end|tackle|guard)|scramble|kneel/.test(t)) kind = "run";
-  if(!kind) return null;
-  const depth = /deep/.test(t) ? 2 : /short/.test(t) ? 1 : 0;
-  return {kind, dir, gain, depth, td: /touchdown/.test(t),
-          turnover: /intercepted|fumbles/.test(t)};
+  const t = text;
+  const NAME = "[A-Z][A-Za-z]?\\.(?:[A-Z]\\.)?[A-Z][A-Za-z'’-]+";
+  const grab = re => { const m = t.match(re); return m ? m[1] : null; };
+
+  const out = {kind: null, from: null, to: null, defender: null,
+               td: /TOUCHDOWN/i.test(t), turnover: /INTERCEPTED|FUMBLES/i.test(t),
+               yards: null, incomplete: /pass incomplete/i.test(t)};
+
+  const y = t.match(/for (-?\d+) yard/);
+  if(y) out.yards = parseInt(y[1], 10);
+  if(/for no gain/i.test(t)) out.yards = 0;
+
+  // A sack is a pass play that never left the pocket.
+  if(/\bsacked\b/i.test(t)){
+    out.kind = "sack";
+    out.from = grab(new RegExp("(" + NAME + ")\\s+sacked"));
+    out.defender = grab(new RegExp("sacked[^()]*\\((" + NAME + ")"));
+    return out.from ? out : null;
+  }
+  if(/\bpass\b/i.test(t)){
+    out.kind = "pass";
+    out.from = grab(new RegExp("(" + NAME + ")\\s+pass"));
+    // Completions say "to", incompletions and picks say "intended for".
+    out.to = grab(new RegExp("(?:to|intended for)\\s+(" + NAME + ")"));
+    out.defender = grab(new RegExp("INTERCEPTED by (?:[A-Z]{2,3}-)?(" + NAME + ")"))
+                || grab(new RegExp("\\((" + NAME + ")\\)\\s*\\.?\\s*$"));
+    return out.from ? out : null;
+  }
+  // Runs read as "left tackle", "right end" and so on, but a middle run is just
+  // "up the middle" with no gap word after it, which an earlier version missed.
+  if(/(left|right)\s+(end|tackle|guard)|up the middle|scramble|kneel|\brushed\b/i.test(t)){
+    out.kind = "run";
+    out.from = grab(new RegExp("^(?:\\([^)]*\\)\\s*)?(" + NAME + ")"));
+    out.defender = grab(new RegExp("\\((" + NAME + ")[^)]*\\)\\s*\\.?\\s*$"));
+    // Direction only matters when the runner has nobody to run toward.
+    out.dir = /left/i.test(t) ? -1 : /right/i.test(t) ? 1 : 0;
+    return out.from ? out : null;
+  }
+  return null;
 }
 
-function drawPlayArrow(geo){
+/* Where a chip actually sits, read from the DOM rather than recomputed, so the
+   arrow always agrees with what is on screen even after a formation change. */
+function chipPos(pid){
+  if(!pid) return null;
+  const c = document.querySelector('.chip[data-pid="' + CSS.escape(pid) + '"]');
+  if(!c) return null;
+  return {x: parseFloat(c.style.left), y: parseFloat(c.style.top), el: c};
+}
+
+function resolvePlayer(nameToken, idx){
+  if(!nameToken) return null;
+  const key = nameToken.toLowerCase().replace(/^([a-z])\.[a-z]\./, "$1.");
+  const hit = idx[key] || idx[nameToken.toLowerCase()];
+  return hit ? hit.pid : null;
+}
+
+function clearPlayArrow(){
   const layer = document.getElementById("playlayer");
-  if(!layer) return;
-  layer.innerHTML = "";
-  if(!geo) return;
-  // Start at the quarterback's spot in the offensive formation.
-  const x0 = 50, y0 = geo.kind === "pass" ? 48 : 26;
-  const reach = geo.kind === "pass"
-    ? (geo.depth === 2 ? 22 : geo.depth === 1 ? 12 : 8)
-    : Math.min(20, Math.max(5, (geo.gain || 4)));
-  const x1 = Math.max(6, Math.min(94, x0 + geo.dir * (geo.kind === "pass" ? 26 : 14)));
-  const y1 = Math.max(4, y0 - reach);
-  const col = geo.td ? "var(--brass)"
-            : geo.turnover ? "var(--fall)" : "var(--rise)";
-  layer.innerHTML = `
-    <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="5" refY="3.2"
-      orient="auto"><path d="M0,0 L6,3.2 L0,6.4 z" fill="${col}"/></marker></defs>
-    <path d="M ${x0*10} ${y0*7} Q ${(x0+geo.dir*8)*10} ${((y0+y1)/2)*7}
-      ${x1*10} ${y1*7}" fill="none" stroke="${col}" stroke-width="3.5"
-      stroke-linecap="round" marker-end="url(#ah)" opacity=".95"/>`;
+  if(layer) layer.innerHTML = "";
+  document.querySelectorAll(".chip.inplay, .chip.inplay2")
+    .forEach(c => c.classList.remove("inplay", "inplay2"));
+}
+
+function drawPlay(play, idx){
+  clearPlayArrow();
+  const layer = document.getElementById("playlayer");
+  if(!layer || !play) return;
+  const parts = playParticipants(play.text);
+  if(!parts) return;
+
+  const fromPid = resolvePlayer(parts.from, idx);
+  const toPid = resolvePlayer(parts.to, idx);
+  const defPid = resolvePlayer(parts.defender, idx);
+
+  const a = chipPos(fromPid), b = chipPos(toPid), d = chipPos(defPid);
+
+  // Mark whoever is on screen, even when no line can be drawn.
+  if(a) a.el.classList.add("inplay");
+  if(b) b.el.classList.add("inplay");
+  if(d) d.el.classList.add("inplay2");
+
+  const colour = parts.turnover ? "var(--fall)"
+               : parts.td ? "var(--brass)"
+               : parts.incomplete ? "var(--mute)"
+               : "var(--rise)";
+  const dash = parts.incomplete ? 'stroke-dasharray="9 7"' : "";
+
+  let x0, y0, x1, y1;
+  if(a && b){
+    // Both men on screen: the honest case, draw the actual connection.
+    x0 = a.x; y0 = a.y; x1 = b.x; y1 = b.y;
+  } else if(a && parts.kind === "run"){
+    // A run has no target, so carry the ball upfield from the runner by the
+    // distance he actually gained.
+    const gain = Math.max(3, Math.min(22, parts.yards == null ? 5 : parts.yards));
+    x0 = a.x; y0 = a.y;
+    x1 = Math.max(6, Math.min(94, a.x + (parts.dir || 0) * 9));
+    y1 = Math.max(4, a.y - gain);
+  } else if(a && parts.kind === "sack"){
+    x0 = a.x; y0 = a.y;
+    x1 = a.x; y1 = Math.min(96, a.y + 8);      // driven backwards
+  } else {
+    return;                                     // not enough on screen to be honest
+  }
+
+  const mx = (x0 + x1) / 2 + (parts.kind === "pass" ? (x1 - x0) * 0.12 : 0);
+  const my = (y0 + y1) / 2 - (parts.kind === "pass" ? 6 : 2);
+  layer.innerHTML =
+    '<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="5.6" refY="3.4"'
+    + ' orient="auto"><path d="M0,0 L6.4,3.4 L0,6.8 z" fill="' + colour + '"/></marker>'
+    + '<filter id="gl"><feDropShadow dx="0" dy="0" stdDeviation="4"'
+    + ' flood-color="' + colour + '" flood-opacity=".55"/></filter></defs>'
+    + '<path d="M ' + (x0*10).toFixed(1) + ' ' + (y0*7).toFixed(1)
+    + ' Q ' + (mx*10).toFixed(1) + ' ' + (my*7).toFixed(1)
+    + ' ' + (x1*10).toFixed(1) + ' ' + (y1*7).toFixed(1) + '"'
+    + ' fill="none" stroke="' + colour + '" stroke-width="4" stroke-linecap="round"'
+    + ' ' + dash + ' marker-end="url(#ah)" filter="url(#gl)" opacity=".95"/>';
 }
 
 /* ---------------- lineup game ----------------
@@ -4720,6 +4856,93 @@ function checkGame(){
   renderGame();
 }
 
+/* ---------------- defensive credit ----------------
+   Who made the play. NFL play text follows firm conventions and puts the defence
+   in parentheses, which is easy to miss when you are reading quickly and are
+   still learning who these people are:
+
+     ... for 4 yards (C.Gonzalez)              solo tackle
+     ... for 3 yards (C.Gonzalez, Z.Baun)      assisted tackle
+     sacked at PHI 30 for -7 yards (J.Carter)  sack
+     pass incomplete deep left (Q.Mitchell)    pass broken up
+     INTERCEPTED by D.Hand at NE 20            interception
+     FUMBLES (M.Garrett), RECOVERED by NE-K.Byard
+
+   Pulled out and labelled, the defensive half of the game becomes visible rather
+   than parenthetical. */
+const NAME_RE = /[A-Z][A-Za-z]?\.(?:[A-Z]\.)?[A-Z][A-Za-z'’-]+/g;
+
+function defensiveCredit(text){
+  if(!text) return null;
+  const out = [];
+  const seen = new Set();
+  const push = (label, names, tone) => {
+    const list = (names || []).filter(n => n && !seen.has(label + n));
+    list.forEach(n => seen.add(label + n));
+    if(list.length) out.push({label, names: list, tone});
+  };
+  const grab = re => {
+    const m = text.match(re);
+    if(!m) return null;
+    return (m[1].match(NAME_RE) || []);
+  };
+
+  // Interception first: it is the headline whatever else happened.
+  const pick = text.match(/INTERCEPTED by (?:[A-Z]{2,3}-)?([A-Z][A-Za-z]?\.[A-Z][A-Za-z'’-]+)/);
+  if(pick) push("Interception", [pick[1]], "big");
+
+  const rec = text.match(/RECOVERED by (?:[A-Z]{2,3}-)?([A-Z][A-Za-z]?\.[A-Z][A-Za-z'’-]+)/);
+  if(rec) push("Recovered", [rec[1]], "big");
+
+  const forced = grab(/FUMBLES\s*\(([^)]+)\)/);
+  if(forced) push("Forced fumble", forced, "big");
+
+  // A sack names its tacklers in the parentheses that follow it.
+  if(/\bsacked\b/i.test(text)){
+    const names = grab(/sacked[^()]*\(([^)]+)\)/i);
+    if(names) push("Sack", names, "big");
+  } else if(/pass incomplete/i.test(text)){
+    const names = grab(/\(([^)]+)\)\s*\.?\s*$/);
+    if(names) push("Broken up", names, "");
+  } else {
+    // Otherwise a trailing parenthetical is whoever made the tackle.
+    const names = grab(/\(([^)]+)\)\s*\.?\s*$/);
+    if(names) push(names.length > 1 ? "Tackle, assisted" : "Tackle", names, "");
+  }
+  return out.length ? out : null;
+}
+
+/* Live defensive leaders, read from the box score already being fetched. ESPN
+   files these under a defensive category whose column labels vary, so the
+   numbers are looked up by label rather than by position. */
+function defensiveLeaders(teamsInGame, limit){
+  const rows = [];
+  (LIVE.box || []).forEach(side=>{
+    if(teamsInGame && !teamsInGame.includes(side.team)) return;
+    side.cats.forEach(cat=>{
+      if(!/def|tackl/i.test(cat.name || "")) return;
+      const iTot = cat.labels.findIndex(l => /^(TOT|TCKL|TACKLES)$/i.test(l));
+      const iSack = cat.labels.findIndex(l => /^SACKS?$/i.test(l));
+      const iInt = cat.labels.findIndex(l => /^INT$/i.test(l));
+      const iTfl = cat.labels.findIndex(l => /^TFL$/i.test(l));
+      cat.rows.forEach(r=>{
+        const val = i => i >= 0 ? num(r.stats[i]) : null;
+        const tot = val(iTot) || 0, sack = val(iSack) || 0;
+        const ints = val(iInt) || 0, tfl = val(iTfl) || 0;
+        if(!tot && !sack && !ints) return;
+        rows.push({
+          eid: r.eid, name: r.name, pos: r.pos, team: side.team,
+          tot, sack, ints, tfl,
+          // Sacks and takeaways outweigh raw tackle counts.
+          score: tot + sack * 6 + ints * 8 + tfl * 2,
+        });
+      });
+    });
+  });
+  rows.sort((a,b) => b.score - a.score);
+  return rows.slice(0, limit || 6);
+}
+
 /* ---------------- watch mode ----------------
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
@@ -4809,6 +5032,28 @@ function renderWatch(g){
       ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  " + mine + "% to win"));
   }
 
+  // who is making plays on defence
+  const dleaders = defensiveLeaders([a.ab, h.ab].filter(Boolean), 6);
+  if(dleaders.length){
+    b.appendChild(el("div","wsub","Defence"));
+    const dl = el("div","dlead");
+    dleaders.forEach(x=>{
+      const r = el("button","dlrow");
+      r.appendChild(el("span","dlt", x.team));
+      r.appendChild(el("span","dln", x.name));
+      const bits = [];
+      if(x.tot) bits.push(x.tot + " tkl");
+      if(x.sack) bits.push(x.sack + " sk");
+      if(x.tfl) bits.push(x.tfl + " tfl");
+      if(x.ints) bits.push(x.ints + " int");
+      r.appendChild(el("span","dls", bits.join("  ")));
+      const mine = x.eid && Object.values(DATA.players).find(pp => pp.eid === x.eid);
+      if(mine) r.onclick = () => { closeWatch(); goPlayer(mine.id); };
+      dl.appendChild(r);
+    });
+    b.appendChild(dl);
+  }
+
   // the feed
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
   const feed = el("div","wfeed");
@@ -4823,6 +5068,29 @@ function renderWatch(g){
     if(p.down) meta.appendChild(el("span","wpd", p.down));
     row.appendChild(meta);
     row.appendChild(playText(p.text, idx));
+    const credit = defensiveCredit(p.text);
+    if(credit){
+      const dl = el("div","dcred");
+      credit.forEach(c=>{
+        const tag = el("span","dtag" + (c.tone === "big" ? " big" : ""));
+        tag.appendChild(el("span","dlab", c.label));
+        c.names.forEach(nm=>{
+          const key = nm.toLowerCase().replace(/^([a-z])\.[a-z]\./, "$1.");
+          const hit = idx[key] || idx[nm.toLowerCase()];
+          if(hit && DATA.players[hit.pid]){
+            const b = el("button","dnm2", nm);
+            b.onclick = e => {
+              e.stopPropagation();
+              closeWatch(); $("#box").hidden = true; $("#scores").hidden = true;
+              goPlayer(hit.pid);
+            };
+            tag.appendChild(b);
+          } else tag.appendChild(el("span","dnm2 plain", nm));
+        });
+        dl.appendChild(tag);
+      });
+      row.appendChild(dl);
+    }
     feed.appendChild(row);
   });
   b.appendChild(feed);
