@@ -853,6 +853,71 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- lineup game ---------- */
+#game{position:fixed;inset:0;z-index:76;background:rgba(8,12,14,.97);
+  display:flex;flex-direction:column;padding:14px 16px}
+#game[hidden]{display:none}
+#gamebody{flex:1 1 auto;overflow-y:auto;max-width:760px;margin:0 auto;width:100%}
+.gbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.gteam{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff}
+.gsmall{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--mute);
+  border:1px solid var(--line);padding:5px 10px;border-radius:var(--r)}
+.gsmall:hover{color:var(--chalk);border-color:var(--team)}
+#gamebtn{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--team2);
+  background:var(--team);padding:5px 12px;border-radius:var(--r);font-weight:600}
+.gfield{position:relative;width:100%;aspect-ratio:16/11;min-height:320px;
+  background:var(--field);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;margin-bottom:12px}
+.gturf{position:absolute;inset:0;width:100%;height:100%}
+.gslot{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  width:60px;padding:0;
+}
+.gempty{width:44px;height:44px;border-radius:50%;
+  border:2px dashed color-mix(in srgb,var(--chalk) 30%,transparent);
+  background:rgba(0,0,0,.25)}
+.gslot.over .gempty{border-color:var(--team-accent);background:rgba(255,255,255,.08)}
+.gdisc{width:44px;height:44px;border-radius:50%;overflow:hidden;background:#0B1113;
+  border:2px solid var(--team-accent)}
+.gdisc img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.gfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--dim)}
+.gslot.ok .gdisc{border-color:var(--rise)}
+.gslot.bad .gdisc{border-color:var(--fall);opacity:.75}
+.glab{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;
+  letter-spacing:.13em;color:var(--team-accent)}
+.gname2{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--chalk);
+  white-space:nowrap;max-width:74px;overflow:hidden;text-overflow:ellipsis}
+.gtrue{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--rise);
+  white-space:nowrap}
+.gtray{display:flex;gap:8px;flex-wrap:wrap;padding:10px;border:1px solid var(--line);
+  border-radius:var(--r);background:var(--panel);margin-bottom:8px;min-height:70px}
+.gchip{display:flex;flex-direction:column;align-items:center;gap:3px;width:62px;
+  padding:4px;border-radius:var(--r);border:1px solid transparent}
+.gchip:hover{border-color:var(--line)}
+.gchip.held{border-color:var(--team-accent);
+  background:color-mix(in srgb,var(--team-accent) 18%,transparent)}
+.gcf{width:40px;height:40px;border-radius:50%;overflow:hidden;background:#0B1113;
+  border:1px solid var(--line)}
+.gcf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.gcn{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;color:var(--chalk);
+  white-space:nowrap;max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.gfoot{margin-top:10px}
+.gscore{text-align:center;margin-bottom:10px}
+.gscore .gbig{display:block;font-family:'Archivo Black',sans-serif;font-size:26px;
+  color:#fff}
+.gscore .gsub{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-top:4px}
+@media (max-width:560px){
+  .gslot{width:50px}
+  .gempty,.gdisc{width:36px;height:36px}
+  .gname2{font-size:10px;max-width:58px}
+  .glab{font-size:9.5px}
+}
+
 /* ---------- visual: face wall ---------- */
 #wall{position:fixed;inset:0;z-index:73;background:rgba(8,12,14,.97);
   display:flex;flex-direction:column;padding:16px 18px}
@@ -1398,6 +1463,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
       </div>
       <div id="fieldbar">
         <div class="hint" id="formlab"></div>
+        <button id="gamebtn">Lineup</button>
         <button id="facesbtn">Faces</button>
         <button id="simplebtn" aria-pressed="false">Simple</button>
         <button id="t100btn" aria-pressed="false">Top 100</button>
@@ -1439,6 +1505,14 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   </div>
   <div id="scoresnav"></div>
   <div id="scoresbody"></div>
+</div>
+
+<div id="game" hidden role="dialog" aria-modal="true" aria-label="Lineup game">
+  <div class="lhead">
+    <h2 class="blk">Build the lineup</h2>
+    <button class="qx" id="gameclose">Close</button>
+  </div>
+  <div id="gamebody"></div>
 </div>
 
 <div id="wall" hidden role="dialog" aria-modal="true" aria-label="Roster faces">
@@ -1531,10 +1605,57 @@ const sub = {};   // "grp|slot" -> chosen depth rank, lets you swap a backup in
 
 const $ = s => document.querySelector(s);
 const el = (t,c,x) => { const n=document.createElement(t); if(c)n.className=c; if(x!=null)n.textContent=x; return n; };
-const imgUrl = p => !p.im ? null
-  : p.im[0]==="!" ? DATA.imgAlt + p.im.slice(1)
-  : p.im[0]==="@" ? p.im.slice(1)
-  : DATA.imgBase + p.im;
+/* Headshots live on NFL.com's Cloudinary, which serves whatever the URL asks
+   for. The stored base asks for "f_auto,q_auto" and no dimensions, so it returns
+   a full-resolution portrait for a circle drawn at 44px. Adding a width to the
+   transform is the single biggest speed win available here.
+
+   Sizes snap to four buckets rather than the exact pixel size of each use. Every
+   distinct URL is a separate CDN cache entry, so a handful of shared sizes beats
+   a bespoke one per element. g_face centres the crop on the face, which also
+   makes the small circles read better. */
+const IMG_BUCKETS = [96, 128, 192, 320];
+const imgBucket = want => IMG_BUCKETS.find(b => b >= want) || 320;
+
+function imgUrl(p, want){
+  if(!p || !p.im) return null;
+  if(p.im[0] === "@") return p.im.slice(1);        // foreign host, leave alone
+  const id = p.im[0] === "!" ? p.im.slice(1) : p.im;
+  const base = p.im[0] === "!" ? DATA.imgAlt : DATA.imgBase;
+  const tx = "f_auto,q_auto,c_fill,g_face,w_" + imgBucket(want || 128);
+  return base.replace("f_auto,q_auto", tx) + id;
+}
+
+/* Every <img> in the app goes through here, so the loading hints are applied in
+   one place rather than sixteen. */
+function faceImg(p, want, opts){
+  const url = imgUrl(p, want);
+  if(!url) return null;
+  const im = new Image();
+  im.src = url;
+  im.alt = (opts && opts.alt) || "";
+  im.decoding = "async";
+  // Anything in a long scrolling list waits until it is near the viewport.
+  if(opts && opts.lazy) im.loading = "lazy";
+  if(opts && opts.onerror) im.onerror = opts.onerror;
+  return im;
+}
+
+/* Warm the cache for the team being viewed, so switching to the field or the
+   face wall does not start from nothing. */
+let preloaded = new Set();
+function preloadTeam(tm, want){
+  const key = tm + "|" + imgBucket(want);
+  if(preloaded.has(key)) return;
+  preloaded.add(key);
+  const seen = new Set();
+  (DATA.depth[tm] || []).forEach(r=>{
+    if(seen.has(r.pid)) return;
+    seen.add(r.pid);
+    const p = DATA.players[r.pid];
+    if(p && p.im){ const i = new Image(); i.decoding = "async"; i.src = imgUrl(p, want); }
+  });
+}
 
 /* ---------------- field markings ---------------- */
 function drawTurf(){
@@ -1692,6 +1813,7 @@ function renderTimebar(){
 }
 
 function renderField(){
+  preloadTeam(team, 112);
   const grp = activeGrp(), form = FORMS[grp], by = slotsFor(grp);
   renderTimebar();
   $("#formlab").textContent = form.label;
@@ -1718,12 +1840,12 @@ function renderField(){
 
     const d = el("div","disc");
     const face = el("div","face");
-    const url = imgUrl(p);
-    if(url){
-      const im = new Image(); im.src=url; im.alt="";
-      im.onerror = () => { face.innerHTML=""; face.appendChild(el("div","fallback", p.num??"\u2013")); };
-      face.appendChild(im);
-    } else face.appendChild(el("div","fallback", p.num??"\u2013"));
+    const im = faceImg(p, 112, {onerror: () => {
+      face.innerHTML = "";
+      face.appendChild(el("div","fallback", p.num ?? "\u2013"));
+    }});
+    if(im) face.appendChild(im);
+    else face.appendChild(el("div","fallback", p.num ?? "\u2013"));
     d.appendChild(face);
     if(p.num!=null) d.appendChild(el("div","jersey", p.num));
     if(p.t100) d.appendChild(el("div","t100", p.t100));
@@ -1813,10 +1935,12 @@ function renderDetail(grp,slot,idx){
   // header
   const h = el("div","dhead");
   const ph = el("div","dphoto");
-  const url = imgUrl(p);
-  if(url){ const im=new Image(); im.src=url; im.alt=p.name;
-    im.onerror=()=>{ph.innerHTML="";ph.appendChild(el("div","fallback",p.num??"\u2013"))}; ph.appendChild(im); }
-  else ph.appendChild(el("div","fallback", p.num??"\u2013"));
+  const pim = faceImg(p, 192, {alt: p.name, onerror: () => {
+    ph.innerHTML = "";
+    ph.appendChild(el("div","fallback", p.num ?? "\u2013"));
+  }});
+  if(pim) ph.appendChild(pim);
+  else ph.appendChild(el("div","fallback", p.num ?? "\u2013"));
   h.appendChild(ph);
   const hi = el("div");
   if(p.num!=null) hi.appendChild(el("div","dnum","No. "+p.num));
@@ -2263,8 +2387,8 @@ function renderDetail(grp,slot,idx){
         if(!q) return;
         const b = el("button","comp");
         const face = el("div","cf");
-        const u = imgUrl(q);
-        if(u){ const im=new Image(); im.src=u; im.alt=""; face.appendChild(im); }
+        const im = faceImg(q, 96, {lazy: true});
+        if(im) face.appendChild(im);
         b.appendChild(face);
         b.appendChild(el("span","cn", q.name));
         const loc = LOCATE[q.id];
@@ -2767,8 +2891,8 @@ function sectionCatchUp(d){
       arr.slice(0,12).forEach(x=>{
         const row = el("button","curow");
         const f = el("div","cf");
-        const u = imgUrl(x.p);
-        if(u){ const im = new Image(); im.src = u; im.alt=""; f.appendChild(im); }
+        const im = faceImg(x.p, 96, {lazy: true});
+        if(im) f.appendChild(im);
         row.appendChild(f);
         row.appendChild(el("span","cn", x.p.name));
         row.appendChild(el("span","cp", x.r.abb));
@@ -3074,6 +3198,7 @@ document.addEventListener("keydown", e=>{
   }
   if(e.key === "Escape" && !$("#cmp").hidden) closeCompare();
   if(e.key === "Escape" && !$("#box").hidden) closeBox();
+  else if(e.key === "Escape" && !$("#game").hidden) $("#game").hidden = true;
   else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
   else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
@@ -4134,8 +4259,8 @@ function renderWall(host){
     mine.forEach(p=>{
       const c = el("button","wcard");
       const f = el("div","wface");
-      const u = imgUrl(p);
-      if(u){ const im = new Image(); im.src = u; im.alt = ""; f.appendChild(im); }
+      const im = faceImg(p, 192, {lazy: true});
+      if(im) f.appendChild(im);
       else f.appendChild(el("div","wfb", p.num == null ? "\u2013" : String(p.num)));
       if(p.t100) f.appendChild(el("span","wt100", "#" + p.t100));
       if(p.inj && p.inj.sev >= 3) f.appendChild(el("span","winj","\u26A0"));
@@ -4360,6 +4485,239 @@ function drawPlayArrow(geo){
     <path d="M ${x0*10} ${y0*7} Q ${(x0+geo.dir*8)*10} ${((y0+y1)/2)*7}
       ${x1*10} ${y1*7}" fill="none" stroke="${col}" stroke-width="3.5"
       stroke-linecap="round" marker-end="url(#ah)" opacity=".95"/>`;
+}
+
+/* ---------------- lineup game ----------------
+   The depth chart in reverse: the formation is drawn empty with only position
+   labels, and eleven real players sit in a tray with their positions hidden.
+   Put each man where he belongs.
+
+   Placing works by tap-select then tap-place, not HTML5 drag-and-drop. Drag
+   events do not fire on touch screens at all, and this is most useful on a phone,
+   so the tap flow is the real mechanism and dragging is layered on top for a
+   mouse. */
+const GAME = {team:null, unit:"off", slots:{}, tray:[], held:null, checked:false,
+              right:0, best:{}};
+
+function gameSlots(){
+  const grp = GAME.unit === "off" ? "3WR 1TE" : activeDefGrp(GAME.team);
+  const form = FORMS[grp];
+  const by = {};
+  (DATA.depth[GAME.team] || []).filter(r => r.grp === grp).forEach(r=>{
+    if(!by[r.slot] || r.rank < by[r.slot].rank) by[r.slot] = r;
+  });
+  return Object.entries(form.coords)
+    .filter(([slot]) => by[slot] && DATA.players[by[slot].pid])
+    .map(([slot, xy]) => ({
+      slot: +slot, x: xy[0], y: xy[1],
+      abb: slotLabel(grp, +slot, by[slot].abb),
+      pid: by[slot].pid,
+    }));
+}
+/* Some slots are genuinely the same job and only differ by which side of the
+   formation they sit on, or by depth order. Nobody can reasonably know which of
+   three receivers is "WR2", so those are graded as interchangeable. Left tackle
+   against right tackle is a real distinction and stays graded. */
+const EQUIV = {
+  "3WR 1TE": [[1, 2, 8], [4, 6]],                       // receivers, guards
+  "Base 4-3 D": [[1, 4], [2, 3], [5, 7], [8, 11], [9, 10]],
+  "Base 3-4 D": [[1, 3], [4, 7], [5, 6], [8, 11], [9, 10]],
+};
+function equivalentSlots(grp, slot){
+  const sets = EQUIV[grp] || [];
+  const found = sets.find(g => g.includes(slot));
+  return found || [slot];
+}
+
+function activeDefGrp(tm){
+  const rows = DATA.depth[tm] || [];
+  return ["Base 4-3 D","Base 3-4 D"].find(g => rows.some(r => r.grp === g))
+      || "Base 4-3 D";
+}
+
+function startGame(tm, unit){
+  GAME.team = tm || team;
+  GAME.unit = unit || GAME.unit;
+  const slots = gameSlots();
+  GAME.grp = GAME.unit === "off" ? "3WR 1TE" : activeDefGrp(GAME.team);
+  GAME.answer = {};
+  slots.forEach(s => { GAME.answer[s.slot] = s.pid; });
+  // Which players would also be acceptable in each slot.
+  GAME.accept = {};
+  slots.forEach(s=>{
+    GAME.accept[s.slot] = new Set(
+      equivalentSlots(GAME.grp, s.slot)
+        .map(x => GAME.answer[x]).filter(Boolean));
+  });
+  GAME.slots = {};
+  GAME.tray = shuffle(slots.map(s => s.pid));
+  GAME.held = null;
+  GAME.checked = false;
+  GAME.right = 0;
+  renderGame(slots);
+}
+
+function renderGame(slots){
+  slots = slots || gameSlots();
+  const host = $("#gamebody");
+  host.innerHTML = "";
+
+  // header: which team, which unit, how it went
+  const bar = el("div","gbar");
+  const teamName = (DATA.teams[GAME.team] || {}).nick || GAME.team;
+  bar.appendChild(el("span","gteam", teamName));
+  const tabs = el("div","boxtabs");
+  tabs.style.margin = "0";
+  [["off","Offence"],["def","Defence"]].forEach(([k,lab])=>{
+    const b = el("button", null, lab);
+    b.setAttribute("aria-pressed", k === GAME.unit);
+    b.onclick = () => startGame(GAME.team, k);
+    tabs.appendChild(b);
+  });
+  bar.appendChild(tabs);
+  const shuffleBtn = el("button","gsmall","Another team");
+  shuffleBtn.onclick = () => {
+    const all = Object.keys(DATA.teams);
+    startGame(all[(Math.random() * all.length) | 0], GAME.unit);
+  };
+  bar.appendChild(shuffleBtn);
+  host.appendChild(bar);
+
+  // the field, with empty labelled slots
+  const field = el("div","gfield");
+  const turf = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  turf.setAttribute("viewBox","0 0 1000 700");
+  turf.setAttribute("preserveAspectRatio","none");
+  turf.classList.add("gturf");
+  let marks = "";
+  for(let i=1;i<10;i++){
+    const y=i*70;
+    marks += `<line x1="0" y1="${y}" x2="1000" y2="${y}" stroke="#DDE6E1"
+      stroke-opacity="${i%2?0.1:0.16}" stroke-width="1.5"/>`;
+  }
+  turf.innerHTML = marks;
+  field.appendChild(turf);
+
+  slots.forEach(s=>{
+    const spot = el("button","gslot");
+    spot.style.left = s.x + "%";
+    spot.style.top = s.y + "%";
+    spot.dataset.slot = s.slot;
+    const placed = GAME.slots[s.slot];
+    if(placed){
+      const p = DATA.players[placed];
+      const disc = el("div","gdisc");
+      const im = faceImg(p, 96, {lazy: true});
+      if(im) disc.appendChild(im);
+      else disc.appendChild(el("div","gfb", p.num == null ? "?" : String(p.num)));
+      spot.appendChild(disc);
+      spot.appendChild(el("div","gname2", shortName(p.name)));
+      if(GAME.checked){
+        const ok = (GAME.accept[s.slot] || new Set()).has(placed);
+        spot.classList.add(ok ? "ok" : "bad");
+        if(!ok){
+          const real = DATA.players[GAME.answer[s.slot]];
+          spot.appendChild(el("div","gtrue", real ? shortName(real.name) : ""));
+        }
+      }
+    } else {
+      spot.appendChild(el("div","gempty"));
+    }
+    spot.appendChild(el("div","glab", s.abb));
+    spot.onclick = () => placeHere(s.slot);
+    // Dragging is an enhancement for a mouse; the tap flow above is the real one.
+    spot.ondragover = e => { e.preventDefault(); spot.classList.add("over"); };
+    spot.ondragleave = () => spot.classList.remove("over");
+    spot.ondrop = e => {
+      e.preventDefault();
+      spot.classList.remove("over");
+      const pid = e.dataTransfer.getData("text/plain");
+      if(pid){ GAME.held = pid; placeHere(s.slot); }
+    };
+    field.appendChild(spot);
+  });
+  host.appendChild(field);
+
+  // the tray
+  if(!GAME.checked){
+    const tray = el("div","gtray");
+    if(!GAME.tray.length){
+      tray.appendChild(el("div","carnote","All placed. Check your answers."));
+    }
+    GAME.tray.forEach(pid=>{
+      const p = DATA.players[pid];
+      const c = el("button","gchip" + (GAME.held === pid ? " held" : ""));
+      c.draggable = true;
+      c.ondragstart = e => { GAME.held = pid; e.dataTransfer.setData("text/plain", pid); };
+      const f = el("div","gcf");
+      const im = faceImg(p, 96, {lazy: true});
+      if(im) f.appendChild(im);
+      else f.appendChild(el("div","gfb", p.num == null ? "?" : String(p.num)));
+      c.appendChild(f);
+      c.appendChild(el("div","gcn", shortName(p.name)));
+      c.onclick = () => { GAME.held = (GAME.held === pid ? null : pid); renderGame(slots); };
+      tray.appendChild(c);
+    });
+    host.appendChild(tray);
+    host.appendChild(el("div","carnote", GAME.held
+      ? "Now tap the position he plays."
+      : "Tap a player, then tap where he lines up. Positions are labelled."));
+  }
+
+  // controls
+  const foot = el("div","gfoot");
+  if(GAME.checked){
+    const total = Object.keys(GAME.answer).length;
+    const pct = Math.round(GAME.right / total * 100);
+    const sc = el("div","gscore");
+    sc.appendChild(el("span","gbig", GAME.right + " of " + total));
+    sc.appendChild(el("span","gsub", pct + "% right"));
+    foot.appendChild(sc);
+    const again = el("button","qnext","Play again");
+    again.onclick = () => startGame(GAME.team, GAME.unit);
+    foot.appendChild(again);
+  } else {
+    const check = el("button","qnext","Check answers");
+    check.disabled = GAME.tray.length > 0;
+    if(GAME.tray.length) check.style.opacity = ".45";
+    check.onclick = checkGame;
+    foot.appendChild(check);
+  }
+  host.appendChild(foot);
+  host.scrollTop = 0;
+}
+
+function placeHere(slot){
+  if(GAME.checked) return;
+  const existing = GAME.slots[slot];
+  if(!GAME.held){
+    // Tapping a filled slot with nothing held takes that player back.
+    if(existing){
+      GAME.tray.push(existing);
+      delete GAME.slots[slot];
+      renderGame();
+    }
+    return;
+  }
+  if(existing) GAME.tray.push(existing);          // swap out whoever was there
+  GAME.slots[slot] = GAME.held;
+  GAME.tray = GAME.tray.filter(x => x !== GAME.held);
+  GAME.held = null;
+  renderGame();
+}
+
+function checkGame(){
+  GAME.checked = true;
+  GAME.right = Object.entries(GAME.slots)
+    .filter(([slot, pid]) => (GAME.accept[slot] || new Set()).has(pid)).length;
+  const total = Object.keys(GAME.answer).length;
+  const key = GAME.team + "|" + GAME.unit;
+  if(store.ok){
+    PROG.lineup = PROG.lineup || {};
+    const prev = PROG.lineup[key] || 0;
+    if(GAME.right > prev){ PROG.lineup[key] = GAME.right; store.save(PROG); }
+  }
+  renderGame();
 }
 
 /* ---------------- watch mode ----------------
@@ -4841,8 +5199,8 @@ function renderPreview(score){
       const side = (p, stats, right) => {
         const c = el("button","muside" + (right ? " r" : ""));
         const f = el("div","muf");
-        const u = imgUrl(p);
-        if(u){ const im = new Image(); im.src = u; im.alt=""; f.appendChild(im); }
+        const im = faceImg(p, 96, {lazy: true});
+        if(im) f.appendChild(im);
         c.appendChild(f);
         const txt = el("div","mut");
         txt.appendChild(el("div","mun", p.name));
@@ -4919,8 +5277,8 @@ function renderPreview(score){
       const r = el("button","lrow");
       r.appendChild(el("span","lr", "#" + p.t100));
       const f = el("div","lf");
-      const u = imgUrl(p);
-      if(u){ const im = new Image(); im.src = u; im.alt=""; f.appendChild(im); }
+      const im = faceImg(p, 96, {lazy: true});
+      if(im) f.appendChild(im);
       r.appendChild(f);
       r.appendChild(el("span","ln", p.name));
       r.appendChild(el("span","lt", tm + " \u00b7 " + p.pos));
@@ -5163,7 +5521,7 @@ function buildQuestion(item, pool){
     const fill = wrong.length < 3
       ? shuffle(pool.filter(x => x.p.id !== p.id)).slice(0, 3 - wrong.length) : [];
     return {
-      kind: "face", pid: p.id, img: imgUrl(p),
+      kind: "face", pid: p.id, img: imgUrl(p, 320),
       prompt: "Who is this?",
       answer: p.name,
       opts: shuffle([p, ...wrong.map(x=>x.p), ...fill.map(x=>x.p)].map(x=>x.name)),
@@ -5173,7 +5531,7 @@ function buildQuestion(item, pool){
   if(QUIZ.mode === "team"){
     const wrong = shuffle(Object.keys(DATA.teams).filter(t => t !== team)).slice(0,3);
     return {
-      kind: "team", pid: p.id, img: imgUrl(p),
+      kind: "team", pid: p.id, img: imgUrl(p, 320),
       prompt: "Who does he play for?", sub: p.name + "  \u00b7  " + pos,
       answer: DATA.teams[team].nick,
       opts: shuffle([team, ...wrong].map(t => DATA.teams[t].nick)),
@@ -5316,7 +5674,8 @@ function renderQuestion(){
 
   if(q.img && q.kind !== "starter"){
     const f = el("div","qface");
-    const im = new Image(); im.src = q.img; im.alt = "";
+    const im = new Image();
+    im.src = q.img; im.alt = ""; im.decoding = "async";
     f.appendChild(im); b.appendChild(f);
   } else if(q.logo){
     const im = new Image(); im.src = q.logo; im.alt = ""; im.className = "qlogo";
@@ -5386,8 +5745,8 @@ function renderQuizDone(){
       const p = DATA.players[q.pid];
       const row = el("div","qmissrow");
       const f = el("div","mf");
-      const u = imgUrl(p);
-      if(u){ const im = new Image(); im.src = u; im.alt=""; f.appendChild(im); }
+      const im = faceImg(p, 96, {lazy: true});
+      if(im) f.appendChild(im);
       row.appendChild(f);
       row.appendChild(el("span", null, p.name));
       const loc = LOCATE[p.id];
@@ -5577,8 +5936,8 @@ function renderLeaders(){
       row.appendChild(el("span","lr", r.r));
       const p = DATA.players[r.id];
       const f = el("div","lf");
-      const u = p ? imgUrl(p) : null;
-      if(u){ const im = new Image(); im.src = u; im.alt=""; f.appendChild(im); }
+      const im = p ? faceImg(p, 96, {lazy: true}) : null;
+      if(im) f.appendChild(im);
       row.appendChild(f);
       row.appendChild(el("span","ln", r.n));
       row.appendChild(el("span","lt", r.t || ""));
@@ -5615,8 +5974,8 @@ function renderLeaders(){
     } else {
       const p = DATA.players[r.pid];
       const f = el("div","lf");
-      const u = imgUrl(p);
-      if(u){ const im = new Image(); im.src = u; im.alt=""; f.appendChild(im); }
+      const im = faceImg(p, 96, {lazy: true});
+      if(im) f.appendChild(im);
       row.appendChild(f);
       row.appendChild(el("span","ln", p.name));
       const loc = LOCATE[p.id];
@@ -5643,6 +6002,8 @@ $("#facesbtn").onclick = () => {
   const b = $("#wallbody"); b.innerHTML = ""; renderWall(b); b.scrollTop = 0;
 };
 $("#wallclose").onclick = () => { $("#wall").hidden = true; };
+$("#gamebtn").onclick = () => { $("#game").hidden = false; startGame(team, GAME.unit); };
+$("#gameclose").onclick = () => { $("#game").hidden = true; };
 $("#prev").addEventListener("click", e=>{ if(e.target.id === "prev") closePreview(); });
 $("#scoresbtn").onclick = openScores;
 $("#scoresclose").onclick = closeScores;

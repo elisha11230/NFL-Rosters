@@ -196,6 +196,24 @@ request. It is labelled as the market's view rather than a recommendation.
 It is a route inside the app rather than a separate file, so a name in a box
 score still opens that player's profile.
 
+## Lineup game
+
+The **Lineup** button opens the depth chart in reverse: the formation drawn empty
+with only position labels, and eleven real players in a tray with their positions
+hidden. Put each man where he belongs, then check.
+
+Placing is **tap-select then tap-place**, not HTML5 drag-and-drop. Drag events do
+not fire on touch screens at all, and this is most useful on a phone, so tapping
+is the real mechanism and dragging is layered on top for a mouse.
+
+**Mirrored and depth-ordered slots are graded as interchangeable.** Nobody can
+reasonably know which of three receivers is "WR2", so any of the three counts, and
+the same goes for the two guards, the safeties, the corners and the interior
+line. Left tackle against right tackle is a real distinction and stays graded.
+Without this the game would punish guesses that were not guessable.
+
+Best score per team and unit is saved alongside the quiz progress.
+
 ## Visual views
 
 - **Faces** (button above the field) is every player on the roster as a
@@ -548,5 +566,18 @@ link them from a hosted page than rely on the embedded data URIs.
 - **Badges are resolved after the roster is built**, not while players are being
   created, because a shared name can only be broken with a club and that is not
   known during the first pass.
+- **Always ask the CDN for the size you are going to draw.** Headshots sit on
+  NFL.com's Cloudinary, which serves whatever the URL requests. The stored base
+  asks for `f_auto,q_auto` and no dimensions, so it returned a full-resolution
+  portrait for a circle drawn at 44px. `imgUrl(player, width)` inserts
+  `c_fill,g_face,w_N` into the transform, which is by far the biggest speed win
+  available here.
+- **Sizes snap to four buckets** (96, 128, 192, 320) rather than the exact pixel
+  size of each element. Every distinct URL is its own CDN cache entry, so a few
+  shared sizes beat a bespoke one per component.
+- **`faceImg()` is the only place an `<img>` is built**, so lazy loading and async
+  decoding are applied once rather than at sixteen call sites. Anything in a long
+  scrolling list is lazy; the field and profile are not, because they are visible
+  immediately.
 - **Headshots** come from NFL.com's CDN. Fine for a private project. If this ever
   goes public you need licensed images — see SportsDataIO.
