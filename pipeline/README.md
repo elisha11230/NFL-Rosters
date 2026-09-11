@@ -196,6 +196,22 @@ request. It is labelled as the market's view rather than a recommendation.
 It is a route inside the app rather than a separate file, so a name in a box
 score still opens that player's profile.
 
+## Hold a chip to switch players
+
+Holding a player on the field opens the depth at that spot right under your
+thumb: everyone listed there, with number, Top 100 rank and injury status, and a
+tap puts any of them on the field. Right-click does the same on a desktop.
+91% of slots have somebody to switch to.
+
+This replaced a four-step route — tap the chip, scroll the panel, find the depth
+list, tap a name — for answering "who else plays here".
+
+Built on pointer events rather than touch events, so one implementation covers a
+finger, a mouse and a stylus. The press is cancelled if the finger moves more
+than ten pixels, otherwise every scroll that began on a chip would open it, and
+the click that follows a completed hold is swallowed so the profile does not open
+underneath.
+
 ## How it works — the concepts library
 
 Seventeen animated diagrams behind the **How it works** button: eight routes,

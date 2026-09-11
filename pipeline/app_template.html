@@ -851,6 +851,41 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- hold to swap ---------- */
+.chip.holding .face{transform:scale(.92);transition:transform .42s ease}
+.swap{
+  position:absolute;z-index:30;width:212px;max-height:246px;overflow-y:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 14px 34px rgba(0,0,0,.6);padding:6px;
+}
+.swaphd{display:flex;align-items:baseline;justify-content:space-between;
+  padding:4px 6px 7px;border-bottom:1px solid var(--rule);margin-bottom:4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--team-accent)}
+.swapn{color:var(--dim);letter-spacing:.08em}
+.swaprow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  padding:6px;border-radius:2px}
+.swaprow:hover{background:#243039}
+.swaprow.on{background:color-mix(in srgb,var(--team) 22%,transparent)}
+.swapi{flex:0 0 16px;height:16px;border-radius:2px;background:var(--rule);
+  color:var(--mute);font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;display:flex;align-items:center;justify-content:center}
+.swaprow.on .swapi{background:var(--team);color:var(--team2)}
+.swapf{flex:0 0 26px;height:26px;border-radius:50%;overflow:hidden;
+  background:#0B1113;border:1px solid var(--line)}
+.swapf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.swapnm{flex:1 1 auto;min-width:0}
+.swapname{font-size:12.5px;color:var(--chalk);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.swapmeta{font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.06em;color:var(--dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.swapnote{padding:6px;font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:center;
+  border-top:1px solid var(--rule);margin-top:4px}
+/* The depth count doubles as the affordance, so make it look tappable. */
+.chip .stack{cursor:pointer}
+
 /* ---------- concepts library ---------- */
 #concepts{position:fixed;inset:0;z-index:77;background:rgba(8,12,14,.97);
   display:flex;flex-direction:column;padding:16px 18px}
@@ -1957,6 +1992,7 @@ function renderTimebar(){
 }
 
 function renderField(){
+  closeSwap();
   preloadTeam(team, 112);
   const grp = activeGrp(), form = FORMS[grp], by = slotsFor(grp);
   renderTimebar();
@@ -2016,6 +2052,7 @@ function renderField(){
     else if(stackArr.length>1) c.appendChild(el("div","stack", `+${stackArr.length-1}`));
 
     c.onclick = () => { sel=p.id; renderDetail(grp,slot,idx); paintSel(); syncHash(); };
+    attachHold(c, grp, slot, stackArr);
     box.appendChild(c);
   });
 }
@@ -3377,6 +3414,7 @@ document.addEventListener("keydown", e=>{
   }
   if(e.key === "Escape" && !$("#cmp").hidden) closeCompare();
   if(e.key === "Escape" && !$("#box").hidden) closeBox();
+  else if(document.getElementById("swap")) closeSwap();
   else if(e.key === "Escape" && !$("#concepts").hidden){
     $("#concepts").hidden = true; clearTimeout(conceptTimer);
   }
@@ -4766,6 +4804,134 @@ function drawPlay(play, idx){
     + ' ' + (x1*10).toFixed(1) + ' ' + (y1*7).toFixed(1) + '"'
     + ' fill="none" stroke="' + colour + '" stroke-width="4" stroke-linecap="round"'
     + ' ' + dash + ' marker-end="url(#ah)" filter="url(#gl)" opacity=".95"/>';
+}
+
+/* ---------------- hold to swap ----------------
+   Switching to a backup used to mean: tap the chip, scroll the panel, find the
+   depth list, tap a name. Four steps to answer "who else plays here".
+
+   Holding the chip puts that list under your thumb instead. Right-click does the
+   same on a desktop.
+
+   Pointer events rather than touch events, so one implementation covers a
+   finger, a mouse and a stylus. The press is cancelled if the finger moves,
+   otherwise every scroll that starts on a chip would open this. */
+const HOLD_MS = 420;
+const HOLD_SLOP = 10;          // px of movement that still counts as a hold
+let holdTimer = null, holdFrom = null, holdFired = false;
+
+function attachHold(chip, grp, slot, stack){
+  if(stack.length < 2) return;          // nobody to switch to
+
+  const start = e => {
+    if(e.button != null && e.button !== 0 && e.pointerType === "mouse") return;
+    holdFired = false;
+    holdFrom = {x: e.clientX, y: e.clientY};
+    chip.classList.add("holding");
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(()=>{
+      holdFired = true;
+      chip.classList.remove("holding");
+      if(navigator.vibrate) navigator.vibrate(12);
+      openSwap(chip, grp, slot, stack);
+    }, HOLD_MS);
+  };
+  const cancel = () => {
+    clearTimeout(holdTimer);
+    chip.classList.remove("holding");
+  };
+  const move = e => {
+    if(!holdFrom) return;
+    if(Math.abs(e.clientX - holdFrom.x) > HOLD_SLOP
+    || Math.abs(e.clientY - holdFrom.y) > HOLD_SLOP) cancel();
+  };
+
+  chip.addEventListener("pointerdown", start);
+  chip.addEventListener("pointerup", cancel);
+  chip.addEventListener("pointerleave", cancel);
+  chip.addEventListener("pointercancel", cancel);
+  chip.addEventListener("pointermove", move);
+  // Stop the long press from also opening the profile underneath.
+  chip.addEventListener("click", e => {
+    if(holdFired){ e.preventDefault(); e.stopPropagation(); holdFired = false; }
+  }, true);
+  chip.addEventListener("contextmenu", e=>{
+    e.preventDefault();
+    openSwap(chip, grp, slot, stack);
+  });
+}
+
+function closeSwap(){
+  const p = document.getElementById("swap");
+  if(p) p.remove();
+  document.removeEventListener("pointerdown", swapAway, true);
+}
+function swapAway(e){
+  const p = document.getElementById("swap");
+  if(p && !p.contains(e.target)) closeSwap();
+}
+
+function openSwap(chip, grp, slot, stack){
+  closeSwap();
+  const shown = Math.min(sub[grp + "|" + slot] || 0, stack.length - 1);
+  const pop = el("div", null);
+  pop.id = "swap";
+  pop.className = "swap";
+
+  const head = el("div","swaphd");
+  head.appendChild(el("span", null,
+    (SLOTMETA[grp + "|" + slot] || {}).abb || "Depth"));
+  head.appendChild(el("span","swapn", stack.length + " listed"));
+  pop.appendChild(head);
+
+  stack.forEach((r, i)=>{
+    const p = DATA.players[r.pid];
+    if(!p) return;
+    const row = el("button","swaprow" + (i === shown ? " on" : ""));
+    row.appendChild(el("span","swapi", String(i + 1)));
+    const f = el("div","swapf");
+    const im = faceImg(p, 96);
+    if(im) f.appendChild(im);
+    row.appendChild(f);
+    const nm = el("div","swapnm");
+    nm.appendChild(el("div","swapname", p.name));
+    const bits = [];
+    if(p.num != null) bits.push("#" + p.num);
+    if(p.t100) bits.push("Top 100 #" + p.t100);
+    if(p.inj && p.inj.sev >= 3) bits.push(p.inj.label);
+    nm.appendChild(el("div","swapmeta", bits.join("  \u00b7  ") || p.pos));
+    row.appendChild(nm);
+    row.onclick = e => {
+      e.stopPropagation();
+      closeSwap();
+      if(i === 0) delete sub[grp + "|" + slot];
+      else sub[grp + "|" + slot] = i;
+      sel = p.id;
+      renderField();
+      renderDetail(grp, slot, i);
+      paintSel();
+      syncHash();
+    };
+    pop.appendChild(row);
+  });
+
+  const note = el("div","swapnote","Tap a name to put him on the field");
+  pop.appendChild(note);
+
+  // Anchor to the chip, then pull back inside the field if it would overflow.
+  const field = document.getElementById("field");
+  field.appendChild(pop);
+  const fr = field.getBoundingClientRect(), cr = chip.getBoundingClientRect();
+  const w = pop.offsetWidth, h = pop.offsetHeight;
+  let left = cr.left - fr.left + cr.width / 2 - w / 2;
+  let top = cr.top - fr.top + cr.height + 6;
+  if(top + h > fr.height) top = cr.top - fr.top - h - 6;   // flip above
+  if(top < 4) top = 4;
+  left = Math.max(4, Math.min(fr.width - w - 4, left));
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+
+  setTimeout(()=>document.addEventListener("pointerdown", swapAway, true), 0);
 }
 
 /* ---------------- concepts library ----------------
