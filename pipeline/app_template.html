@@ -851,6 +851,46 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- concepts library ---------- */
+#concepts{position:fixed;inset:0;z-index:77;background:rgba(8,12,14,.97);
+  display:flex;flex-direction:column;padding:16px 18px}
+#concepts[hidden]{display:none}
+#conceptbtn{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--mute);
+  border:1px solid var(--line);padding:5px 10px;border-radius:var(--r)}
+#conceptbtn:hover{color:var(--chalk);border-color:var(--team)}
+.ctitle{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
+  margin-bottom:6px}
+.cblurb{font-size:13.5px;line-height:1.55;color:var(--mute);margin-bottom:12px;
+  max-width:60ch}
+.cfield{position:relative;width:100%;aspect-ratio:5/4;max-width:520px;
+  background:var(--field);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;
+  background-image:repeating-linear-gradient(to bottom,
+    transparent 0,transparent 9.4%,
+    color-mix(in srgb,var(--chalk) 11%,transparent) 9.4%,
+    color-mix(in srgb,var(--chalk) 11%,transparent) calc(9.4% + 1px))}
+.closs{position:absolute;left:0;right:0;height:2px;
+  background:color-mix(in srgb,var(--chalk) 55%,transparent)}
+.cdot{position:absolute;transform:translate(-50%,-50%);
+  width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:9.5px;letter-spacing:.04em;z-index:3}
+/* Offence light, defence dark: the convention every coaching diagram uses. */
+.cdot.o{background:var(--chalk);color:#10171A;border:2px solid var(--chalk)}
+.cdot.d{background:transparent;color:#E08A8A;border:2px solid #E08A8A}
+.cdot.gap{background:transparent;color:var(--brass);border:1px dashed var(--brass);
+  width:20px;height:20px;font-size:10px;z-index:2}
+.cdot.hi{box-shadow:0 0 0 4px color-mix(in srgb,var(--brass) 40%,transparent)}
+.czone{position:absolute;transform:translate(-50%,-50%);border-radius:50%;
+  background:color-mix(in srgb,#E08A8A 13%,transparent);
+  border:1px dashed color-mix(in srgb,#E08A8A 40%,transparent);z-index:1}
+.cball{position:absolute;width:10px;height:10px;z-index:4;
+  border-radius:50%/60% 60% 40% 40%;background:var(--brass);
+  transform:translate(-50%,-50%) rotate(25deg);
+  box-shadow:0 0 9px color-mix(in srgb,var(--brass) 70%,transparent)}
+.cctl{margin-top:10px}
+
 /* ---------- lineup game ---------- */
 #game{position:fixed;inset:0;z-index:76;background:rgba(8,12,14,.97);
   display:flex;flex-direction:column;padding:14px 16px}
@@ -1555,6 +1595,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
       </div>
       <div id="fieldbar">
         <div class="hint" id="formlab"></div>
+        <button id="conceptbtn">How it works</button>
         <button id="gamebtn">Lineup</button>
         <button id="facesbtn">Faces</button>
         <button id="simplebtn" aria-pressed="false">Simple</button>
@@ -1597,6 +1638,17 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   </div>
   <div id="scoresnav"></div>
   <div id="scoresbody"></div>
+</div>
+
+<div id="concepts" hidden role="dialog" aria-modal="true" aria-label="How football works">
+  <div class="lhead">
+    <h2 class="blk">How it works</h2>
+    <button class="qx" id="cclose">Close</button>
+  </div>
+  <div class="lsplit">
+    <div class="lcats" id="cnav"></div>
+    <div class="lrows" id="cbody"></div>
+  </div>
 </div>
 
 <div id="game" hidden role="dialog" aria-modal="true" aria-label="Lineup game">
@@ -3325,6 +3377,9 @@ document.addEventListener("keydown", e=>{
   }
   if(e.key === "Escape" && !$("#cmp").hidden) closeCompare();
   if(e.key === "Escape" && !$("#box").hidden) closeBox();
+  else if(e.key === "Escape" && !$("#concepts").hidden){
+    $("#concepts").hidden = true; clearTimeout(conceptTimer);
+  }
   else if(e.key === "Escape" && !$("#game").hidden) $("#game").hidden = true;
   else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
   else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
@@ -4713,186 +4768,298 @@ function drawPlay(play, idx){
     + ' ' + dash + ' marker-end="url(#ah)" filter="url(#gl)" opacity=".95"/>';
 }
 
-/* ---------------- play animation ----------------
-   An important honesty note up front: ESPN publishes play *text*, not player
-   tracking. Real coordinates are a paid product. So this is not a replay -- it is
-   a choreography built from what the text does say: who touched the ball, which
-   way it went, how deep, how far it gained, and how it ended.
+/* ---------------- concepts library ----------------
+   Invented motion is dishonest when it claims to show what happened in a real
+   play, and entirely legitimate when it is teaching. A whiteboard diagram is
+   meant to be idealised. So the animation engine gets pointed at concepts
+   instead: what a slant looks like, why a nickel back exists, where the A gap is.
 
-   It lives in watch mode rather than on the main field on purpose. The field's
-   job is "who lines up where", and chips sliding away from their position labels
-   stops it answering that.
+   Field runs 0-100 in both axes, the line of scrimmage at y=70, offence moving
+   up the screen. Each actor carries waypoints; the ball follows its own.
+   `t` is the delay in milliseconds before that actor starts. */
+const LOS = 70;
 
-   Kept deliberately readable: eleven dots, one ball, and a caption saying what is
-   being shown. */
-const ANIM = {playing:false, timer:null, last:null};
+const CONCEPTS = [
+  // ---------------- routes
+  {id:"slant", cat:"Routes", name:"Slant",
+   blurb:"Three hard steps upfield, then cut inside at an angle. Quick and hard "
+       + "to defend from outside leverage, which is why it beats press coverage "
+       + "and why it is thrown on third and short.",
+   actors:[
+     {lab:"WR", x:18, y:LOS, side:"o", path:[[18,62],[42,50]]},
+     {lab:"CB", x:18, y:62, side:"d", t:120, path:[[20,54],[38,46]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[42,50], t:520}},
 
-const ROUTE_DEPTH = {deep: 34, short: 14, none: 20};
+  {id:"go", cat:"Routes", name:"Go / Fly",
+   blurb:"Straight up the sideline, running past the corner. It either scores or "
+       + "it pulls the safety over, which opens the middle for somebody else.",
+   actors:[
+     {lab:"WR", x:14, y:LOS, side:"o", path:[[13,44],[12,10]]},
+     {lab:"CB", x:16, y:62, side:"d", t:100, path:[[15,42],[14,14]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[12,12], t:700}},
 
-function animField(){
-  return document.getElementById("animfield");
-}
+  {id:"out", cat:"Routes", name:"Out",
+   blurb:"Upfield about ten yards, then a flat break to the sideline. Safe, "
+       + "because an incompletion goes out of bounds rather than to a defender.",
+   actors:[
+     {lab:"WR", x:20, y:LOS, side:"o", path:[[20,50],[7,49]]},
+     {lab:"CB", x:20, y:60, side:"d", t:120, path:[[21,46],[14,45]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[7,49], t:640}},
 
-/* Lay the offence out from the formation the app already uses, so the shapes
-   match what you see on the depth chart. */
-function animSetup(offTeam){
-  const host = animField();
-  if(!host) return null;
-  host.innerHTML = "";
-  const grp = "3WR 1TE";
-  const coords = FORMS[grp].coords;
-  const by = {};
-  (DATA.depth[offTeam] || []).filter(r => r.grp === grp).forEach(r=>{
-    if(!by[r.slot] || r.rank < by[r.slot].rank) by[r.slot] = r;
+  {id:"dig", cat:"Routes", name:"Dig / In",
+   blurb:"Twelve yards upfield then a hard break across the middle. It works "
+       + "against a defence with safeties deep, and it is the route that gets "
+       + "receivers hit.",
+   actors:[
+     {lab:"WR", x:16, y:LOS, side:"o", path:[[16,46],[52,45]]},
+     {lab:"CB", x:18, y:60, side:"d", t:140, path:[[18,42],[40,40]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[52,45], t:660}},
+
+  {id:"post", cat:"Routes", name:"Post",
+   blurb:"Upfield then angled toward the goalposts. The deep shot that beats a "
+       + "single-high safety, because he cannot cover both hashes.",
+   actors:[
+     {lab:"WR", x:18, y:LOS, side:"o", path:[[18,46],[46,12]]},
+     {lab:"S", x:50, y:26, side:"d", t:260, path:[[44,20]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[46,13], t:760}},
+
+  {id:"corner", cat:"Routes", name:"Corner",
+   blurb:"The mirror of a post: upfield, then away toward the sideline. The "
+       + "throw has to beat the corner and land before the sideline.",
+   actors:[
+     {lab:"WR", x:24, y:LOS, side:"o", path:[[24,46],[6,16]]},
+     {lab:"CB", x:22, y:60, side:"d", t:140, path:[[22,40],[12,24]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[7,17], t:740}},
+
+  {id:"curl", cat:"Routes", name:"Curl",
+   blurb:"Push upfield, then stop and turn back to the ball. It works when the "
+       + "corner has turned to run, and it is how you beat soft coverage.",
+   actors:[
+     {lab:"WR", x:20, y:LOS, side:"o", path:[[20,46],[23,54]]},
+     {lab:"CB", x:20, y:58, side:"d", t:120, path:[[20,38]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[23,54], t:700}},
+
+  {id:"wheel", cat:"Routes", name:"Wheel",
+   blurb:"Out into the flat, then turn up the sideline. Usually run by a back, "
+       + "and it hurts because a linebacker ends up chasing him deep.",
+   actors:[
+     {lab:"RB", x:42, y:80, side:"o", path:[[16,72],[10,26]]},
+     {lab:"LB", x:40, y:60, side:"d", t:200, path:[[22,66],[16,40]]},
+     {lab:"QB", x:50, y:80, side:"o"}],
+   ball:{from:[50,80], to:[10,28], t:900}},
+
+  // ---------------- coverages
+  {id:"man", cat:"Coverage", name:"Man coverage",
+   blurb:"Every defender has a man and follows him wherever he goes. Watch the "
+       + "defenders' hips turn as the receivers break: in man, they mirror.",
+   actors:[
+     {lab:"WR", x:14, y:LOS, side:"o", path:[[14,44],[30,34]]},
+     {lab:"CB", x:16, y:62, side:"d", t:120, path:[[16,42],[32,32]]},
+     {lab:"WR", x:84, y:LOS, side:"o", path:[[84,48],[70,46]]},
+     {lab:"CB", x:82, y:62, side:"d", t:120, path:[[82,46],[68,44]]},
+     {lab:"S", x:50, y:22, side:"d", path:[[50,20]]}],
+   ball:null},
+
+  {id:"cover2", cat:"Coverage", name:"Cover 2",
+   blurb:"Two safeties split the deep half of the field between them, and the "
+       + "corners drop to the flats. Strong against short throws outside, "
+       + "vulnerable straight down the middle between the safeties.",
+   actors:[
+     {lab:"S", x:28, y:26, side:"d", zone:[28,26,22], path:[[26,22]]},
+     {lab:"S", x:72, y:26, side:"d", zone:[72,26,22], path:[[74,22]]},
+     {lab:"CB", x:12, y:62, side:"d", zone:[12,58,14], path:[[10,58]]},
+     {lab:"CB", x:88, y:62, side:"d", zone:[88,58,14], path:[[90,58]]},
+     {lab:"LB", x:50, y:56, side:"d", zone:[50,50,13], path:[[50,50]]},
+     {lab:"WR", x:16, y:LOS, side:"o", path:[[16,40],[44,30]]}],
+   ball:null},
+
+  {id:"cover3", cat:"Coverage", name:"Cover 3",
+   blurb:"Three defenders split the deep field into thirds, so nothing gets "
+       + "behind them. The trade is that the space underneath, in front of the "
+       + "corners, is open all day.",
+   actors:[
+     {lab:"S", x:50, y:20, side:"d", zone:[50,20,20], path:[[50,18]]},
+     {lab:"CB", x:16, y:56, side:"d", zone:[16,24,18], path:[[16,26]]},
+     {lab:"CB", x:84, y:56, side:"d", zone:[84,24,18], path:[[84,26]]},
+     {lab:"LB", x:36, y:58, side:"d", zone:[34,54,12], path:[[34,54]]},
+     {lab:"LB", x:64, y:58, side:"d", zone:[66,54,12], path:[[66,54]]},
+     {lab:"WR", x:20, y:LOS, side:"o", path:[[20,58],[26,56]]}],
+   ball:null},
+
+  {id:"nickel", cat:"Coverage", name:"Why a nickel back exists",
+   blurb:"When the offence puts a third receiver on the field, a linebacker comes "
+       + "off and a fifth defensive back comes on. That fifth man is the nickel, "
+       + "and he covers the slot \u2014 which is why he is on your depth chart.",
+   actors:[
+     {lab:"WR", x:12, y:LOS, side:"o"},
+     {lab:"WR", x:30, y:LOS-6, side:"o", hi:true, path:[[36,48]]},
+     {lab:"WR", x:88, y:LOS, side:"o"},
+     {lab:"CB", x:14, y:60, side:"d"},
+     {lab:"NB", x:32, y:58, side:"d", hi:true, t:120, path:[[38,46]]},
+     {lab:"CB", x:86, y:60, side:"d"},
+     {lab:"LB", x:58, y:58, side:"d"}],
+   ball:null},
+
+  // ---------------- the run game
+  {id:"gaps", cat:"Run game", name:"The gaps, A to C",
+   blurb:"The spaces between linemen are lettered outward from the centre. A back "
+       + "running \u201cA gap\u201d is going straight up the middle; \u201cC gap\u201d "
+       + "means outside the tackle. The run charts on a player's profile use "
+       + "these same names.",
+   actors:[
+     {lab:"LT", x:26, y:LOS, side:"o"}, {lab:"LG", x:38, y:LOS, side:"o"},
+     {lab:"C", x:50, y:LOS, side:"o"}, {lab:"RG", x:62, y:LOS, side:"o"},
+     {lab:"RT", x:74, y:LOS, side:"o"},
+     {lab:"A", x:44, y:LOS+8, side:"gap"}, {lab:"A", x:56, y:LOS+8, side:"gap"},
+     {lab:"B", x:32, y:LOS+8, side:"gap"}, {lab:"B", x:68, y:LOS+8, side:"gap"},
+     {lab:"C", x:20, y:LOS+8, side:"gap"}, {lab:"C", x:80, y:LOS+8, side:"gap"}],
+   ball:null, static:true},
+
+  {id:"zone", cat:"Run game", name:"Outside zone",
+   blurb:"The whole line moves sideways together and the back runs along behind "
+       + "them, looking for a crease. He is reading the blocks, not aiming at a "
+       + "hole that was called.",
+   actors:[
+     {lab:"LT", x:26, y:LOS, side:"o", path:[[20,68]]},
+     {lab:"LG", x:38, y:LOS, side:"o", path:[[32,68]]},
+     {lab:"C", x:50, y:LOS, side:"o", path:[[44,68]]},
+     {lab:"RG", x:62, y:LOS, side:"o", path:[[56,68]]},
+     {lab:"RT", x:74, y:LOS, side:"o", path:[[68,68]]},
+     {lab:"RB", x:58, y:82, side:"o", hi:true, t:200, path:[[34,76],[24,58],[26,36]]}],
+   ball:null},
+
+  {id:"power", cat:"Run game", name:"Power",
+   blurb:"A guard pulls from the other side of the line and leads through the "
+       + "hole. One extra blocker arrives exactly where the back is going.",
+   actors:[
+     {lab:"LT", x:26, y:LOS, side:"o"}, {lab:"LG", x:38, y:LOS, side:"o", hi:true,
+      path:[[52,74],[66,70]]},
+     {lab:"C", x:50, y:LOS, side:"o"}, {lab:"RG", x:62, y:LOS, side:"o"},
+     {lab:"RT", x:74, y:LOS, side:"o"},
+     {lab:"RB", x:46, y:82, side:"o", hi:true, t:280, path:[[62,76],[70,52]]}],
+   ball:null},
+
+  // ---------------- pressure
+  {id:"blindside", cat:"Pressure", name:"The blind side",
+   blurb:"A right-handed quarterback turns his back to his left as he drops. The "
+       + "rusher coming from that side is the one he never sees, which is why the "
+       + "left tackle is usually the best-paid man on the line.",
+   actors:[
+     {lab:"LT", x:26, y:LOS, side:"o", hi:true, path:[[22,76]]},
+     {lab:"C", x:50, y:LOS, side:"o"}, {lab:"RT", x:74, y:LOS, side:"o"},
+     {lab:"QB", x:50, y:78, side:"o", path:[[52,86]]},
+     {lab:"EDGE", x:18, y:64, side:"d", hi:true, t:60, path:[[16,78],[40,88]]}],
+   ball:null},
+
+  {id:"blitz", cat:"Pressure", name:"Blitz",
+   blurb:"A defender who normally drops into coverage rushes instead. It gets "
+       + "pressure faster, at the cost of one fewer man covering \u2014 which is "
+       + "why a blitz that misses usually gives up a big play.",
+   actors:[
+     {lab:"C", x:50, y:LOS, side:"o"}, {lab:"LG", x:38, y:LOS, side:"o"},
+     {lab:"RG", x:62, y:LOS, side:"o"},
+     {lab:"QB", x:50, y:80, side:"o"},
+     {lab:"DT", x:44, y:64, side:"d", path:[[42,72]]},
+     {lab:"DT", x:56, y:64, side:"d", path:[[58,72]]},
+     {lab:"LB", x:50, y:52, side:"d", hi:true, t:120, path:[[50,62],[48,78]]},
+     {lab:"CB", x:16, y:60, side:"d", path:[[18,48]]}],
+   ball:null},
+];
+
+const CONCEPT_CATS = ["Routes", "Coverage", "Run game", "Pressure"];
+let conceptId = "slant", conceptTimer = null;
+
+function renderConcepts(){
+  const nav = $("#cnav"), body = $("#cbody");
+  nav.innerHTML = "";
+  CONCEPT_CATS.forEach(cat=>{
+    const mine = CONCEPTS.filter(c => c.cat === cat);
+    if(!mine.length) return;
+    nav.appendChild(el("div","lgrp", cat));
+    mine.forEach(c=>{
+      const b = el("button","lcat", c.name);
+      b.setAttribute("aria-pressed", c.id === conceptId);
+      b.onclick = () => { conceptId = c.id; renderConcepts(); };
+      nav.appendChild(b);
+    });
   });
 
-  const dots = {};
-  Object.entries(coords).forEach(([slot, xy])=>{
-    const row = by[slot];
-    if(!row) return;
-    const p = DATA.players[row.pid];
-    const d = el("div","adot");
-    d.style.left = xy[0] + "%";
-    d.style.top = xy[1] + "%";
-    d.dataset.home = xy[0] + "," + xy[1];
-    const face = el("div","aface");
-    const im = p ? faceImg(p, 96) : null;
-    if(im) face.appendChild(im);
-    else face.appendChild(el("div","afb", row.abb));
-    d.appendChild(face);
-    d.appendChild(el("div","alab", slotLabel(grp, +slot, row.abb)));
-    if(p) d.dataset.pid = p.id;
-    host.appendChild(d);
-    dots[row.pid] = d;
-    dots["slot" + slot] = d;
-  });
+  const c = CONCEPTS.find(x => x.id === conceptId) || CONCEPTS[0];
+  body.innerHTML = "";
+  body.appendChild(el("div","ctitle", c.name));
+  body.appendChild(el("div","cblurb", c.blurb));
 
-  const ball = el("div","aball");
-  ball.style.left = "50%";
-  ball.style.top = coords[9] ? coords[9][1] + "%" : "48%";
-  host.appendChild(ball);
-  return {dots, ball, coords};
+  const field = el("div","cfield");
+  field.id = "conceptfield";
+  body.appendChild(field);
+
+  const controls = el("div","cctl");
+  const play = el("button","areplay", c.static ? "Reset" : "Play again");
+  play.onclick = () => runConcept(c);
+  controls.appendChild(play);
+  body.appendChild(controls);
+
+  runConcept(c);
 }
 
-function moveDot(d, x, y, ms){
-  if(!d) return;
-  d.style.transition = "left " + ms + "ms cubic-bezier(.3,.7,.4,1), top "
-    + ms + "ms cubic-bezier(.3,.7,.4,1)";
-  d.style.left = x + "%";
-  d.style.top = y + "%";
-}
-function resetDot(d){
-  if(!d || !d.dataset.home) return;
-  const [x, y] = d.dataset.home.split(",");
-  d.style.transition = "left 500ms ease, top 500ms ease";
-  d.style.left = x + "%";
-  d.style.top = y + "%";
-}
+function runConcept(c){
+  const field = document.getElementById("conceptfield");
+  if(!field) return;
+  clearTimeout(conceptTimer);
+  field.innerHTML = "";
 
-function animatePlay(play, offTeam, idx){
-  const host = animField();
-  if(!host || !play) return;
-  const parts = playParticipants(play.text);
-  const cap = document.getElementById("animcap");
-  clearTimeout(ANIM.timer);
+  // line of scrimmage
+  const los = el("div","closs");
+  los.style.top = LOS + "%";
+  field.appendChild(los);
 
-  const scene = animSetup(offTeam);
-  if(!scene){ return; }
-  const {dots, ball} = scene;
-  if(cap) cap.textContent = play.text;
-
-  if(!parts){
-    if(cap) cap.textContent = play.text + "  \u00b7  nothing to animate";
-    return;
-  }
-
-  const fromPid = resolvePlayer(parts.from, idx);
-  const toPid = resolvePlayer(parts.to, idx);
-  const carrier = dots[fromPid], target = dots[toPid];
-  const dir = parts.dir != null ? parts.dir
-            : /left/i.test(play.text) ? -1 : /right/i.test(play.text) ? 1 : 0;
-  const gain = parts.yards == null ? 6 : parts.yards;
-
-  const pos = d => ({
-    x: parseFloat(d.style.left), y: parseFloat(d.style.top),
-  });
-
-  // ---- snap
-  ball.style.transition = "left 220ms ease, top 220ms ease";
-  if(carrier){
-    const c = pos(carrier);
-    ball.style.left = c.x + "%";
-    ball.style.top = c.y + "%";
-  }
-
-  setTimeout(()=>{
-    if(parts.kind === "pass"){
-      // Quarterback settles, receiver runs his route, ball follows.
-      if(carrier) moveDot(carrier, pos(carrier).x, pos(carrier).y + 5, 500);
-      const depth = /deep/i.test(play.text) ? ROUTE_DEPTH.deep
-                  : /short/i.test(play.text) ? ROUTE_DEPTH.short : ROUTE_DEPTH.none;
-      // The ball goes where the play says it went, not where the receiver lined
-      // up. A deep middle throw to a man split wide right belongs in the middle;
-      // using his alignment put it on the sideline. His starting spot still
-      // pulls the route a little, so two receivers do not converge on one point.
-      const zoneX = dir === -1 ? 22 : dir === 1 ? 78 : 50;
-      let tx = zoneX, ty = Math.max(4, 26 - depth);
-      if(target){
-        const t = pos(target);
-        tx = Math.max(6, Math.min(94, zoneX * 0.72 + t.x * 0.28));
-        moveDot(target, tx, ty, 900);
-      }
-      setTimeout(()=>{
-        ball.style.transition = "left 620ms cubic-bezier(.25,.9,.4,1), top 620ms cubic-bezier(.25,.9,.4,1)";
-        ball.style.left = tx + "%";
-        ball.style.top = ty + "%";
-        ball.classList.toggle("miss", !!parts.incomplete);
-        ball.classList.toggle("pick", !!parts.turnover);
-        // Yards after the catch carry the receiver on.
-        if(!parts.incomplete && !parts.turnover && target && gain > depth / 2){
-          setTimeout(()=>{
-            const extra = Math.max(0, Math.min(18, gain - depth));
-            moveDot(target, tx + dir * 3, Math.max(3, ty - extra), 700);
-            ball.style.transition = "left 700ms ease, top 700ms ease";
-            ball.style.left = (tx + dir * 3) + "%";
-            ball.style.top = Math.max(3, ty - extra) + "%";
-          }, 640);
-        }
-      }, 420);
-
-    } else if(parts.kind === "run"){
-      if(!carrier) return;
-      const c = pos(carrier);
-      const lane = Math.max(6, Math.min(94, c.x + dir * 10));
-      const end = Math.max(3, 26 - Math.max(0, Math.min(24, gain)));
-      moveDot(carrier, lane, 26, 380);
-      ball.style.transition = "left 380ms ease, top 380ms ease";
-      ball.style.left = lane + "%"; ball.style.top = "26%";
-      setTimeout(()=>{
-        moveDot(carrier, lane, end, 800);
-        ball.style.transition = "left 800ms ease, top 800ms ease";
-        ball.style.left = lane + "%"; ball.style.top = end + "%";
-      }, 400);
-
-    } else if(parts.kind === "sack"){
-      if(!carrier) return;
-      const c = pos(carrier);
-      moveDot(carrier, c.x, c.y + 9, 700);
-      ball.style.transition = "left 700ms ease, top 700ms ease";
-      ball.style.left = c.x + "%"; ball.style.top = (c.y + 9) + "%";
-      host.classList.add("shake");
-      setTimeout(()=>host.classList.remove("shake"), 700);
+  c.actors.forEach(a=>{
+    // A zone is the patch of grass a defender is responsible for, which is the
+    // whole point of zone coverage and invisible without drawing it.
+    if(a.zone){
+      const [zx, zy, zr] = a.zone;
+      const z = el("div","czone");
+      z.style.left = zx + "%"; z.style.top = zy + "%";
+      z.style.width = z.style.height = zr * 2 + "%";
+      field.appendChild(z);
     }
-  }, 240);
+    const d = el("div","cdot " + a.side + (a.hi ? " hi" : ""));
+    d.style.left = a.x + "%";
+    d.style.top = a.y + "%";
+    d.appendChild(el("span", null, a.lab));
+    field.appendChild(d);
 
-  // Settle back so the next play starts from the formation again.
-  ANIM.timer = setTimeout(()=>{
-    Object.values(dots).forEach(resetDot);
-    ball.style.transition = "left 500ms ease, top 500ms ease";
-    ball.style.left = "50%";
-    ball.style.top = (FORMS["3WR 1TE"].coords[9] || [0,48])[1] + "%";
-    ball.classList.remove("miss","pick");
-  }, 3600);
+    (a.path || []).forEach((pt, i)=>{
+      setTimeout(()=>{
+        d.style.transition = "left 620ms cubic-bezier(.35,.6,.35,1), "
+          + "top 620ms cubic-bezier(.35,.6,.35,1)";
+        d.style.left = pt[0] + "%";
+        d.style.top = pt[1] + "%";
+      }, (a.t || 0) + i * 620 + 260);
+    });
+  });
+
+  if(c.ball){
+    const b = el("div","cball");
+    b.style.left = c.ball.from[0] + "%";
+    b.style.top = c.ball.from[1] + "%";
+    field.appendChild(b);
+    setTimeout(()=>{
+      b.style.transition = "left 560ms cubic-bezier(.2,.8,.4,1), "
+        + "top 560ms cubic-bezier(.2,.8,.4,1)";
+      b.style.left = c.ball.to[0] + "%";
+      b.style.top = c.ball.to[1] + "%";
+    }, c.ball.t);
+  }
+
+  if(!c.static) conceptTimer = setTimeout(() => runConcept(c), 4200);
 }
 
 /* ---------------- lineup game ----------------
@@ -5304,35 +5471,6 @@ function renderWatch(g){
       ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  " + mine + "% to win"));
   }
 
-  // the animated play, above the feed
-  const offTeam = (LIVE.plays && LIVE.plays[0] && LIVE.plays[0].team)
-                  || (h.ab === team ? team : a.ab);
-  const aw = el("div","awrap");
-  const head = el("div","ahead");
-  head.appendChild(el("span","alabel", "Last play"));
-  const replay = el("button","areplay","Replay");
-  head.appendChild(replay);
-  aw.appendChild(head);
-  const fieldBox = el("div","afield");
-  fieldBox.id = "animfield";
-  aw.appendChild(fieldBox);
-  aw.appendChild(el("div","acap","")).id = "animcap";
-  aw.appendChild(el("div","anote",
-    "A reconstruction from the play description, not tracking data \u2014 who "
-    + "touched the ball, which way it went and how far. Tap any play below to "
-    + "watch it again."));
-  b.appendChild(aw);
-
-  const idxA = buildFeedIndex([a.ab, h.ab].filter(Boolean));
-  const latest = (LIVE.plays || [])[0];
-  replay.onclick = () => { if(ANIM.last) animatePlay(ANIM.last, offTeam, idxA); };
-  if(latest){
-    ANIM.last = latest;
-    setTimeout(() => animatePlay(latest, offTeam, idxA), 60);
-  } else {
-    animSetup(offTeam);
-  }
-
   // who is making plays on defence
   const dleaders = defensiveLeaders([a.ab, h.ab].filter(Boolean), 6);
   if(dleaders.length){
@@ -5367,13 +5505,6 @@ function renderWatch(g){
     if(p.clock) meta.appendChild(el("span", null,
       (p.period ? "Q" + p.period + "  " : "") + p.clock));
     if(p.down) meta.appendChild(el("span","wpd", p.down));
-    row.style.cursor = "pointer";
-    row.onclick = () => {
-      ANIM.last = p;
-      animatePlay(p, p.team || offTeam, idx);
-      const f = animField();
-      if(f) f.scrollIntoView({behavior:"smooth", block:"center"});
-    };
     row.appendChild(meta);
     row.appendChild(playText(p.text, idx));
     const credit = defensiveCredit(p.text);
@@ -6779,6 +6910,11 @@ $("#facesbtn").onclick = () => {
 $("#wallclose").onclick = () => { $("#wall").hidden = true; };
 $("#gamebtn").onclick = () => { $("#game").hidden = false; startGame(team, GAME.unit); };
 $("#gameclose").onclick = () => { $("#game").hidden = true; };
+$("#conceptbtn").onclick = () => { $("#concepts").hidden = false; renderConcepts(); };
+$("#cclose").onclick = () => {
+  $("#concepts").hidden = true;
+  clearTimeout(conceptTimer);
+};
 $("#prev").addEventListener("click", e=>{ if(e.target.id === "prev") closePreview(); });
 $("#scoresbtn").onclick = openScores;
 $("#scoresclose").onclick = closeScores;

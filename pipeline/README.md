@@ -196,6 +196,27 @@ request. It is labelled as the market's view rather than a recommendation.
 It is a route inside the app rather than a separate file, so a name in a box
 score still opens that player's profile.
 
+## How it works — the concepts library
+
+Seventeen animated diagrams behind the **How it works** button: eight routes,
+four coverage ideas, three from the run game, two on pressure.
+
+This replaced a live play animation that was cut. That version reconstructed the
+last real play on a field, and it did not earn its place: the play text sitting
+directly above it was faster to read and more precise, the route shapes were
+invented anyway, and there was no defence in it, so there was nothing to watch.
+Motion without information is decoration.
+
+Invented motion is dishonest when it claims to show what happened in a real play,
+and entirely legitimate when it is teaching — a whiteboard diagram is meant to be
+idealised. So the same engine now answers the questions the rest of the app
+cannot: what a slant looks like, why a nickel back is on the depth chart, where
+the A gap is, why the left tackle is paid like a quarterback.
+
+Offence is drawn light and defence dark, which is the convention every coaching
+diagram uses. Zone coverages draw the patch of grass each defender is responsible
+for, because that is the whole point of a zone and invisible otherwise.
+
 ## Lineup game
 
 The **Lineup** button opens the depth chart in reverse: the formation drawn empty
@@ -267,23 +288,6 @@ two players sharing a key, the one higher on the depth chart wins — announcers
 mean the starter far more often than his backup. Suffixes (Jr, III) are stripped
 before matching, and the `NE-K.Byard` form the feed uses for recoveries and
 returns still resolves.
-
-**Plays animate in watch mode**, not on the main field. The field's job is "who
-lines up where", and chips sliding away from their position labels stops it
-answering that, so the animation gets its own surface above the feed. Tap any play
-in the feed to watch it again.
-
-Be clear about what this is: ESPN publishes play *text*, not player tracking —
-real coordinates are a paid product. So it is a choreography built from what the
-text does say (who touched the ball, which way, how deep, how far, how it ended),
-and the caption says so. A pass sends the receiver on a route and the ball after
-him, with yards after the catch carrying him on; a run picks a lane and advances
-by the distance gained; a sack drives the quarterback backwards.
-
-**The ball goes where the play says, not where the receiver lined up.** Using his
-alignment put a "deep middle" throw on the sideline because that is where he
-happened to start. Direction now dominates and the starting spot only nudges, so
-two receivers still do not converge on the same point.
 
 **The defence is pulled out of the parentheses.** Play text follows firm
 conventions — a trailing `(C.Gonzalez)` is a tackle, `(C.Gonzalez, Z.Baun)` an
