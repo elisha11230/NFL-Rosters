@@ -889,12 +889,32 @@ body.simple #timebar{display:none}
 .gwatch:hover{background:#D06A6A}
 
 /* ---------- live box score ---------- */
-.wsplit{display:grid;grid-template-columns:1fr;gap:20px;max-width:620px;
+.wsplit{display:grid;grid-template-columns:1fr;gap:20px;max-width:660px;
   margin:0 auto;width:100%}
-@media (min-width:960px){
-  .wsplit{grid-template-columns:minmax(0,1fr) 340px;max-width:1040px;
-    align-items:start}
-  .waside{position:sticky;top:0}
+
+@media (min-width:900px){
+  /* Each column scrolls on its own. Sticky positioning pinned the box score to
+     the top, which meant anything past the fold in it was unreachable -- the
+     wheel only ever moved the feed. */
+  #watchbody{overflow:hidden;display:flex}
+  .wsplit{grid-template-columns:minmax(0,1fr) minmax(330px,400px);
+    max-width:1360px;height:100%;align-items:stretch;gap:26px}
+  .wmain,.waside{overflow-y:auto;min-height:0;padding-right:6px;
+    scrollbar-width:thin}
+  .wmain::-webkit-scrollbar,.waside::-webkit-scrollbar{width:4px}
+  .wmain::-webkit-scrollbar-thumb,.waside::-webkit-scrollbar-thumb{
+    background:var(--line);border-radius:2px}
+  /* Keep the heading in place while its list moves. */
+  .waside .wsub{position:sticky;top:0;background:var(--ink);z-index:2;
+    padding-bottom:6px;margin-top:0}
+}
+
+/* There is room to breathe on a wide screen, so use it. */
+@media (min-width:1200px){
+  .wsc{gap:16px}
+  .wpts{font-size:38px}
+  .wdd{font-size:27px}
+  .ptext,.pname2{font-size:15px}
 }
 .wmain{min-width:0}
 .waside{min-width:0}
@@ -1177,7 +1197,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 /* ---------- watch mode ----------
    Sized for glancing at from across a room, not reading. */
 #watch{position:fixed;inset:0;z-index:80;background:var(--ink);
-  display:flex;flex-direction:column;padding:12px 14px}
+  display:flex;flex-direction:column;padding:12px 18px}
 #watch[hidden]{display:none}
 .whead{display:flex;align-items:center;justify-content:space-between;
   margin-bottom:10px;flex:0 0 auto}
@@ -1186,7 +1206,10 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   text-transform:uppercase;color:#E4A4A4}
 .wlive i{width:8px;height:8px;border-radius:50%;background:#E05B5B;
   animation:pulse 1.6s ease-in-out infinite}
-#watchbody{flex:1 1 auto;overflow-y:auto;max-width:620px;margin:0 auto;width:100%}
+/* No width cap here. The cap belonged on the single-column layout, but it was
+   also squeezing the two-column one, so a 1300px screen was rendering the feed
+   and the box score inside 620px. .wsplit owns the width now. */
+#watchbody{flex:1 1 auto;overflow-y:auto;width:100%;min-height:0}
 .wsc{display:flex;gap:12px;margin-bottom:6px}
 .wside{flex:1 1 0;display:flex;align-items:center;gap:10px;padding:12px 14px;
   border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
