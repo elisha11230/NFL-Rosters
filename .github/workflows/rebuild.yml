@@ -12,6 +12,11 @@ on:
   push:
     paths:
       - "pipeline/**"
+      # Watch this file too. Without it, fixing a broken workflow does not
+      # trigger a rebuild -- the previous run failed, the fix does not match
+      # "pipeline/**", and the site silently stays on the old build until
+      # somebody presses Run workflow by hand.
+      - ".github/workflows/rebuild.yml"
   workflow_dispatch:
 
 # Needed so the job can commit the rebuilt page back to the repository.
