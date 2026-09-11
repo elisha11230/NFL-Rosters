@@ -6224,7 +6224,10 @@ async function renderScores(){
     row.appendChild(meta);
     row.onclick = () => pickGame(key, g);
     wrap.appendChild(row);
-    rows[key] = {row, aEl, hEl, meta};
+    // Carry the fixture itself, not just its elements. The pass that fills in
+    // scores runs after this closure has gone, so anything it needs about the
+    // game has to be stored here.
+    rows[key] = {row, aEl, hEl, meta, g};
   });
 
   const n = el("div","carnote");
@@ -6237,7 +6240,7 @@ async function renderScores(){
   for(const key in rows){
     const s = scores[key];
     if(!s) continue;
-    const {row, aEl, hEl, meta} = rows[key];
+    const {row, aEl, hEl, meta, g} = rows[key];
     if(s.state === "pre") continue;
     row.classList.add(s.state === "in" ? "live" : "done");
     aEl.querySelector(".gscore").textContent = s.a ?? "";
