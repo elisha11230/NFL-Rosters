@@ -230,10 +230,21 @@ Best score per team and unit is saved alongside the quiz progress.
 - **Season strips** show ten years as blocks sized by points difference.
 - **Cap treemaps** use area rather than a stacked bar, because money is a
   proportion question and area reads proportion better.
-- **Play arrows** sketch the most recent live play onto the formation. Direction
-  comes from the play text and depth from the yardage, so it is a sketch of what
-  happened, not a tracking replay — which is all the text supports. A play with no
-  derivable geometry, like a field goal, draws nothing rather than guessing.
+- **Play arrows** draw the most recent live play between the actual player chips.
+  The participants are read out of the play text — passer, target, ball carrier,
+  tackler — resolved to players, and their positions read from the DOM so the line
+  always agrees with what is on screen. Everyone involved is ringed: green for the
+  offence, amber for the defender.
+
+  An earlier version guessed instead: a fixed start point, a direction from the
+  word "left", a length from the yardage. It ignored the one thing this app has,
+  which is knowing where every player is standing.
+
+  Nothing is drawn unless it can be drawn honestly. Wrong team on screen, wrong
+  unit, a backup who is not on the chart, a field goal or a penalty — all produce
+  no line rather than a plausible-looking invention. A completion connects two
+  chips, an incompletion dashes to the intended target, a run carries upfield by
+  the distance actually gained, and a sack pushes backwards.
 
 `build_charts.py` stores a target as `[air_yards, direction, flags]` — three small
 numbers, because a busy receiver has over two hundred of them.
@@ -257,8 +268,63 @@ mean the starter far more often than his backup. Suffixes (Jr, III) are stripped
 before matching, and the `NE-K.Byard` form the feed uses for recoveries and
 returns still resolves.
 
+**Plays animate in watch mode**, not on the main field. The field's job is "who
+lines up where", and chips sliding away from their position labels stops it
+answering that, so the animation gets its own surface above the feed. Tap any play
+in the feed to watch it again.
+
+Be clear about what this is: ESPN publishes play *text*, not player tracking —
+real coordinates are a paid product. So it is a choreography built from what the
+text does say (who touched the ball, which way, how deep, how far, how it ended),
+and the caption says so. A pass sends the receiver on a route and the ball after
+him, with yards after the catch carrying him on; a run picks a lane and advances
+by the distance gained; a sack drives the quarterback backwards.
+
+**The ball goes where the play says, not where the receiver lined up.** Using his
+alignment put a "deep middle" throw on the sideline because that is where he
+happened to start. Direction now dominates and the starting spot only nudges, so
+two receivers still do not converge on the same point.
+
+**The defence is pulled out of the parentheses.** Play text follows firm
+conventions — a trailing `(C.Gonzalez)` is a tackle, `(C.Gonzalez, Z.Baun)` an
+assist, names after `sacked` a sack, `INTERCEPTED by` a takeaway, `FUMBLES (…)`
+the forcer and `RECOVERED by` the recoverer. Those are parsed into labelled tags
+under each play, with the names linked like any other. Left inline they are easy
+to miss, which hides half the game from somebody still learning who these people
+are.
+
+**Watch mode also ranks the defence live**, weighting sacks and takeaways above
+raw tackle counts — two sacks is a bigger afternoon than eleven tackles, and a
+straight tackle count would say otherwise.
+
 Play text is built as DOM nodes rather than markup, so nothing arriving from the
 feed is ever interpreted as HTML.
+
+## Other live sources
+
+Four more, all free and three needing no key at all:
+
+- **Weather** from Open-Meteo, for the preview. Requested only for outdoor games
+  at a club's usual ground: indoor fixtures and the nine international games carry
+  no coordinates, so no request is made. Wind over about 15 mph, steady rain or
+  real cold get called out, because those measurably suppress scoring.
+  Coordinates come from nflverse's airports file — an airport sits ten or twenty
+  miles from its stadium, which does not matter when forecasts are gridded at
+  roughly that scale.
+- **Inactives** from ESPN, which land about ninety minutes before kickoff and
+  settle what a Wednesday "questionable" only hinted at.
+- **Trending players** from Sleeper's public feed: how many fantasy managers added
+  a player in the last day, across millions of leagues. A crowd noticing something
+  is a signal this app cannot produce from its own data, and a good breakout
+  detector.
+- **Line movement** without a paid odds key. Multi-book history costs money, but
+  the useful part is the drift, so the first line ever seen for a fixture is
+  remembered locally and the change shown against it. It fills in over a week
+  rather than appearing at once, and the note says so.
+
+`fetch_sources.sh` also now pulls the current season's play-by-play and team stats
+when they exist, so situational splits, target charts and highlights start
+covering games that just happened.
 
 ## Live game day
 

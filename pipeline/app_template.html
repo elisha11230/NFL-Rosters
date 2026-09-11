@@ -987,6 +987,15 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 /* ---------- visual: play arrows ---------- */
 #playlayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
   z-index:5}
+/* The men involved in the last play, marked on the field. Worth doing even when
+   no line can be drawn -- knowing who was involved is most of the value. */
+.chip.inplay .face{border-color:var(--rise);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--rise) 30%,transparent)}
+.chip.inplay2 .face{border-color:#E0A15B;
+  box-shadow:0 0 0 4px color-mix(in srgb,#E0A15B 28%,transparent)}
+.chip.inplay,.chip.inplay2{z-index:6}
+@keyframes flash{0%{opacity:.25}100%{opacity:.95}}
+#playlayer path{animation:flash .45s ease-out}
 #facesbtn{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
@@ -1052,6 +1061,91 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   padding:5px 12px;border-radius:var(--r);font-weight:600;
 }
 #watchbtn[hidden]{display:none}
+
+/* ---------- play animation ---------- */
+.awrap{margin-bottom:16px}
+.ahead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.alabel{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim)}
+.areplay{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
+  padding:4px 10px;border-radius:var(--r)}
+.areplay:hover{color:var(--chalk);border-color:var(--team)}
+.afield{position:relative;width:100%;aspect-ratio:5/4;background:var(--field);
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  background-image:repeating-linear-gradient(to bottom,
+    transparent 0, transparent 9.4%,
+    color-mix(in srgb,var(--chalk) 12%,transparent) 9.4%,
+    color-mix(in srgb,var(--chalk) 12%,transparent) calc(9.4% + 1px))}
+.afield.shake{animation:shake .45s}
+@keyframes shake{
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-3px)}
+  75%{transform:translateX(3px)}}
+.adot{position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  width:34px;z-index:2}
+.aface{width:28px;height:28px;border-radius:50%;overflow:hidden;background:#0B1113;
+  border:2px solid var(--team-accent)}
+.aface img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.afb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;
+  color:var(--dim)}
+.alab{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:8.5px;
+  letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+.aball{position:absolute;width:11px;height:11px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:var(--brass);transform:translate(-50%,-50%) rotate(28deg);
+  z-index:3;box-shadow:0 0 10px color-mix(in srgb,var(--brass) 70%,transparent)}
+.aball.miss{background:var(--mute);box-shadow:none;opacity:.6}
+.aball.pick{background:var(--fall);box-shadow:0 0 10px color-mix(in srgb,var(--fall) 70%,transparent)}
+.acap{font-size:12.5px;line-height:1.45;color:var(--chalk);margin-top:8px}
+.anote{font-size:11.5px;line-height:1.45;color:var(--dim);margin-top:6px}
+
+/* ---------- conditions ---------- */
+.wxbox{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 4px;
+  padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel)}
+.wxbox.rough{border-color:color-mix(in srgb,#E0A15B 45%,transparent);
+  background:color-mix(in srgb,#E0A15B 10%,transparent)}
+.wxbox.indoors{color:var(--dim)}
+.wxi{font-size:15px}
+.wxv{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.wxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--mute)}
+.wxs{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--dim)}
+.wxn{flex:1 1 100%;font-size:12px;color:#E0B48A;line-height:1.4}
+.drift{display:flex;flex-direction:column;gap:3px;margin-top:8px}
+.drift span{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--team-accent)}
+.curow .trn{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--rise)}
+
+/* ---------- defensive credit ---------- */
+.dcred{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.dtag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;
+  border-radius:10px;background:var(--rule);
+  border:1px solid transparent}
+.dtag.big{background:color-mix(in srgb,#E0A15B 16%,transparent);
+  border-color:color-mix(in srgb,#E0A15B 45%,transparent)}
+.dlab{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--dim)}
+.dtag.big .dlab{color:#E0B48A}
+.dnm2{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;
+  color:var(--chalk);padding:0;border-bottom:1px dotted color-mix(in srgb,var(--chalk) 40%,transparent)}
+.dnm2.plain{border-bottom:0;color:var(--mute)}
+.dnm2:hover{color:#fff}
+.wsub{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin:4px 0 6px}
+.dlead{margin-bottom:14px}
+.dlrow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:6px 0;border-bottom:1px solid var(--rule)}
+.dlrow:last-child{border-bottom:0}
+.dlrow:hover .dln{color:#fff}
+.dlt{flex:0 0 32px;font-family:'Archivo Black',sans-serif;font-size:10px;
+  color:var(--team-accent)}
+.dln{flex:1 1 auto;font-size:13px;color:var(--chalk);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.dls{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap}
 
 /* ---------- game preview ---------- */
 #prev{position:fixed;inset:0;z-index:74;background:rgba(8,12,14,.97);
@@ -2846,6 +2940,40 @@ function sectionHistory(d){
   });
 }
 
+/* Who the fantasy world is suddenly interested in. A backup going from nobody to
+   forty thousand adds overnight means something happened, and that is a signal
+   this app cannot produce from its own data. */
+function sectionTrending(d){
+  const host = el("div","sect");
+  host.appendChild(el("h3", null, "People are picking up"));
+  const body = el("div");
+  body.appendChild(el("div","carnote","Checking\u2026"));
+  host.appendChild(body);
+  d.appendChild(host);
+
+  fetchTrending("add").then(rows=>{
+    body.innerHTML = "";
+    if(!rows || !rows.length){ host.remove(); return; }
+    rows.slice(0, 8).forEach(x=>{
+      const r = el("button","curow");
+      const f = el("div","cf");
+      const im = faceImg(x.p, 96, {lazy: true});
+      if(im) f.appendChild(im);
+      r.appendChild(f);
+      r.appendChild(el("span","cn", x.p.name));
+      const loc = LOCATE[x.p.id];
+      r.appendChild(el("span","cp", (loc ? loc.team + " \u00b7 " : "") + x.p.pos));
+      r.appendChild(el("span","trn", "+" + x.n.toLocaleString()));
+      r.onclick = () => goPlayer(x.p.id);
+      body.appendChild(r);
+    });
+    const n = el("div","carnote");
+    n.textContent = "Most added across Sleeper fantasy leagues in the last day. "
+      + "A name climbing fast usually means something happened worth knowing about.";
+    body.appendChild(n);
+  });
+}
+
 function sectionCatchUp(d){
   const yr = catchUpYear;
   const rows = (DATA.depth[team] || []);
@@ -3002,6 +3130,7 @@ function renderTeam(){
   }
 
   sectionGame(d);
+  sectionTrending(d);
   sectionCatchUp(d);
   sectionMovement(d);
   sectionBattles(d);
@@ -3777,9 +3906,13 @@ async function refreshLive(){
   else { LIVE.stats = {}; LIVE.active = new Set(); LIVE.drives = []; LIVE.wp = null; }
   renderLiveStrip(true);
   renderField();
-  // Sketch the most recent play onto the formation.
+  // Draw the most recent play, but only onto a present-day view of a team that
+  // is actually in the game.
   const latest = (LIVE.plays || [])[0];
-  drawPlayArrow(latest && !isPast() ? playGeometry(latest.text) : null);
+  const g2 = LIVE.byTeam[team];
+  if(latest && !isPast() && g2 && g2.state === "in"){
+    drawPlay(latest, buildFeedIndex(g2.teams.map(t => t.ab).filter(Boolean)));
+  } else clearPlayArrow();
   if(sel){ paintSel(); } else { renderTeam(); }
   return true;
 }
@@ -4448,41 +4581,318 @@ function capTreemap(groups, cols){
    Draw the play you just read onto the formation. Direction comes from the play
    text, depth from the yardage, so this is a sketch of what happened rather than
    a tracking replay -- which is all the text supports. */
-function playGeometry(text){
+/* ---------------- live play, drawn on the formation ----------------
+   The first version guessed: a fixed start point, a direction from the word
+   "left", and a length from the yardage. It ignored the one thing this app
+   actually has, which is every player's position on the field.
+
+   This version reads the participants out of the play text, finds their chips
+   where they are actually rendered, and draws between them. If the men involved
+   are not on the view you are looking at -- wrong team, wrong unit, a backup who
+   is not on the chart -- it draws nothing rather than inventing a line. */
+
+function playParticipants(text){
   if(!text) return null;
-  const t = text.toLowerCase();
-  const yards = (t.match(/for (-?\d+) yard/) || [])[1];
-  const gain = yards == null ? null : parseInt(yards, 10);
-  const dir = /left/.test(t) ? -1 : /right/.test(t) ? 1 : 0;
-  let kind = null;
-  if(/ pass /.test(t) || / sacked /.test(t)) kind = "pass";
-  else if(/(left|right|middle) (end|tackle|guard)|scramble|kneel/.test(t)) kind = "run";
-  if(!kind) return null;
-  const depth = /deep/.test(t) ? 2 : /short/.test(t) ? 1 : 0;
-  return {kind, dir, gain, depth, td: /touchdown/.test(t),
-          turnover: /intercepted|fumbles/.test(t)};
+  const t = text;
+  const NAME = "[A-Z][A-Za-z]?\\.(?:[A-Z]\\.)?[A-Z][A-Za-z'’-]+";
+  const grab = re => { const m = t.match(re); return m ? m[1] : null; };
+
+  const out = {kind: null, from: null, to: null, defender: null,
+               td: /TOUCHDOWN/i.test(t), turnover: /INTERCEPTED|FUMBLES/i.test(t),
+               yards: null, incomplete: /pass incomplete/i.test(t)};
+
+  const y = t.match(/for (-?\d+) yard/);
+  if(y) out.yards = parseInt(y[1], 10);
+  if(/for no gain/i.test(t)) out.yards = 0;
+
+  // A sack is a pass play that never left the pocket.
+  if(/\bsacked\b/i.test(t)){
+    out.kind = "sack";
+    out.from = grab(new RegExp("(" + NAME + ")\\s+sacked"));
+    out.defender = grab(new RegExp("sacked[^()]*\\((" + NAME + ")"));
+    return out.from ? out : null;
+  }
+  if(/\bpass\b/i.test(t)){
+    out.kind = "pass";
+    out.from = grab(new RegExp("(" + NAME + ")\\s+pass"));
+    // Completions say "to", incompletions and picks say "intended for".
+    out.to = grab(new RegExp("(?:to|intended for)\\s+(" + NAME + ")"));
+    out.defender = grab(new RegExp("INTERCEPTED by (?:[A-Z]{2,3}-)?(" + NAME + ")"))
+                || grab(new RegExp("\\((" + NAME + ")\\)\\s*\\.?\\s*$"));
+    return out.from ? out : null;
+  }
+  // Runs read as "left tackle", "right end" and so on, but a middle run is just
+  // "up the middle" with no gap word after it, which an earlier version missed.
+  if(/(left|right)\s+(end|tackle|guard)|up the middle|scramble|kneel|\brushed\b/i.test(t)){
+    out.kind = "run";
+    out.from = grab(new RegExp("^(?:\\([^)]*\\)\\s*)?(" + NAME + ")"));
+    out.defender = grab(new RegExp("\\((" + NAME + ")[^)]*\\)\\s*\\.?\\s*$"));
+    // Direction only matters when the runner has nobody to run toward.
+    out.dir = /left/i.test(t) ? -1 : /right/i.test(t) ? 1 : 0;
+    return out.from ? out : null;
+  }
+  return null;
 }
 
-function drawPlayArrow(geo){
+/* Where a chip actually sits, read from the DOM rather than recomputed, so the
+   arrow always agrees with what is on screen even after a formation change. */
+function chipPos(pid){
+  if(!pid) return null;
+  const c = document.querySelector('.chip[data-pid="' + CSS.escape(pid) + '"]');
+  if(!c) return null;
+  return {x: parseFloat(c.style.left), y: parseFloat(c.style.top), el: c};
+}
+
+function resolvePlayer(nameToken, idx){
+  if(!nameToken) return null;
+  const key = nameToken.toLowerCase().replace(/^([a-z])\.[a-z]\./, "$1.");
+  const hit = idx[key] || idx[nameToken.toLowerCase()];
+  return hit ? hit.pid : null;
+}
+
+function clearPlayArrow(){
   const layer = document.getElementById("playlayer");
-  if(!layer) return;
-  layer.innerHTML = "";
-  if(!geo) return;
-  // Start at the quarterback's spot in the offensive formation.
-  const x0 = 50, y0 = geo.kind === "pass" ? 48 : 26;
-  const reach = geo.kind === "pass"
-    ? (geo.depth === 2 ? 22 : geo.depth === 1 ? 12 : 8)
-    : Math.min(20, Math.max(5, (geo.gain || 4)));
-  const x1 = Math.max(6, Math.min(94, x0 + geo.dir * (geo.kind === "pass" ? 26 : 14)));
-  const y1 = Math.max(4, y0 - reach);
-  const col = geo.td ? "var(--brass)"
-            : geo.turnover ? "var(--fall)" : "var(--rise)";
-  layer.innerHTML = `
-    <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="5" refY="3.2"
-      orient="auto"><path d="M0,0 L6,3.2 L0,6.4 z" fill="${col}"/></marker></defs>
-    <path d="M ${x0*10} ${y0*7} Q ${(x0+geo.dir*8)*10} ${((y0+y1)/2)*7}
-      ${x1*10} ${y1*7}" fill="none" stroke="${col}" stroke-width="3.5"
-      stroke-linecap="round" marker-end="url(#ah)" opacity=".95"/>`;
+  if(layer) layer.innerHTML = "";
+  document.querySelectorAll(".chip.inplay, .chip.inplay2")
+    .forEach(c => c.classList.remove("inplay", "inplay2"));
+}
+
+function drawPlay(play, idx){
+  clearPlayArrow();
+  const layer = document.getElementById("playlayer");
+  if(!layer || !play) return;
+  const parts = playParticipants(play.text);
+  if(!parts) return;
+
+  const fromPid = resolvePlayer(parts.from, idx);
+  const toPid = resolvePlayer(parts.to, idx);
+  const defPid = resolvePlayer(parts.defender, idx);
+
+  const a = chipPos(fromPid), b = chipPos(toPid), d = chipPos(defPid);
+
+  // Mark whoever is on screen, even when no line can be drawn.
+  if(a) a.el.classList.add("inplay");
+  if(b) b.el.classList.add("inplay");
+  if(d) d.el.classList.add("inplay2");
+
+  const colour = parts.turnover ? "var(--fall)"
+               : parts.td ? "var(--brass)"
+               : parts.incomplete ? "var(--mute)"
+               : "var(--rise)";
+  const dash = parts.incomplete ? 'stroke-dasharray="9 7"' : "";
+
+  let x0, y0, x1, y1;
+  if(a && b){
+    // Both men on screen: the honest case, draw the actual connection.
+    x0 = a.x; y0 = a.y; x1 = b.x; y1 = b.y;
+  } else if(a && parts.kind === "run"){
+    // A run has no target, so carry the ball upfield from the runner by the
+    // distance he actually gained.
+    const gain = Math.max(3, Math.min(22, parts.yards == null ? 5 : parts.yards));
+    x0 = a.x; y0 = a.y;
+    x1 = Math.max(6, Math.min(94, a.x + (parts.dir || 0) * 9));
+    y1 = Math.max(4, a.y - gain);
+  } else if(a && parts.kind === "sack"){
+    x0 = a.x; y0 = a.y;
+    x1 = a.x; y1 = Math.min(96, a.y + 8);      // driven backwards
+  } else {
+    return;                                     // not enough on screen to be honest
+  }
+
+  const mx = (x0 + x1) / 2 + (parts.kind === "pass" ? (x1 - x0) * 0.12 : 0);
+  const my = (y0 + y1) / 2 - (parts.kind === "pass" ? 6 : 2);
+  layer.innerHTML =
+    '<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="5.6" refY="3.4"'
+    + ' orient="auto"><path d="M0,0 L6.4,3.4 L0,6.8 z" fill="' + colour + '"/></marker>'
+    + '<filter id="gl"><feDropShadow dx="0" dy="0" stdDeviation="4"'
+    + ' flood-color="' + colour + '" flood-opacity=".55"/></filter></defs>'
+    + '<path d="M ' + (x0*10).toFixed(1) + ' ' + (y0*7).toFixed(1)
+    + ' Q ' + (mx*10).toFixed(1) + ' ' + (my*7).toFixed(1)
+    + ' ' + (x1*10).toFixed(1) + ' ' + (y1*7).toFixed(1) + '"'
+    + ' fill="none" stroke="' + colour + '" stroke-width="4" stroke-linecap="round"'
+    + ' ' + dash + ' marker-end="url(#ah)" filter="url(#gl)" opacity=".95"/>';
+}
+
+/* ---------------- play animation ----------------
+   An important honesty note up front: ESPN publishes play *text*, not player
+   tracking. Real coordinates are a paid product. So this is not a replay -- it is
+   a choreography built from what the text does say: who touched the ball, which
+   way it went, how deep, how far it gained, and how it ended.
+
+   It lives in watch mode rather than on the main field on purpose. The field's
+   job is "who lines up where", and chips sliding away from their position labels
+   stops it answering that.
+
+   Kept deliberately readable: eleven dots, one ball, and a caption saying what is
+   being shown. */
+const ANIM = {playing:false, timer:null, last:null};
+
+const ROUTE_DEPTH = {deep: 34, short: 14, none: 20};
+
+function animField(){
+  return document.getElementById("animfield");
+}
+
+/* Lay the offence out from the formation the app already uses, so the shapes
+   match what you see on the depth chart. */
+function animSetup(offTeam){
+  const host = animField();
+  if(!host) return null;
+  host.innerHTML = "";
+  const grp = "3WR 1TE";
+  const coords = FORMS[grp].coords;
+  const by = {};
+  (DATA.depth[offTeam] || []).filter(r => r.grp === grp).forEach(r=>{
+    if(!by[r.slot] || r.rank < by[r.slot].rank) by[r.slot] = r;
+  });
+
+  const dots = {};
+  Object.entries(coords).forEach(([slot, xy])=>{
+    const row = by[slot];
+    if(!row) return;
+    const p = DATA.players[row.pid];
+    const d = el("div","adot");
+    d.style.left = xy[0] + "%";
+    d.style.top = xy[1] + "%";
+    d.dataset.home = xy[0] + "," + xy[1];
+    const face = el("div","aface");
+    const im = p ? faceImg(p, 96) : null;
+    if(im) face.appendChild(im);
+    else face.appendChild(el("div","afb", row.abb));
+    d.appendChild(face);
+    d.appendChild(el("div","alab", slotLabel(grp, +slot, row.abb)));
+    if(p) d.dataset.pid = p.id;
+    host.appendChild(d);
+    dots[row.pid] = d;
+    dots["slot" + slot] = d;
+  });
+
+  const ball = el("div","aball");
+  ball.style.left = "50%";
+  ball.style.top = coords[9] ? coords[9][1] + "%" : "48%";
+  host.appendChild(ball);
+  return {dots, ball, coords};
+}
+
+function moveDot(d, x, y, ms){
+  if(!d) return;
+  d.style.transition = "left " + ms + "ms cubic-bezier(.3,.7,.4,1), top "
+    + ms + "ms cubic-bezier(.3,.7,.4,1)";
+  d.style.left = x + "%";
+  d.style.top = y + "%";
+}
+function resetDot(d){
+  if(!d || !d.dataset.home) return;
+  const [x, y] = d.dataset.home.split(",");
+  d.style.transition = "left 500ms ease, top 500ms ease";
+  d.style.left = x + "%";
+  d.style.top = y + "%";
+}
+
+function animatePlay(play, offTeam, idx){
+  const host = animField();
+  if(!host || !play) return;
+  const parts = playParticipants(play.text);
+  const cap = document.getElementById("animcap");
+  clearTimeout(ANIM.timer);
+
+  const scene = animSetup(offTeam);
+  if(!scene){ return; }
+  const {dots, ball} = scene;
+  if(cap) cap.textContent = play.text;
+
+  if(!parts){
+    if(cap) cap.textContent = play.text + "  \u00b7  nothing to animate";
+    return;
+  }
+
+  const fromPid = resolvePlayer(parts.from, idx);
+  const toPid = resolvePlayer(parts.to, idx);
+  const carrier = dots[fromPid], target = dots[toPid];
+  const dir = parts.dir != null ? parts.dir
+            : /left/i.test(play.text) ? -1 : /right/i.test(play.text) ? 1 : 0;
+  const gain = parts.yards == null ? 6 : parts.yards;
+
+  const pos = d => ({
+    x: parseFloat(d.style.left), y: parseFloat(d.style.top),
+  });
+
+  // ---- snap
+  ball.style.transition = "left 220ms ease, top 220ms ease";
+  if(carrier){
+    const c = pos(carrier);
+    ball.style.left = c.x + "%";
+    ball.style.top = c.y + "%";
+  }
+
+  setTimeout(()=>{
+    if(parts.kind === "pass"){
+      // Quarterback settles, receiver runs his route, ball follows.
+      if(carrier) moveDot(carrier, pos(carrier).x, pos(carrier).y + 5, 500);
+      const depth = /deep/i.test(play.text) ? ROUTE_DEPTH.deep
+                  : /short/i.test(play.text) ? ROUTE_DEPTH.short : ROUTE_DEPTH.none;
+      // The ball goes where the play says it went, not where the receiver lined
+      // up. A deep middle throw to a man split wide right belongs in the middle;
+      // using his alignment put it on the sideline. His starting spot still
+      // pulls the route a little, so two receivers do not converge on one point.
+      const zoneX = dir === -1 ? 22 : dir === 1 ? 78 : 50;
+      let tx = zoneX, ty = Math.max(4, 26 - depth);
+      if(target){
+        const t = pos(target);
+        tx = Math.max(6, Math.min(94, zoneX * 0.72 + t.x * 0.28));
+        moveDot(target, tx, ty, 900);
+      }
+      setTimeout(()=>{
+        ball.style.transition = "left 620ms cubic-bezier(.25,.9,.4,1), top 620ms cubic-bezier(.25,.9,.4,1)";
+        ball.style.left = tx + "%";
+        ball.style.top = ty + "%";
+        ball.classList.toggle("miss", !!parts.incomplete);
+        ball.classList.toggle("pick", !!parts.turnover);
+        // Yards after the catch carry the receiver on.
+        if(!parts.incomplete && !parts.turnover && target && gain > depth / 2){
+          setTimeout(()=>{
+            const extra = Math.max(0, Math.min(18, gain - depth));
+            moveDot(target, tx + dir * 3, Math.max(3, ty - extra), 700);
+            ball.style.transition = "left 700ms ease, top 700ms ease";
+            ball.style.left = (tx + dir * 3) + "%";
+            ball.style.top = Math.max(3, ty - extra) + "%";
+          }, 640);
+        }
+      }, 420);
+
+    } else if(parts.kind === "run"){
+      if(!carrier) return;
+      const c = pos(carrier);
+      const lane = Math.max(6, Math.min(94, c.x + dir * 10));
+      const end = Math.max(3, 26 - Math.max(0, Math.min(24, gain)));
+      moveDot(carrier, lane, 26, 380);
+      ball.style.transition = "left 380ms ease, top 380ms ease";
+      ball.style.left = lane + "%"; ball.style.top = "26%";
+      setTimeout(()=>{
+        moveDot(carrier, lane, end, 800);
+        ball.style.transition = "left 800ms ease, top 800ms ease";
+        ball.style.left = lane + "%"; ball.style.top = end + "%";
+      }, 400);
+
+    } else if(parts.kind === "sack"){
+      if(!carrier) return;
+      const c = pos(carrier);
+      moveDot(carrier, c.x, c.y + 9, 700);
+      ball.style.transition = "left 700ms ease, top 700ms ease";
+      ball.style.left = c.x + "%"; ball.style.top = (c.y + 9) + "%";
+      host.classList.add("shake");
+      setTimeout(()=>host.classList.remove("shake"), 700);
+    }
+  }, 240);
+
+  // Settle back so the next play starts from the formation again.
+  ANIM.timer = setTimeout(()=>{
+    Object.values(dots).forEach(resetDot);
+    ball.style.transition = "left 500ms ease, top 500ms ease";
+    ball.style.left = "50%";
+    ball.style.top = (FORMS["3WR 1TE"].coords[9] || [0,48])[1] + "%";
+    ball.classList.remove("miss","pick");
+  }, 3600);
 }
 
 /* ---------------- lineup game ----------------
@@ -4718,6 +5128,93 @@ function checkGame(){
   renderGame();
 }
 
+/* ---------------- defensive credit ----------------
+   Who made the play. NFL play text follows firm conventions and puts the defence
+   in parentheses, which is easy to miss when you are reading quickly and are
+   still learning who these people are:
+
+     ... for 4 yards (C.Gonzalez)              solo tackle
+     ... for 3 yards (C.Gonzalez, Z.Baun)      assisted tackle
+     sacked at PHI 30 for -7 yards (J.Carter)  sack
+     pass incomplete deep left (Q.Mitchell)    pass broken up
+     INTERCEPTED by D.Hand at NE 20            interception
+     FUMBLES (M.Garrett), RECOVERED by NE-K.Byard
+
+   Pulled out and labelled, the defensive half of the game becomes visible rather
+   than parenthetical. */
+const NAME_RE = /[A-Z][A-Za-z]?\.(?:[A-Z]\.)?[A-Z][A-Za-z'’-]+/g;
+
+function defensiveCredit(text){
+  if(!text) return null;
+  const out = [];
+  const seen = new Set();
+  const push = (label, names, tone) => {
+    const list = (names || []).filter(n => n && !seen.has(label + n));
+    list.forEach(n => seen.add(label + n));
+    if(list.length) out.push({label, names: list, tone});
+  };
+  const grab = re => {
+    const m = text.match(re);
+    if(!m) return null;
+    return (m[1].match(NAME_RE) || []);
+  };
+
+  // Interception first: it is the headline whatever else happened.
+  const pick = text.match(/INTERCEPTED by (?:[A-Z]{2,3}-)?([A-Z][A-Za-z]?\.[A-Z][A-Za-z'’-]+)/);
+  if(pick) push("Interception", [pick[1]], "big");
+
+  const rec = text.match(/RECOVERED by (?:[A-Z]{2,3}-)?([A-Z][A-Za-z]?\.[A-Z][A-Za-z'’-]+)/);
+  if(rec) push("Recovered", [rec[1]], "big");
+
+  const forced = grab(/FUMBLES\s*\(([^)]+)\)/);
+  if(forced) push("Forced fumble", forced, "big");
+
+  // A sack names its tacklers in the parentheses that follow it.
+  if(/\bsacked\b/i.test(text)){
+    const names = grab(/sacked[^()]*\(([^)]+)\)/i);
+    if(names) push("Sack", names, "big");
+  } else if(/pass incomplete/i.test(text)){
+    const names = grab(/\(([^)]+)\)\s*\.?\s*$/);
+    if(names) push("Broken up", names, "");
+  } else {
+    // Otherwise a trailing parenthetical is whoever made the tackle.
+    const names = grab(/\(([^)]+)\)\s*\.?\s*$/);
+    if(names) push(names.length > 1 ? "Tackle, assisted" : "Tackle", names, "");
+  }
+  return out.length ? out : null;
+}
+
+/* Live defensive leaders, read from the box score already being fetched. ESPN
+   files these under a defensive category whose column labels vary, so the
+   numbers are looked up by label rather than by position. */
+function defensiveLeaders(teamsInGame, limit){
+  const rows = [];
+  (LIVE.box || []).forEach(side=>{
+    if(teamsInGame && !teamsInGame.includes(side.team)) return;
+    side.cats.forEach(cat=>{
+      if(!/def|tackl/i.test(cat.name || "")) return;
+      const iTot = cat.labels.findIndex(l => /^(TOT|TCKL|TACKLES)$/i.test(l));
+      const iSack = cat.labels.findIndex(l => /^SACKS?$/i.test(l));
+      const iInt = cat.labels.findIndex(l => /^INT$/i.test(l));
+      const iTfl = cat.labels.findIndex(l => /^TFL$/i.test(l));
+      cat.rows.forEach(r=>{
+        const val = i => i >= 0 ? num(r.stats[i]) : null;
+        const tot = val(iTot) || 0, sack = val(iSack) || 0;
+        const ints = val(iInt) || 0, tfl = val(iTfl) || 0;
+        if(!tot && !sack && !ints) return;
+        rows.push({
+          eid: r.eid, name: r.name, pos: r.pos, team: side.team,
+          tot, sack, ints, tfl,
+          // Sacks and takeaways outweigh raw tackle counts.
+          score: tot + sack * 6 + ints * 8 + tfl * 2,
+        });
+      });
+    });
+  });
+  rows.sort((a,b) => b.score - a.score);
+  return rows.slice(0, limit || 6);
+}
+
 /* ---------------- watch mode ----------------
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
@@ -4807,6 +5304,57 @@ function renderWatch(g){
       ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  " + mine + "% to win"));
   }
 
+  // the animated play, above the feed
+  const offTeam = (LIVE.plays && LIVE.plays[0] && LIVE.plays[0].team)
+                  || (h.ab === team ? team : a.ab);
+  const aw = el("div","awrap");
+  const head = el("div","ahead");
+  head.appendChild(el("span","alabel", "Last play"));
+  const replay = el("button","areplay","Replay");
+  head.appendChild(replay);
+  aw.appendChild(head);
+  const fieldBox = el("div","afield");
+  fieldBox.id = "animfield";
+  aw.appendChild(fieldBox);
+  aw.appendChild(el("div","acap","")).id = "animcap";
+  aw.appendChild(el("div","anote",
+    "A reconstruction from the play description, not tracking data \u2014 who "
+    + "touched the ball, which way it went and how far. Tap any play below to "
+    + "watch it again."));
+  b.appendChild(aw);
+
+  const idxA = buildFeedIndex([a.ab, h.ab].filter(Boolean));
+  const latest = (LIVE.plays || [])[0];
+  replay.onclick = () => { if(ANIM.last) animatePlay(ANIM.last, offTeam, idxA); };
+  if(latest){
+    ANIM.last = latest;
+    setTimeout(() => animatePlay(latest, offTeam, idxA), 60);
+  } else {
+    animSetup(offTeam);
+  }
+
+  // who is making plays on defence
+  const dleaders = defensiveLeaders([a.ab, h.ab].filter(Boolean), 6);
+  if(dleaders.length){
+    b.appendChild(el("div","wsub","Defence"));
+    const dl = el("div","dlead");
+    dleaders.forEach(x=>{
+      const r = el("button","dlrow");
+      r.appendChild(el("span","dlt", x.team));
+      r.appendChild(el("span","dln", x.name));
+      const bits = [];
+      if(x.tot) bits.push(x.tot + " tkl");
+      if(x.sack) bits.push(x.sack + " sk");
+      if(x.tfl) bits.push(x.tfl + " tfl");
+      if(x.ints) bits.push(x.ints + " int");
+      r.appendChild(el("span","dls", bits.join("  ")));
+      const mine = x.eid && Object.values(DATA.players).find(pp => pp.eid === x.eid);
+      if(mine) r.onclick = () => { closeWatch(); goPlayer(mine.id); };
+      dl.appendChild(r);
+    });
+    b.appendChild(dl);
+  }
+
   // the feed
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
   const feed = el("div","wfeed");
@@ -4819,11 +5367,173 @@ function renderWatch(g){
     if(p.clock) meta.appendChild(el("span", null,
       (p.period ? "Q" + p.period + "  " : "") + p.clock));
     if(p.down) meta.appendChild(el("span","wpd", p.down));
+    row.style.cursor = "pointer";
+    row.onclick = () => {
+      ANIM.last = p;
+      animatePlay(p, p.team || offTeam, idx);
+      const f = animField();
+      if(f) f.scrollIntoView({behavior:"smooth", block:"center"});
+    };
     row.appendChild(meta);
     row.appendChild(playText(p.text, idx));
+    const credit = defensiveCredit(p.text);
+    if(credit){
+      const dl = el("div","dcred");
+      credit.forEach(c=>{
+        const tag = el("span","dtag" + (c.tone === "big" ? " big" : ""));
+        tag.appendChild(el("span","dlab", c.label));
+        c.names.forEach(nm=>{
+          const key = nm.toLowerCase().replace(/^([a-z])\.[a-z]\./, "$1.");
+          const hit = idx[key] || idx[nm.toLowerCase()];
+          if(hit && DATA.players[hit.pid]){
+            const b = el("button","dnm2", nm);
+            b.onclick = e => {
+              e.stopPropagation();
+              closeWatch(); $("#box").hidden = true; $("#scores").hidden = true;
+              goPlayer(hit.pid);
+            };
+            tag.appendChild(b);
+          } else tag.appendChild(el("span","dnm2 plain", nm));
+        });
+        dl.appendChild(tag);
+      });
+      row.appendChild(dl);
+    }
     feed.appendChild(row);
   });
   b.appendChild(feed);
+}
+
+/* ---------------- weather ----------------
+   Open-Meteo, free and keyless. Only asked for outdoor fixtures at a club's
+   usual ground -- indoor games and the nine international fixtures carry no
+   coordinates, so no request is made and none is implied.
+
+   This is not decoration. Wind over about fifteen miles an hour or steady rain
+   measurably suppresses scoring, and it is the biggest single influence on a
+   game total. */
+const WX = {};
+const WX_CODE = {
+  0:"Clear", 1:"Mostly clear", 2:"Partly cloudy", 3:"Overcast",
+  45:"Fog", 48:"Freezing fog", 51:"Light drizzle", 53:"Drizzle",
+  55:"Heavy drizzle", 61:"Light rain", 63:"Rain", 65:"Heavy rain",
+  66:"Freezing rain", 67:"Freezing rain", 71:"Light snow", 73:"Snow",
+  75:"Heavy snow", 77:"Snow grains", 80:"Showers", 81:"Showers",
+  82:"Heavy showers", 85:"Snow showers", 86:"Snow showers",
+  95:"Thunderstorms", 96:"Thunderstorms", 99:"Thunderstorms",
+};
+
+async function fetchWeather(g){
+  if(!g || !g.ll || !g.d) return null;
+  const key = g.a + "@" + g.h + "|" + g.d;
+  if(WX[key] !== undefined) return WX[key];
+  WX[key] = null;
+  try {
+    const [lat, lon] = g.ll;
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat
+      + "&longitude=" + lon
+      + "&hourly=temperature_2m,precipitation_probability,wind_speed_10m,weather_code"
+      + "&temperature_unit=fahrenheit&wind_speed_unit=mph"
+      + "&start_date=" + g.d + "&end_date=" + g.d + "&timezone=America%2FNew_York";
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    const hours = (j.hourly || {}).time || [];
+    // Match the hour of kickoff; the schedule stores Eastern time and the
+    // request asked for the same zone, so these line up directly.
+    const want = (g.t || "13:00").slice(0, 2) + ":00";
+    let i = hours.findIndex(t => t.endsWith(want));
+    if(i < 0) i = Math.floor(hours.length / 2);
+    const at = k => (j.hourly[k] || [])[i];
+    WX[key] = {
+      temp: Math.round(at("temperature_2m")),
+      wind: Math.round(at("wind_speed_10m")),
+      rain: at("precipitation_probability"),
+      code: at("weather_code"),
+      desc: WX_CODE[at("weather_code")] || "",
+    };
+  } catch(e){ WX[key] = null; }
+  return WX[key];
+}
+
+function weatherNote(w){
+  if(!w) return null;
+  const rough = [];
+  if(w.wind >= 15) rough.push("wind this strong tends to hold scoring down");
+  if(w.rain >= 60) rough.push("rain favours the run");
+  if(w.temp <= 25) rough.push("cold enough to matter");
+  return rough.length ? rough.join(", ") : null;
+}
+
+/* ---------------- trending players ----------------
+   Sleeper's public feed, no key. Counts how many fantasy managers added or
+   dropped a player in the last day, across millions of leagues. That is a crowd
+   noticing something, which is a different signal from anything computable here
+   and a good breakout detector. */
+const TREND = {add: null, drop: null, at: 0};
+
+async function fetchTrending(kind){
+  if(TREND[kind] && Date.now() - TREND.at < 9e5) return TREND[kind];
+  try {
+    const r = await fetch("https://api.sleeper.app/v1/players/nfl/trending/"
+      + kind + "?lookback_hours=24&limit=40");
+    if(!r.ok) throw new Error(r.status);
+    const rows = await r.json();
+    const bySid = {};
+    Object.values(DATA.players).forEach(p => { if(p.sid) bySid[p.sid] = p; });
+    TREND[kind] = rows
+      .map(x => ({p: bySid[String(x.player_id)], n: x.count}))
+      .filter(x => x.p);
+    TREND.at = Date.now();
+  } catch(e){ TREND[kind] = null; }
+  return TREND[kind];
+}
+
+/* ---------------- line movement ----------------
+   Multi-book history needs a paid key, but the useful part is the drift, and
+   that can be had for nothing by remembering the first line we ever saw for a
+   fixture. A line that has moved three points since Tuesday is saying something
+   changed; the number on its own is not. */
+function rememberLine(key, odds){
+  if(!store.ok || !odds || odds.spread == null) return null;
+  PROG.lines = PROG.lines || {};
+  const seen = PROG.lines[key];
+  if(!seen){
+    PROG.lines[key] = {spread: odds.spread, total: odds.total,
+                       at: Date.now(), line: odds.line};
+    store.save(PROG);
+    return null;
+  }
+  const dSpread = +(odds.spread - seen.spread).toFixed(1);
+  const dTotal = odds.total != null && seen.total != null
+    ? +(odds.total - seen.total).toFixed(1) : null;
+  if(!dSpread && !dTotal) return null;
+  return {dSpread, dTotal, from: seen.line, since: seen.at};
+}
+
+/* Inactives arrive about ninety minutes before kickoff and settle what a
+   Wednesday "questionable" only hinted at. ESPN carries them on the summary
+   payload, under a shape that varies, so read it defensively. */
+async function fetchInactives(gameId){
+  try {
+    const j = await getJSON("/summary?event=" + gameId);
+    const out = [];
+    (j.injuries || []).forEach(team=>{
+      const ab = normTeam(((team.team || {}).abbreviation) || "");
+      (team.injuries || []).forEach(x=>{
+        const status = ((x.status || "") + "").toLowerCase();
+        if(!/out|inactive/.test(status)) return;
+        const ath = x.athlete || {};
+        out.push({
+          eid: ath.id ? String(ath.id) : null,
+          name: ath.displayName || ath.shortName || "",
+          team: ab,
+          detail: (x.details || {}).type || x.status || null,
+        });
+      });
+    });
+    return out;
+  } catch(e){ return []; }
 }
 
 /* ---------------- scores page ----------------
@@ -5125,11 +5835,54 @@ function renderPreview(score){
       box.appendChild(w);
     }
     body.appendChild(box);
+    const drift = rememberLine(prevKey, o);
+    if(drift){
+      const dr = el("div","drift");
+      if(drift.dSpread) dr.appendChild(el("span", null,
+        "Spread has moved " + (drift.dSpread > 0 ? "+" : "") + drift.dSpread
+        + " since you first looked" + (drift.from ? " (" + drift.from + ")" : "")));
+      if(drift.dTotal) dr.appendChild(el("span", null,
+        "Total " + (drift.dTotal > 0 ? "up " : "down ") + Math.abs(drift.dTotal)));
+      body.appendChild(dr);
+    }
     const n = el("div","carnote");
     n.textContent = "The market's view, not a recommendation. A negative number "
       + "marks the side expected to win; the total is the combined points "
-      + "expected.";
+      + "expected. Movement is measured from the first line this app saw for the "
+      + "fixture, which is why it fills in over a week rather than appearing at "
+      + "once.";
     body.appendChild(n);
+  }
+
+  // ---- conditions
+  if(g.roof === "indoors"){
+    const w = el("div","wxbox indoors");
+    w.appendChild(el("span","wxi","\u2302"));
+    w.appendChild(el("span","wxt", "Indoors" + (g.neutral ? " \u00b7 neutral site" : "")));
+    body.appendChild(w);
+  } else if(g.ll){
+    const w = el("div","wxbox");
+    w.appendChild(el("span","wxt","Checking conditions\u2026"));
+    body.appendChild(w);
+    fetchWeather(g).then(wx=>{
+      w.innerHTML = "";
+      if(!wx){ w.remove(); return; }
+      w.appendChild(el("span","wxi", wx.rain >= 60 ? "\u2614"
+        : wx.wind >= 15 ? "\u1D33" : "\u2600"));
+      w.appendChild(el("span","wxv", wx.temp + "\u00B0"));
+      w.appendChild(el("span","wxt", wx.desc));
+      w.appendChild(el("span","wxs", wx.wind + " mph wind"));
+      if(wx.rain != null) w.appendChild(el("span","wxs", wx.rain + "% rain"));
+      const note = weatherNote(wx);
+      if(note){
+        w.classList.add("rough");
+        w.appendChild(el("span","wxn", note));
+      }
+    });
+  } else if(g.neutral){
+    const w = el("div","wxbox indoors");
+    w.appendChild(el("span","wxt", "Neutral site" + (g.venue ? " \u00b7 " + g.venue : "")));
+    body.appendChild(w);
   }
 
   // ---- how they rate
@@ -5222,6 +5975,27 @@ function renderPreview(score){
       body.appendChild(row);
       const cap = el("div","mucap", (m.flip ? (th.nick||H) : (ta.nick||A)) + " \u00b7 " + m.note);
       body.appendChild(cap);
+    });
+  }
+
+  // ---- inactives, which land about ninety minutes before kickoff and are far
+  // more useful than a Wednesday designation
+  if(score && score.id){
+    const inact = el("div");
+    body.appendChild(inact);
+    fetchInactives(score.id).then(list=>{
+      if(!list || !list.length) return;
+      inact.appendChild(el("div","advsub", "Inactive \u00b7 confirmed out"));
+      list.forEach(x=>{
+        const r = el("button","injrow s5");
+        r.appendChild(el("span","idot"));
+        r.appendChild(el("span","in2", x.name));
+        r.appendChild(el("span","ip", x.team));
+        r.appendChild(el("span","is", x.detail || "Inactive"));
+        const mine = x.eid && Object.values(DATA.players).find(p => p.eid === x.eid);
+        if(mine) r.onclick = () => { closePreview(); $("#scores").hidden = true; goPlayer(mine.id); };
+        inact.appendChild(r);
+      });
     });
   }
 

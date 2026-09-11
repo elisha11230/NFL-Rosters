@@ -23,6 +23,7 @@ get players_master.csv    "$B/players/players.csv"
 get teams.csv             "$B/teams/teams_colors_logos.csv"
 get sched.csv             "$B/schedules/games.csv"
 get draft_picks.csv       "$B/draft_picks/draft_picks.csv"
+get airports.csv          "$NFLDATA/airports.csv"
 
 echo "last season stats"
 get stats_2025.csv        "$B/stats_player/stats_player_reg_2025.csv"
@@ -57,6 +58,8 @@ optional stats_2026.csv       "$B/stats_player/stats_player_reg_2026.csv"
 optional stats_week_2026.csv  "$B/stats_player/stats_player_week_2026.csv"
 optional snaps_2026.csv       "$B/snap_counts/snap_counts_2026.csv"
 optional injuries_2026.csv    "$B/injuries/injuries_2026.csv"
+optional pbp2026.parquet      "$B/pbp/play_by_play_2026.parquet"
+optional team_2026.csv        "$B/stats_team/stats_team_reg_2026.csv"
 
 echo "career history"
 mkdir -p career

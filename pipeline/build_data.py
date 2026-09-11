@@ -296,6 +296,12 @@ for _, r in dc.iterrows():
             "t100p": None,
             "eid": (lambda e: None if e is None or (isinstance(e, float) and pd.isna(e))
                     else str(int(e)))(MASTER["espn"].get(pid)),
+            # Sleeper's own id, so their public trending feed can be matched to a
+            # player on a depth chart.
+            "sid": (lambda v: None if v is None or (isinstance(v, float) and pd.isna(v))
+                    else str(int(v)))(
+                (info.get("sleeper_id") if info.get("sleeper_id") is not None
+                 else None)),
             "rook": 1 if is_rookie else 0,
             "pick": None if pick_no is None or pd.isna(pick_no) else int(pick_no),
             "prev": moved,
