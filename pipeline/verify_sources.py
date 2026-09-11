@@ -127,9 +127,14 @@ def check_one(name, path, min_bytes, kind, recency):
 
 # Sources that do not exist until the season produces them. Absent is normal
 # here; present but broken is not.
+# In-season files start tiny and grow. After week 1 the stats file is about
+# 30KB; by January it is near a megabyte. A 404 saved as data is 9 bytes, so the
+# floor only has to separate those two cases -- setting it for a full season
+# fails the build in September, which is exactly when the data starts arriving.
 OPTIONAL = [
-    ("stats 2026", "stats_2026.csv", 50_000, "csv", _max_year("season", 2026)),
+    ("stats 2026", "stats_2026.csv", 2_000, "csv", _max_year("season", 2026)),
     ("injuries 2026", "injuries_2026.csv", 200, "csv", _max_year("season", 2026)),
+    ("pbp 2026", "pbp2026.parquet", 10_000, "parquet", _max_year("season", 2026)),
 ]
 
 

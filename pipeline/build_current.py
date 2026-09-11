@@ -46,9 +46,14 @@ STAT_SETS["TE"] = STAT_SETS["WR"]
 LOWER_IS_BETTER = {"passing_interceptions"}
 
 
+# A week-1 file is roughly 30KB and a full season nearer a megabyte, while a
+# 404 page saved to disk is 9 bytes. The floor separates those, nothing more.
+MIN_BYTES = 2_000
+
+
 def fetch(year=SEASON):
     """Returns a path, or None if the season has not started producing yet."""
-    if os.path.exists(PATH) and os.path.getsize(PATH) > 50_000:
+    if os.path.exists(PATH) and os.path.getsize(PATH) > MIN_BYTES:
         return PATH
     try:
         req = urllib.request.Request(URL.format(year=year),
@@ -57,7 +62,7 @@ def fetch(year=SEASON):
             data = r.read()
     except Exception:
         return None
-    if len(data) < 50_000 or data[:9] == b"Not Found":
+    if len(data) < MIN_BYTES or data[:9] == b"Not Found":
         return None
     with open(PATH, "wb") as f:
         f.write(data)
@@ -113,7 +118,9 @@ def build(player_ids, buckets):
         if items:
             out[r.player_id] = {
                 "games": int(r.get("games") or 0),
-                "team": r.get("team") if isinstance(r.get("team"), str) else None,
+                # The season files call this recent_team, not team.
+                "team": (r.get("recent_team")
+                         if isinstance(r.get("recent_team"), str) else None),
                 "items": items,
             }
 

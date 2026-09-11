@@ -6151,7 +6151,10 @@ function renderStandings(host){
   });
 
   const n = el("div","carnote");
-  n.textContent = "Through week " + (meta.week || "?") + ". Ordered by win rate, "
+  n.textContent = "Through week " + (meta.week || "?") + ". "
+    + (meta.partial ? "Most of the league has not played yet, so seeds are held "
+       + "back until the table means something. " : "")
+    + "Ordered by win rate, "
     + "then division record, then points difference \u2014 close to the league's "
     + "tiebreakers but not the full dozen steps of them."
     + (standView === "conf" ? " The top seven seeds make the postseason." : "");

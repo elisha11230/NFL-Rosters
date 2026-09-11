@@ -77,13 +77,17 @@ def build(teams, divisions):
         for i, t in enumerate(members, 1):
             out[t]["dpos"] = i
             out[t]["division"] = d
+    # Seeds only mean something once most of the league has played. In the first
+    # days of a season two teams have a result and both would show as the top
+    # seed in their conference, which is true and useless.
+    enough = len(out) >= len(teams) * 0.75
     for c, members in by_conf.items():
         members.sort(key=key)
         for i, t in enumerate(members, 1):
             out[t]["cpos"] = i
             out[t]["conf_name"] = c
             # Seven make the postseason: four division winners and three others.
-            out[t]["seed"] = i if i <= 7 else None
+            out[t]["seed"] = (i if i <= 7 else None) if enough else None
 
     tables = {
         "divisions": {d: members for d, members in sorted(by_div.items())},
@@ -92,4 +96,5 @@ def build(teams, divisions):
     return {"teams": out, "tables": tables}, {
         "live": True, "season": SEASON,
         "played": int(len(s)), "week": int(s.week.max()),
+        "partial": not enough,
     }
