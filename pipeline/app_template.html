@@ -851,6 +851,17 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- reset the chart ---------- */
+#resetchart{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;
+  color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 55%,transparent);
+  background:color-mix(in srgb,var(--brass) 12%,transparent);
+  padding:4px 10px;border-radius:var(--r);margin-left:10px;white-space:nowrap;
+}
+#resetchart:hover{background:color-mix(in srgb,var(--brass) 22%,transparent);
+  color:#fff}
+
 /* ---------- hold to swap ---------- */
 .chip.holding .face{transform:scale(.92);transition:transform .42s ease}
 .swap{
@@ -1969,6 +1980,40 @@ function renderHead(){
   });
 }
 
+/* Swapping backups in is easy to do a lot of, and until now the only way back
+   was to switch teams and return. The control appears only once something has
+   been changed, so it is not a permanent button explaining a state you are
+   usually not in. */
+function changedCount(){
+  return Object.keys(sub).filter(k => sub[k]).length;
+}
+
+function renderResetChanges(){
+  const bar = $("#fieldbar");
+  let btn = document.getElementById("resetchart");
+  const n = changedCount();
+  if(!n){
+    if(btn) btn.remove();
+    return;
+  }
+  if(!btn){
+    btn = el("button", null, "");
+    btn.id = "resetchart";
+    // Next to the formation label, because it describes the state of the field
+    // rather than being another mode alongside Faces and Lineup.
+    $("#formlab").after(btn);
+  }
+  btn.textContent = "Reset " + n + (n === 1 ? " change" : " changes");
+  btn.title = "Put the listed starters back";
+  btn.onclick = () => {
+    for(const k in sub) delete sub[k];
+    sel = null;
+    renderField();
+    renderTeam();
+    syncHash();
+  };
+}
+
 function renderTimebar(){
   const bar = $("#timebar");
   if(!TL){ bar.hidden = true; return; }
@@ -1996,6 +2041,7 @@ function renderField(){
   preloadTeam(team, 112);
   const grp = activeGrp(), form = FORMS[grp], by = slotsFor(grp);
   renderTimebar();
+  renderResetChanges();
   $("#formlab").textContent = form.label;
   $("#units").querySelectorAll("button")
     .forEach(b => b.setAttribute("aria-pressed", b.dataset.unit === unit));
@@ -2714,7 +2760,14 @@ function renderDetail(grp,slot,idx){
     if(pp.rook) b.appendChild(el("span","drook","R"));
     else if(pp.prev) b.appendChild(el("span","dnew","NEW"));
     if(pp.num!=null) b.appendChild(el("span","djn", pp.num));
-    b.onclick = () => { sub[grp+"|"+slot]=i; sel=pp.id; renderField(); renderDetail(grp,slot,i); syncHash(); };
+    b.onclick = () => {
+      // Selecting the listed starter is a removal, not a change. Storing a zero
+      // here would leave the chart looking modified when it is back to default.
+      if(i === 0) delete sub[grp + "|" + slot];
+      else sub[grp + "|" + slot] = i;
+      sel = pp.id;
+      renderField(); renderDetail(grp, slot, i); syncHash();
+    };
     list.appendChild(b);
   });
   ds.appendChild(list);
