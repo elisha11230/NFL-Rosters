@@ -71,9 +71,14 @@ jobs:
           i = h.index("const DATA = ") + 13
           j = h.index(";\n\n/* ----------------", i)
           d = json.loads(h[i:j])            # raises if the payload is malformed
-          assert len(d["teams"]) == 32, "expected 32 teams"
-          assert len(d["players"]) > 2000, "player count looks wrong"
-          print(f"ok: {len(d['players'])} players, chart dated {d['snapshot'][:10]}")
+          n = len(d["players"])
+          assert len(d["teams"]) == 32, f"expected 32 teams, got {len(d['teams'])}"
+          # Roster size swings hugely across a year: about 2,900 in camp, then
+          # roughly 1,900 once clubs cut to 53 plus a practice squad. A floor set
+          # for camp fails every build from September onward, so this is a range
+          # wide enough for both, and the message says what it actually saw.
+          assert 1200 <= n <= 4000, f"player count looks wrong: {n}"
+          print(f"ok: {n} players, chart dated {d['snapshot'][:10]}")
           PY
 
       - name: Commit if anything changed
