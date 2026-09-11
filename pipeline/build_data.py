@@ -516,6 +516,11 @@ print("current    " + (
     if cur_meta["live"] else
     f"no {cur_meta['season']} stats published yet"))
 
+import build_weekly
+weekly, weekly_meta = build_weekly.build(set(players))
+print("weekly     " + (f"leaders for week(s) {weekly_meta['weeks']}"
+                       if weekly_meta["live"] else "no weekly stats yet"))
+
 import build_standings
 standings, stand_meta = build_standings.build(
     set(team_meta), dict(zip(teams.team_abbr, teams.team_division)))
@@ -583,6 +588,8 @@ payload = {
     "current": cur_meta,
     "standings": standings,
     "standMeta": stand_meta,
+    "weekly": weekly,
+    "weeklyMeta": weekly_meta,
     "leadersPast": leaders_past,
     "draft": draft_teams,
     "h2h": h2h,

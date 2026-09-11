@@ -161,6 +161,21 @@ scores page stays hidden until there is something to show.
 state, not a failure, so it must not abort the run. `verify_sources.py` checks
 them only if they are present.
 
+## Weekly leaders
+
+A third tab on the scores page, next to Games and Standings: the best individual
+games of a week — passing, rushing, receiving, sacks and tackles, five deep, with
+the opponent and a supporting line so it reads like a box score rather than a bare
+number.
+
+Built in the pipeline rather than fetched live. Assembling it in the browser would
+mean pulling a box score for every game on the slate, sixteen requests to answer
+one question, and the answer stops changing once the games end. It appears a day
+or so after each week and grows a week at a time.
+
+This is a different question from the season leaderboard: one afternoon, not a
+body of work.
+
 ## Scores and schedule
 
 The **Scores** button opens a full season view at `#/scores`, or `#/scores/7` for
@@ -175,6 +190,11 @@ a particular week. Two sources, each used for what it is good at:
 Kickoff times are stored as US Eastern and rendered in the reader's own zone.
 Finished games mark the winner; live ones are outlined in red. Tapping a played
 game opens the box score.
+
+A game in progress carries a **Watch** button straight on its row, so you can go
+from the fixture list into watch mode without finding the team first. The
+scoreboard held in memory is only today's, so a game opened from the week list is
+added to it before anything tries to look it up.
 
 Tapping a fixture that has not kicked off opens a **preview** instead of an empty
 box score: the betting line and total, both sides' records and unit ranks, the
@@ -313,9 +333,16 @@ under each play, with the names linked like any other. Left inline they are easy
 to miss, which hides half the game from somebody still learning who these people
 are.
 
-**Watch mode also ranks the defence live**, weighting sacks and takeaways above
-raw tackle counts — two sacks is a bigger afternoon than eleven tackles, and a
-straight tackle count would say otherwise.
+**Watch mode carries a live box score alongside the feed** — two columns where
+there is room, stacked where there is not. It is written as leaders rather than a
+table: team totals across the top, then passing, rushing, receiving and defence,
+each with the two or three men doing the damage, a face, their line and the
+headline number pulled out large.
+
+Categories are found by name and columns looked up by label, because ESPN orders
+them differently between categories. Within a category the ranking uses the stat
+that matters there, so defence weights sacks above raw tackle counts — two sacks
+is a bigger afternoon than eleven tackles.
 
 Play text is built as DOM nodes rather than markup, so nothing arriving from the
 feed is ever interpreted as HTML.

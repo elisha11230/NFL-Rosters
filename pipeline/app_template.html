@@ -851,6 +851,91 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- weekly leaders ---------- */
+.wlrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:8px 0;border-bottom:1px solid var(--rule)}
+.wlrow:last-of-type{border-bottom:0}
+.wlrow:hover .wln{color:#fff}
+.wlrow:disabled{cursor:default}
+.wlr{flex:0 0 18px;text-align:right;font-family:'Archivo Black',sans-serif;
+  font-size:11px;color:var(--dim)}
+.wlrow.top .wlr{color:var(--brass)}
+.wlf{flex:0 0 34px;height:34px;border-radius:50%;overflow:hidden;background:#0B1113;
+  border:1px solid var(--line)}
+.wlrow.top .wlf{border-color:var(--brass)}
+.wlf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.wlfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--dim)}
+.wlw{flex:1 1 auto;min-width:0}
+.wln{font-size:13.5px;color:var(--chalk);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.wlrow:disabled .wln{color:var(--mute)}
+.wlm{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.wlv{text-align:right;flex:0 0 auto}
+.wlnum{display:block;font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
+  line-height:1}
+.wlrow.top .wlnum{color:var(--brass)}
+.wlu{display:block;font-family:'Barlow Condensed',sans-serif;font-size:9.5px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+/* Watch, straight off a live row in the fixture list. */
+.gwatch{
+  flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  color:#fff;background:#C25B5B;padding:4px 10px;border-radius:var(--r);
+  margin-left:4px;
+}
+.gwatch:hover{background:#D06A6A}
+
+/* ---------- live box score ---------- */
+.wsplit{display:grid;grid-template-columns:1fr;gap:20px;max-width:620px;
+  margin:0 auto;width:100%}
+@media (min-width:960px){
+  .wsplit{grid-template-columns:minmax(0,1fr) 340px;max-width:1040px;
+    align-items:start}
+  .waside{position:sticky;top:0}
+}
+.wmain{min-width:0}
+.waside{min-width:0}
+.wboxwrap{border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);padding:12px}
+.btot{margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.btrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;
+  gap:10px;padding:4px 0}
+.btrow.bthd{padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid var(--rule)}
+.bta,.btb{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--chalk)}
+.btb{text-align:right}
+.bthd .bta,.bthd .btb{color:var(--team-accent);font-size:11px;letter-spacing:.08em}
+.btl{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.bcat{margin-bottom:14px}
+.bcathd{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--team-accent);
+  padding-bottom:5px;border-bottom:1px solid var(--rule);margin-bottom:7px}
+.bteam{display:flex;align-items:center;gap:6px;margin:8px 0 4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim)}
+.blogo{width:15px;height:15px;object-fit:contain}
+.brow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:5px 0}
+.brow:hover .bname{color:#fff}
+.brow:disabled{cursor:default}
+.bface{flex:0 0 30px;height:30px;border-radius:50%;overflow:hidden;
+  background:#0B1113;border:1px solid var(--line)}
+.bface img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.bfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
+.bwho{flex:1 1 auto;min-width:0}
+.bname{font-size:13px;color:var(--chalk);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.brow:disabled .bname{color:var(--mute)}
+.bline{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.07em;color:var(--dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.bbig{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
+  min-width:38px;text-align:right;line-height:1}
+
 /* ---------- reset the chart ---------- */
 #resetchart{
   font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;
@@ -4859,6 +4944,136 @@ function drawPlay(play, idx){
     + ' ' + dash + ' marker-end="url(#ah)" filter="url(#gl)" opacity=".95"/>';
 }
 
+/* ---------------- live box score, alongside the game ----------------
+   A full box score is a wall of columns. What you want while a game is on is
+   narrower: who is doing the damage, per team, per category, with a face
+   attached so an unfamiliar name means something.
+
+   Columns are looked up by their label rather than by position, because ESPN
+   orders them differently between categories and occasionally between seasons. */
+const BOX_VIEWS = [
+  {key:"passing",   name:"Passing",   cols:["C/ATT","YDS","TD","INT"], take:2},
+  {key:"rushing",   name:"Rushing",   cols:["CAR","YDS","TD"],         take:3},
+  {key:"receiving", name:"Receiving", cols:["REC","YDS","TD"],         take:3},
+  {key:"defensive", name:"Defence",   cols:["TOT","SACKS","TFL"],      take:3},
+];
+
+function pickCols(cat, wanted){
+  return wanted.map(w=>{
+    const i = cat.labels.findIndex(l => l.toUpperCase() === w);
+    return {label: w, i};
+  }).filter(c => c.i >= 0);
+}
+
+/* Rank within a category by the number that actually matters there, so the two
+   names shown are the two worth showing. */
+function rankRows(cat, key){
+  const yds = cat.labels.findIndex(l => /^YDS$/i.test(l));
+  const tot = cat.labels.findIndex(l => /^(TOT|TACKLES)$/i.test(l));
+  const sack = cat.labels.findIndex(l => /^SACKS?$/i.test(l));
+  const by = key === "defensive"
+    ? r => (num(r.stats[tot]) || 0) + (num(r.stats[sack]) || 0) * 6
+    : r => num(r.stats[yds]) || 0;
+  return cat.rows.slice().sort((a, b) => by(b) - by(a));
+}
+
+function renderLiveBox(host, teamsInGame){
+  host.innerHTML = "";
+  if(!LIVE.box || !LIVE.box.length){
+    host.appendChild(el("div","carnote","Box score appears once the game starts."));
+    return;
+  }
+
+  // Team totals as a header strip: the shape of the game in four numbers.
+  if(LIVE.teamStats && LIVE.teamStats.length === 2){
+    const [A, B] = LIVE.teamStats;
+    const want = ["Total Yards", "First Downs", "3rd down efficiency", "Turnovers"];
+    const rows = want.map(l=>({
+      l,
+      a: (A.stats.find(x => x.label === l) || {}).value,
+      b: (B.stats.find(x => x.label === l) || {}).value,
+    })).filter(r => r.a != null || r.b != null);
+    if(rows.length){
+      const grid = el("div","btot");
+      const hd = el("div","btrow bthd");
+      hd.appendChild(el("span","bta", A.team));
+      hd.appendChild(el("span","btl",""));
+      hd.appendChild(el("span","btb", B.team));
+      grid.appendChild(hd);
+      rows.forEach(r=>{
+        const row = el("div","btrow");
+        row.appendChild(el("span","bta", r.a ?? "\u2013"));
+        row.appendChild(el("span","btl", r.l.replace(" efficiency","")));
+        row.appendChild(el("span","btb", r.b ?? "\u2013"));
+        grid.appendChild(row);
+      });
+      host.appendChild(grid);
+    }
+  }
+
+  BOX_VIEWS.forEach(view=>{
+    // Only draw a category somebody has actually done something in.
+    const sides = LIVE.box.map(side=>{
+      const cat = side.cats.find(c => (c.name || "").toLowerCase() === view.key
+        || (view.key === "defensive" && /def/i.test(c.name || "")));
+      return cat ? {team: side.team, cat} : null;
+    }).filter(Boolean);
+    if(!sides.length) return;
+
+    const block = el("div","bcat");
+    block.appendChild(el("div","bcathd", view.name));
+
+    sides.forEach(({team: tm, cat})=>{
+      const cols = pickCols(cat, view.cols);
+      const rows = rankRows(cat, view.key).slice(0, view.take)
+        .filter(r => r.stats.some(v => num(v)));
+      if(!rows.length) return;
+
+      const tw = el("div","bteam");
+      const lg = el("img","blogo");
+      const t = DATA.teams[tm] || {};
+      if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
+      tw.appendChild(lg);
+      tw.appendChild(el("span", null, t.nick || tm));
+      block.appendChild(tw);
+
+      rows.forEach(r=>{
+        const mine = r.eid && Object.values(DATA.players).find(p => p.eid === r.eid);
+        const row = el("button","brow");
+        const f = el("div","bface");
+        const im = mine ? faceImg(mine, 96, {lazy: true}) : null;
+        if(im) f.appendChild(im);
+        else f.appendChild(el("div","bfb", (r.name || "?").slice(0, 1)));
+        row.appendChild(f);
+
+        const who = el("div","bwho");
+        who.appendChild(el("div","bname", r.name));
+        const line = cols.map(c => r.stats[c.i] + " " + c.label).join("   ");
+        who.appendChild(el("div","bline", line));
+        row.appendChild(who);
+
+        // The headline number. Yards where a category has them, otherwise the
+        // first column -- which for defence is tackles. Falling through to the
+        // second column instead printed "0.0 sacks" as the headline for a man
+        // with eight tackles.
+        const key = cols.find(c => c.label === "YDS") || cols[0];
+        if(key) row.appendChild(el("div","bbig", r.stats[key.i]));
+
+        if(mine) row.onclick = () => { closeWatch(); goPlayer(mine.id); };
+        else row.disabled = true;
+        block.appendChild(row);
+      });
+    });
+
+    if(block.children.length > 1) host.appendChild(block);
+  });
+
+  const n = el("div","carnote");
+  n.textContent = "Leaders in each category. Names in white are on a depth chart "
+    + "here \u2014 tap for the full profile.";
+  host.appendChild(n);
+}
+
 /* ---------------- hold to swap ----------------
    Switching to a backup used to mean: tap the chip, scroll the panel, find the
    depth list, tap a name. Four steps to answer "who else plays here".
@@ -5570,37 +5785,6 @@ function defensiveCredit(text){
   return out.length ? out : null;
 }
 
-/* Live defensive leaders, read from the box score already being fetched. ESPN
-   files these under a defensive category whose column labels vary, so the
-   numbers are looked up by label rather than by position. */
-function defensiveLeaders(teamsInGame, limit){
-  const rows = [];
-  (LIVE.box || []).forEach(side=>{
-    if(teamsInGame && !teamsInGame.includes(side.team)) return;
-    side.cats.forEach(cat=>{
-      if(!/def|tackl/i.test(cat.name || "")) return;
-      const iTot = cat.labels.findIndex(l => /^(TOT|TCKL|TACKLES)$/i.test(l));
-      const iSack = cat.labels.findIndex(l => /^SACKS?$/i.test(l));
-      const iInt = cat.labels.findIndex(l => /^INT$/i.test(l));
-      const iTfl = cat.labels.findIndex(l => /^TFL$/i.test(l));
-      cat.rows.forEach(r=>{
-        const val = i => i >= 0 ? num(r.stats[i]) : null;
-        const tot = val(iTot) || 0, sack = val(iSack) || 0;
-        const ints = val(iInt) || 0, tfl = val(iTfl) || 0;
-        if(!tot && !sack && !ints) return;
-        rows.push({
-          eid: r.eid, name: r.name, pos: r.pos, team: side.team,
-          tot, sack, ints, tfl,
-          // Sacks and takeaways outweigh raw tackle counts.
-          score: tot + sack * 6 + ints * 8 + tfl * 2,
-        });
-      });
-    });
-  });
-  rows.sort((a,b) => b.score - a.score);
-  return rows.slice(0, limit || 6);
-}
-
 /* ---------------- watch mode ----------------
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
@@ -5638,12 +5822,21 @@ async function refreshWatch(){
 }
 
 function renderWatch(g){
-  const b = $("#watchbody");
-  b.innerHTML = "";
+  const host = $("#watchbody");
+  host.innerHTML = "";
   if(!g){
-    b.appendChild(el("div","carnote","No game to follow right now."));
+    host.appendChild(el("div","carnote","No game to follow right now."));
     return;
   }
+  // Two columns where there is room, stacked where there is not. The box score
+  // is the thing you glance at between plays, so it wants to be beside the feed
+  // rather than behind a tap.
+  const split = el("div","wsplit");
+  const b = el("div","wmain");
+  const aside = el("div","waside");
+  split.appendChild(b);
+  split.appendChild(aside);
+  host.appendChild(split);
   const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
 
   // score
@@ -5690,27 +5883,11 @@ function renderWatch(g){
       ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  " + mine + "% to win"));
   }
 
-  // who is making plays on defence
-  const dleaders = defensiveLeaders([a.ab, h.ab].filter(Boolean), 6);
-  if(dleaders.length){
-    b.appendChild(el("div","wsub","Defence"));
-    const dl = el("div","dlead");
-    dleaders.forEach(x=>{
-      const r = el("button","dlrow");
-      r.appendChild(el("span","dlt", x.team));
-      r.appendChild(el("span","dln", x.name));
-      const bits = [];
-      if(x.tot) bits.push(x.tot + " tkl");
-      if(x.sack) bits.push(x.sack + " sk");
-      if(x.tfl) bits.push(x.tfl + " tfl");
-      if(x.ints) bits.push(x.ints + " int");
-      r.appendChild(el("span","dls", bits.join("  ")));
-      const mine = x.eid && Object.values(DATA.players).find(pp => pp.eid === x.eid);
-      if(mine) r.onclick = () => { closeWatch(); goPlayer(mine.id); };
-      dl.appendChild(r);
-    });
-    b.appendChild(dl);
-  }
+  const boxHd = el("div","wsub","Box score");
+  aside.appendChild(boxHd);
+  const boxHost = el("div","wboxwrap");
+  aside.appendChild(boxHost);
+  renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
 
   // the feed
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
@@ -5970,8 +6147,9 @@ async function renderScores(){
 
   const modes = el("div","boxtabs");
   modes.style.marginTop = "0";
-  [["games","Games"],["stand","Standings"]].forEach(([k,lab])=>{
+  [["games","Games"],["stand","Standings"],["lead","Week leaders"]].forEach(([k,lab])=>{
     if(k === "stand" && !hasStandings()) return;
+    if(k === "lead" && !hasWeekly()) return;
     const b = el("button", null, lab);
     b.setAttribute("aria-pressed", k === scoreMode);
     b.onclick = () => { scoreMode = k; renderScores(); };
@@ -5982,6 +6160,11 @@ async function renderScores(){
   if(scoreMode === "stand"){
     wrap.innerHTML = "";
     renderStandings(wrap);
+    return;
+  }
+  if(scoreMode === "lead"){
+    wrap.innerHTML = "";
+    renderWeekLeaders(wrap);
     return;
   }
 
@@ -6066,6 +6249,18 @@ async function renderScores(){
     meta.textContent = s.detail || "";
     if(s.state === "in") meta.classList.add("hot");
     rows[key].id = s.id;
+    // A live game gets a direct way in, rather than making you find the team
+    // first and then the Watch button on its strip.
+    if(s.state === "in" && !row.querySelector(".gwatch")){
+      const wb = el("button","gwatch","Watch");
+      wb.onclick = e => {
+        e.stopPropagation();
+        ensureLiveGame(key, g, s);
+        $("#scores").hidden = true;
+        openWatch(s.id);
+      };
+      row.appendChild(wb);
+    }
   }
 }
 
@@ -6078,6 +6273,20 @@ function fmtKick(g){
   return d.toLocaleTimeString(undefined,{hour:"numeric", minute:"2-digit"});
 }
 
+/* The scoreboard we hold is today's; a game opened from the week list may not be
+   in it. Put it there before anything tries to look it up. */
+function ensureLiveGame(key, g, s){
+  if(!s) return;
+  if(!LIVE.games.some(x => x.id === s.id)){
+    const entry = {id: s.id, state: s.state, detail: s.detail, situation: null,
+      teams: [{ab: g.a, score: s.a, home: false},
+              {ab: g.h, score: s.h, home: true}]};
+    LIVE.games.push(entry);
+    LIVE.byTeam[g.a] = LIVE.byTeam[g.h] = entry;
+  }
+  LIVE.gameId = s.id;
+}
+
 async function pickGame(key, g){
   const cached = scoreCache[scoreWeek] || {};
   const s = cached[key];
@@ -6087,12 +6296,7 @@ async function pickGame(key, g){
     return;
   }
   await fetchGame(s.id);
-  LIVE.gameId = s.id;
-  if(!LIVE.byTeam[g.h]){
-    LIVE.games.push({id:s.id, state:s.state, detail:s.detail, situation:null,
-      teams:[{ab:g.a, score:s.a, home:false},{ab:g.h, score:s.h, home:true}]});
-    LIVE.byTeam[g.a] = LIVE.byTeam[g.h] = LIVE.games[LIVE.games.length-1];
-  }
+  ensureLiveGame(key, g, s);
   boxTeam = null;
   openBox();
 }
@@ -6430,6 +6634,67 @@ let standView = "div";
 
 const hasStandings = () => !!(DATA.standings && DATA.standings.teams
   && Object.keys(DATA.standings.teams).length);
+
+const hasWeekly = () => !!(DATA.weekly && Object.keys(DATA.weekly).length);
+
+/* The best individual games of a week, which is a different question from the
+   season leaderboard: one afternoon rather than a body of work. It follows the
+   same week selector as the fixtures, so moving between them keeps your place. */
+function renderWeekLeaders(host){
+  const weeks = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
+  if(!weeks.length){
+    host.appendChild(el("div","carnote","Weekly leaders appear once a week has been played."));
+    return;
+  }
+  // Fall back to the newest week that has been played, not the week being
+  // browsed, so an unplayed week does not show an empty panel.
+  const wk = weeks.includes(scoreWeek) ? scoreWeek : weeks[weeks.length - 1];
+
+  const strip = el("div","wkstrip");
+  weeks.forEach(w=>{
+    const b = el("button", null, String(w));
+    b.setAttribute("aria-pressed", w === wk);
+    b.onclick = () => { scoreWeek = w; renderScores(); };
+    strip.appendChild(b);
+  });
+  host.appendChild(strip);
+
+  const head = el("div","wkhead");
+  head.appendChild(el("span","wknum", "Week " + wk));
+  head.appendChild(el("span","wkmeta", "best individual games"));
+  host.appendChild(head);
+
+  (DATA.weekly[String(wk)] || []).forEach(cat=>{
+    host.appendChild(el("div","advsub", cat.name));
+    cat.rows.forEach((r, i)=>{
+      const row = el("button","wlrow" + (i === 0 ? " top" : ""));
+      row.appendChild(el("span","wlr", String(i + 1)));
+      const p = r.pid ? DATA.players[r.pid] : null;
+      const f = el("div","wlf");
+      const im = p ? faceImg(p, 96, {lazy: true}) : null;
+      if(im) f.appendChild(im);
+      else f.appendChild(el("div","wlfb", (r.n || "?").slice(0, 1)));
+      row.appendChild(f);
+      const who = el("div","wlw");
+      who.appendChild(el("div","wln", r.n));
+      who.appendChild(el("div","wlm",
+        (r.t || "") + (r.o ? " v " + r.o : "") + (r.x ? "   " + r.x : "")));
+      row.appendChild(who);
+      const v = el("div","wlv");
+      v.appendChild(el("span","wlnum", r.v.toLocaleString()));
+      v.appendChild(el("span","wlu", cat.label));
+      row.appendChild(v);
+      if(p) row.onclick = () => { $("#scores").hidden = true; goPlayer(p.id); };
+      else row.disabled = true;
+      host.appendChild(row);
+    });
+  });
+
+  const n = el("div","carnote");
+  n.textContent = "One week's work, not a season's. Names in white are on a depth "
+    + "chart here \u2014 tap for the full profile.";
+  host.appendChild(n);
+}
 
 function renderStandings(host){
   if(!hasStandings()){
