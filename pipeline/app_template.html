@@ -1053,6 +1053,21 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
 }
 .gwatch:hover{background:#D06A6A}
 
+/* ---------- embedded player ---------- */
+.pwrap{margin-bottom:14px}
+.pbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.plab{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.pbtn{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
+  padding:4px 11px;border-radius:var(--r);text-decoration:none}
+.pbtn:hover{color:var(--chalk);border-color:var(--team)}
+/* Sixteen by nine, reserved before the frame loads so nothing below it jumps. */
+.pframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.pframe[hidden]{display:none}
+.pframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
 /* ---------- live box score ---------- */
 .wsplit{display:grid;grid-template-columns:1fr;gap:20px;max-width:660px;
   margin:0 auto;width:100%}
@@ -4103,13 +4118,73 @@ const PROXY = "";
 /* Where the STREAM link on a scorecard points. You gave the path but not the
    host, so this is the one thing to set: leave it empty and links stay relative
    ("/live/nfl/2026-09-13/tb-cin"), or put a host in and they become absolute. */
-const STREAM_BASE = "https://ppv.to";
+const STREAM_BASE = "";
 
-/* Slug for a fixture: /live/nfl/<date>/<away>-<home>, clubs lowercased. */
-function streamUrl(g){
+/* Slugs for a fixture. Same shape for both, differing only in the first path
+   segment: /live/... opens the page, /embed/... is the player on its own. */
+function fixtureSlug(g){
   if(!g || !g.d || !g.a || !g.h) return null;
-  return STREAM_BASE + "/live/nfl/" + g.d + "/"
-       + g.a.toLowerCase() + "-" + g.h.toLowerCase();
+  return g.d + "/" + g.a.toLowerCase() + "-" + g.h.toLowerCase();
+}
+function streamUrl(g){
+  const sl = fixtureSlug(g);
+  return sl ? STREAM_BASE + "/live/nfl/" + sl : null;
+}
+function embedUrl(g){
+  const sl = fixtureSlug(g);
+  return sl ? STREAM_BASE + "/embed/nfl/" + sl : null;
+}
+
+/* The player, in a box that holds its shape before anything loads. Kept behind a
+   toggle: an iframe starts fetching the moment it exists, and watch mode is also
+   useful without it. */
+let playerOn = true;
+
+function gamePlayer(g, fixture){
+  const src = embedUrl(fixture);
+  if(!src) return null;
+
+  const wrap = el("div","pwrap");
+  const bar = el("div","pbar");
+  bar.appendChild(el("span","plab", "Stream"));
+  const toggle = el("button","pbtn", playerOn ? "Hide" : "Show");
+  bar.appendChild(toggle);
+  const out = document.createElement("a");
+  out.className = "pbtn";
+  out.href = streamUrl(fixture) || "#";
+  out.target = "_blank";
+  out.rel = "noopener noreferrer";
+  out.textContent = "Open";
+  bar.appendChild(out);
+  wrap.appendChild(bar);
+
+  const frame = el("div","pframe");
+  wrap.appendChild(frame);
+
+  const mount = () => {
+    frame.innerHTML = "";
+    if(!playerOn){ frame.hidden = true; return; }
+    frame.hidden = false;
+    const f = document.createElement("iframe");
+    f.id = "player";
+    f.src = src;
+    f.scrolling = "no";
+    f.allowFullscreen = true;
+    f.setAttribute("allow", "encrypted-media; picture-in-picture;");
+    f.setAttribute("frameborder", "0");
+    f.setAttribute("marginheight", "0");
+    f.setAttribute("marginwidth", "0");
+    f.width = "100%";
+    f.height = "100%";
+    frame.appendChild(f);
+  };
+  toggle.onclick = () => {
+    playerOn = !playerOn;
+    toggle.textContent = playerOn ? "Hide" : "Show";
+    mount();
+  };
+  mount();
+  return wrap;
 }
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 const espnUrl = path => (PROXY ? PROXY + encodeURIComponent(ESPN + path) : ESPN + path);
@@ -6426,6 +6501,14 @@ function renderWatch(g){
   split.appendChild(aside);
   host.appendChild(split);
   const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+
+  // The stream, above everything else, for a game in progress.
+  if(g.state === "in"){
+    const fixture = (DATA.slate && Object.values(DATA.slate).flat()
+      .find(x => x.a === a.ab && x.h === h.ab)) || null;
+    const player = fixture ? gamePlayer(g, fixture) : null;
+    if(player) b.appendChild(player);
+  }
 
   // score
   const sc = el("div","wsc");
