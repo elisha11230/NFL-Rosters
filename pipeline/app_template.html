@@ -815,30 +815,56 @@ body.simple #timebar{display:none}
   letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .daylab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--dim);margin:16px 0 6px}
-.gmrow{
-  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
-  padding:9px 11px;border:1px solid var(--line);border-radius:var(--r);
-  margin-bottom:5px;background:var(--panel);transition:.12s;
+/* ---------- scoreboard cards ----------
+   A row per game reads as a list; a card per game reads as a scoreboard, which
+   is what you want when several are on at once. */
+.sbgrid{display:grid;gap:10px;margin-bottom:6px;
+  grid-template-columns:repeat(auto-fill,minmax(268px,1fr))}
+.sbcard{
+  position:relative;display:block;text-align:left;padding:12px 13px 10px;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+  transition:border-color .13s,background .13s;
 }
-.gmrow:hover{border-color:var(--team)}
-.gmrow.live{border-color:color-mix(in srgb,#C25B5B 50%,transparent);
-  background:color-mix(in srgb,#C25B5B 9%,transparent)}
-.gmrow.done{background:#121A1E}
-.gside{display:flex;align-items:center;gap:7px;flex:1 1 0;min-width:0}
-.gside.home{flex-direction:row-reverse;text-align:right}
-.glogo{width:22px;height:22px;object-fit:contain;flex:0 0 auto}
-.gname{flex:1 1 auto;font-size:13.5px;color:var(--mute);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.gside.won .gname{color:#fff}
-.gscore{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--chalk);
-  min-width:22px;text-align:center}
-.gside.won .gscore{color:#5FBF8A}
-.gat{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--dim);flex:0 0 auto}
-.gmeta{flex:0 0 92px;text-align:right;font-family:'Barlow Condensed',sans-serif;
-  font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);
-  white-space:nowrap}
-.gmeta.hot{color:#E0A4A4}
+.sbcard:hover{border-color:var(--team)}
+.sbcard.live{border-color:color-mix(in srgb,#C25B5B 55%,transparent);
+  background:color-mix(in srgb,#C25B5B 8%,transparent)}
+.sbcard.done{background:#151E23}
+.sbteam{display:flex;align-items:center;gap:9px;padding:4px 0}
+.sblogo{width:28px;height:28px;object-fit:contain;flex:0 0 auto}
+.sbname{flex:1 1 auto;min-width:0}
+.sbnick{font-size:14px;color:var(--mute);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.sbteam.won .sbnick{color:#fff;font-weight:600}
+.sbteam.lost .sbnick{color:var(--dim)}
+.sbrec{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.08em;
+  color:var(--dim)}
+/* Held in the layout even when empty, so scores do not jump sideways as
+   possession changes hands. */
+.sbposs{flex:0 0 10px;font-size:9px;color:transparent;line-height:1}
+.sbteam.hasball .sbposs{color:var(--brass)}
+.sbscore{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--chalk);
+  min-width:30px;text-align:right}
+.sbteam.won .sbscore{color:#fff}
+.sbteam.lost .sbscore{color:var(--dim)}
+.sbfoot{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
+.sbtime{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.sbtime.hot{color:#E4A4A4;font-weight:600}
+.sbdd{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--mute)}
+.sbdd.rz{color:#E4A4A4}
+.sbwatch{
+  position:absolute;top:10px;right:11px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:#fff;background:#C25B5B;
+  padding:3px 9px;border-radius:9px;
+}
+.sbwatch:hover{background:#D06A6A}
+@media (max-width:420px){
+  .sbgrid{grid-template-columns:1fr}
+  .sbnick{font-size:13px}
+}
 #scoresbtn{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
@@ -846,9 +872,6 @@ body.simple #timebar{display:none}
 }
 #scoresbtn:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:560px){
-  .gname{font-size:12px}
-  .gmeta{flex:0 0 68px;font-size:11px}
-  .gat{display:none}
 }
 
 /* ---------- drive chart ---------- */
@@ -6651,6 +6674,7 @@ async function loadWeekScores(wk){
         const st = (e.status || {}).type || {};
         const teams = (c.competitors || []).map(t=>({
           ab: normTeam((t.team || {}).abbreviation || ""),
+          id: (t.team || {}).id,
           score: t.score, home: t.homeAway === "home",
         }));
         const a = teams.find(t=>!t.home), h = teams.find(t=>t.home);
@@ -6674,9 +6698,18 @@ async function loadWeekScores(wk){
             };
           }).filter(x => x.name),
         })).filter(cat => cat.rows.length);
+        // Possession and down-and-distance are on the scoreboard too, and a
+        // scoreboard without them only answers half of what you want mid-game.
+        const sit = c.situation || null;
+        const possAb = sit && sit.possession
+          ? (teams.find(t => String(t.id) === String(sit.possession)) || {}).ab
+          : null;
         if(a && h) out[a.ab + "@" + h.ab] = {
           id: e.id, state: st.state, detail: st.shortDetail,
           a: a.score, h: h.score,
+          sit, poss: possAb,
+          period: (e.status || {}).period,
+          clock: (e.status || {}).displayClock,
           leaders,
           odds: o ? {
             line: o.details || null,
@@ -6755,10 +6788,11 @@ async function renderScores(){
   head.appendChild(el("span","wkmeta", slate.length + " games"));
   wrap.appendChild(head);
 
-  // Render the fixtures immediately from the schedule, then fill in scores when
-  // ESPN answers. The page is never blank waiting on a network call.
+  // Cards render straight from the schedule so the page is never blank waiting
+  // on a request, then fill in with scores when ESPN answers.
   const rows = {};
   let lastDay = null;
+  let grid = null;
   slate.forEach(g=>{
     if(g.d !== lastDay){
       lastDay = g.d;
@@ -6768,31 +6802,41 @@ async function renderScores(){
         ? dt.toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"})
         : (g.wd || "");
       wrap.appendChild(dl);
+      grid = el("div","sbgrid");
+      wrap.appendChild(grid);
     }
     const key = g.a + "@" + g.h;
-    const row = el("button","gmrow");
+    const card = el("button","sbcard");
+
     const side = (ab, home) => {
-      const w = el("div","gside" + (home ? " home" : ""));
+      const w = el("div","sbteam");
       const t = DATA.teams[ab] || {};
-      const lg = el("img","glogo");
-      if(t.logo){ lg.src = t.logo; lg.alt = ""; }
+      const lg = el("img","sblogo");
+      if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
       w.appendChild(lg);
-      w.appendChild(el("span","gname", t.nick || ab));
-      w.appendChild(el("span","gscore", ""));
+      const nm = el("div","sbname");
+      nm.appendChild(el("div","sbnick", t.nick || ab));
+      nm.appendChild(el("div","sbrec", ""));
+      w.appendChild(nm);
+      // A marker for who has the ball, kept in the layout so scores do not
+      // shuffle sideways when possession changes.
+      w.appendChild(el("span","sbposs", "\u25CF"));
+      w.appendChild(el("span","sbscore", ""));
       return w;
     };
     const aEl = side(g.a, false), hEl = side(g.h, true);
-    row.appendChild(aEl);
-    row.appendChild(el("span","gat","at"));
-    row.appendChild(hEl);
-    const meta = el("span","gmeta", fmtKick(g));
-    row.appendChild(meta);
-    row.onclick = () => pickGame(key, g);
-    wrap.appendChild(row);
-    // Carry the fixture itself, not just its elements. The pass that fills in
-    // scores runs after this closure has gone, so anything it needs about the
-    // game has to be stored here.
-    rows[key] = {row, aEl, hEl, meta, g};
+    card.appendChild(aEl);
+    card.appendChild(hEl);
+
+    const foot = el("div","sbfoot");
+    foot.appendChild(el("span","sbtime", fmtKick(g)));
+    const extra = el("span","sbdd", "");
+    foot.appendChild(extra);
+    card.appendChild(foot);
+
+    card.onclick = () => pickGame(key, g);
+    grid.appendChild(card);
+    rows[key] = {card, aEl, hEl, foot, time: foot.firstChild, dd: extra, g};
   });
 
   const n = el("div","carnote");
@@ -6803,32 +6847,45 @@ async function renderScores(){
   // Now go and see whether any of these have been played.
   const scores = await loadWeekScores(scoreWeek);
   for(const key in rows){
-    const s = scores[key];
-    if(!s) continue;
-    const {row, aEl, hEl, meta, g} = rows[key];
-    if(s.state === "pre") continue;
-    row.classList.add(s.state === "in" ? "live" : "done");
-    aEl.querySelector(".gscore").textContent = s.a ?? "";
-    hEl.querySelector(".gscore").textContent = s.h ?? "";
-    const aw = num(s.a), hw = num(s.h);
-    if(aw != null && hw != null && s.state === "post"){
+    const s2 = scores[key];
+    if(!s2) continue;
+    const {card, aEl, hEl, time, dd, g} = rows[key];
+    if(s2.state === "pre") continue;
+
+    card.classList.add(s2.state === "in" ? "live" : "done");
+    aEl.querySelector(".sbscore").textContent = s2.a ?? "";
+    hEl.querySelector(".sbscore").textContent = s2.h ?? "";
+    const aw = num(s2.a), hw = num(s2.h);
+    if(aw != null && hw != null && s2.state === "post"){
       (aw > hw ? aEl : hEl).classList.add("won");
+      (aw > hw ? hEl : aEl).classList.add("lost");
     }
-    meta.textContent = s.detail || "";
-    if(s.state === "in") meta.classList.add("hot");
-    rows[key].id = s.id;
-    // A live game gets a direct way in, rather than making you find the team
-    // first and then the Watch button on its strip.
-    if(s.state === "in" && !row.querySelector(".gwatch")){
-      const wb = el("button","gwatch","Watch");
+    time.textContent = s2.detail || "";
+    if(s2.state === "in") time.classList.add("hot");
+
+    if(s2.poss){
+      (s2.poss === g.a ? aEl : hEl).classList.add("hasball");
+    }
+    if(s2.state === "in" && s2.sit){
+      const pos = fieldPosition(s2.sit, s2.poss);
+      const bits = [];
+      const ddText = s2.sit.downDistanceText || s2.sit.shortDownDistanceText;
+      if(ddText) bits.push(ddText);
+      if(pos && pos.redZone) bits.push("Red zone");
+      dd.textContent = bits.join("  \u00b7  ");
+      if(pos && pos.redZone) dd.classList.add("rz");
+    }
+    if(s2.state === "in"){
+      const wb = el("span","sbwatch","Watch");
       wb.onclick = e => {
         e.stopPropagation();
-        ensureLiveGame(key, g, s);
+        ensureLiveGame(key, g, s2);
         $("#scores").hidden = true;
-        openWatch(s.id);
+        openWatch(s2.id);
       };
-      row.appendChild(wb);
+      card.appendChild(wb);
     }
+    rows[key].id = s2.id;
   }
 }
 

@@ -187,6 +187,15 @@ body of work.
 
 ## Scores and schedule
 
+Games are drawn as **cards rather than rows** — a row per game reads as a list, a
+card per game reads as a scoreboard, which is what you want when several are on at
+once. Each carries both clubs' logos, scores, the kickoff time or the live clock,
+and while a game is on: the down and distance, a red-zone flag, a gold dot beside
+whoever has the ball, and a Watch button.
+
+The possession dot keeps its space in the layout even when empty, so scores do not
+shuffle sideways as the ball changes hands.
+
 The **Scores** button opens a full season view at `#/scores`, or `#/scores/7` for
 a particular week. Two sources, each used for what it is good at:
 
