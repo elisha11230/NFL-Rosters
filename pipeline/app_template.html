@@ -1073,6 +1073,36 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
   border-radius:var(--r);padding:5px 10px;margin-bottom:12px}
 
 /* ---------- embedded player ---------- */
+/* ---------- game switcher ---------- */
+#striphost{max-width:1360px;margin:0 auto;width:100%}
+#striphost:empty{display:none}
+.gsrail{display:flex;gap:7px;overflow-x:auto;padding:0 0 10px;
+  scrollbar-width:thin;margin-bottom:6px;border-bottom:1px solid var(--rule)}
+.gsrail::-webkit-scrollbar{height:4px}
+.gsrail::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+.gstile{
+  flex:0 0 auto;min-width:112px;padding:7px 9px;text-align:left;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+  transition:border-color .12s,background .12s;
+}
+.gstile:hover{border-color:var(--team)}
+.gstile.live{border-color:color-mix(in srgb,#C25B5B 45%,transparent)}
+.gstile.done{opacity:.72}
+.gstile.on{border-color:var(--brass);
+  background:color-mix(in srgb,var(--brass) 12%,transparent);opacity:1}
+.gsside{display:flex;align-items:center;gap:6px;padding:1px 0}
+.gslogo{width:16px;height:16px;object-fit:contain;flex:0 0 auto}
+.gsab{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.07em;color:var(--mute)}
+.gssc{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--dim);
+  min-width:18px;text-align:right}
+.gssc.lead{color:#fff}
+.gsfoot{display:flex;align-items:center;gap:5px;margin-top:4px;
+  font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.gsdot{width:6px;height:6px;border-radius:50%;background:#E05B5B;
+  animation:pulse 1.6s ease-in-out infinite;flex:0 0 auto}
+
 #playerhost{max-width:1360px;margin:0 auto 14px;width:100%}
 #playerhost:empty{display:none}
 #watchcontent{display:contents}
@@ -6604,6 +6634,77 @@ function delayControl(){
   return wrap;
 }
 
+/* ---------------- game switcher ----------------
+   A strip of every game on today, across the top of watch mode, so moving
+   between them is one tap rather than closing out and starting again.
+
+   It sits above the player in its own region and is redrawn on each refresh.
+   That is fine for a row of scores -- unlike the iframe below it, nothing here
+   is expensive to rebuild. */
+function renderGameStrip(){
+  const host = document.getElementById("striphost");
+  if(!host) return;
+  const games = (LIVE.games || []).filter(g => g.teams && g.teams.length === 2);
+  if(games.length < 2){ host.innerHTML = ""; return; }
+
+  // Live first, then finished, then whatever has not kicked off.
+  const rank = g => g.state === "in" ? 0 : g.state === "post" ? 1 : 2;
+  const sorted = games.slice().sort((a, b) => rank(a) - rank(b));
+
+  host.innerHTML = "";
+  const rail = el("div","gsrail");
+  sorted.forEach(g=>{
+    const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+    const on = String(g.id) === String(watchGame);
+    const tile = el("button","gstile" + (on ? " on" : "")
+      + (g.state === "in" ? " live" : g.state === "post" ? " done" : ""));
+
+    const side = (t, opp) => {
+      const row = el("div","gsside");
+      const tm = DATA.teams[t.ab] || {};
+      const lg = el("img","gslogo");
+      if(tm.logo){ lg.src = tm.logo; lg.alt = ""; lg.loading = "lazy"; }
+      row.appendChild(lg);
+      row.appendChild(el("span","gsab", t.ab || ""));
+      const sc = el("span","gssc", g.state === "pre" ? "" : String(t.score ?? 0));
+      // Mark the side that is ahead, so a glance reads the result.
+      const mine = num(t.score), theirs = num(opp.score);
+      if(g.state !== "pre" && mine != null && theirs != null && mine > theirs)
+        sc.classList.add("lead");
+      row.appendChild(sc);
+      return row;
+    };
+    tile.appendChild(side(a, h));
+    tile.appendChild(side(h, a));
+
+    const foot = el("div","gsfoot");
+    if(g.state === "in") foot.appendChild(el("span","gsdot"));
+    foot.appendChild(el("span", null, g.state === "pre"
+      ? (g.detail || "").replace(/^.*?-\s*/, "") : (g.detail || "")));
+    tile.appendChild(foot);
+
+    tile.onclick = () => switchGame(g.id);
+    rail.appendChild(tile);
+  });
+  host.appendChild(rail);
+}
+
+/* Moving to another game resets everything tied to the old one: the player has a
+   new source, and the delay history describes a game you are no longer watching.
+   Replaying the previous game's snapshots into this one would be nonsense. */
+function switchGame(id){
+  if(String(id) === String(watchGame)) return;
+  watchGame = String(id);
+  liveHistory = [];
+  playerSrc = null;
+  const host = document.getElementById("playerhost");
+  if(host) host.innerHTML = "";
+  LIVE.plays = []; LIVE.drives = []; LIVE.box = [];
+  LIVE.teamStats = []; LIVE.stats = {}; LIVE.active = new Set();
+  LIVE.wp = null; LIVE.situation = null;
+  refreshWatch();
+}
+
 /* ---------------- watch mode ----------------
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
@@ -6642,8 +6743,10 @@ function closeWatch(){
 async function refreshWatch(){
   if(!watchOn) return;
   await fetchLive();
-  const g = LIVE.games.find(x => x.id === watchGame) || LIVE.byTeam[team];
+  const g = LIVE.games.find(x => String(x.id) === String(watchGame))
+         || LIVE.byTeam[team];
   if(g){
+    watchGame = String(g.id);
     LIVE.situation = g.state === "in" ? g.situation : null;
     if(g.state !== "pre"){
       await fetchGame(g.id);
@@ -6660,13 +6763,16 @@ function renderWatch(gRaw){
   const outer = $("#watchbody");
   // Two regions: the player, which must never be torn down, and everything else,
   // which is rebuilt on every refresh.
+  let sHost = document.getElementById("striphost");
   let pHost = document.getElementById("playerhost");
   let host = document.getElementById("watchcontent");
-  if(!pHost || !host){
+  if(!sHost || !pHost || !host){
     outer.innerHTML = "";
+    sHost = el("div"); sHost.id = "striphost"; outer.appendChild(sHost);
     pHost = el("div"); pHost.id = "playerhost"; outer.appendChild(pHost);
     host = el("div"); host.id = "watchcontent"; outer.appendChild(host);
   }
+  renderGameStrip();
   host.innerHTML = "";
   if(!gRaw){
     clearPlayer();

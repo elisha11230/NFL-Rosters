@@ -198,13 +198,19 @@ body of work.
 
 ## Your settings live in site_config.py
 
-`site_config.py` holds the handful of values a person sets, and **nothing
-overwrites it** — not the pipeline, and not a handover of a new
-`app_template.html`.
+`site_config.py` holds the handful of values a person sets. **It is not shipped
+with the pipeline** — only `site_config.example.py` is, under a name that cannot
+collide with yours. Copy the example to `site_config.py` once, set your values,
+and no future handover can touch it.
 
-That split exists because of a real mistake. These values started at the top of
-the template, so every time the app's code changed the settings went with it and
-had to be typed again. Code and configuration belong in separate files.
+Two mistakes led here, both worth remembering. The values started at the top of
+`app_template.html`, so every code change wiped them. Moving them to their own
+file fixed that in principle but not in practice, because the file kept being
+shipped alongside everything else — so each upload still overwrote it. A setting
+is only safe if nothing routine ever writes to that path.
+
+The build does not require it: with no `site_config.py` present, links stay
+relative and `build_app.py` says so.
 
 | | |
 |---|---|
@@ -354,6 +360,21 @@ Best score per team and unit is saved alongside the quiz progress.
 
 `build_charts.py` stores a target as `[air_yards, direction, flags]` — three small
 numbers, because a busy receiver has over two hundred of them.
+
+## Switching games
+
+A strip of every game on today runs across the top of watch mode, live ones
+first, then finals, then what has not kicked off. Each tile carries both clubs'
+logos, the score with the leader marked, and the clock. Tapping one switches the
+whole view to that game — player, feed, box score and drives.
+
+Switching clears everything tied to the old game. The delay history in particular
+describes a match you are no longer watching, and replaying those snapshots into a
+different game would be nonsense.
+
+The strip sits in its own region above the player and is redrawn on every refresh,
+which is fine for a row of scores — unlike the iframe below it, nothing here is
+expensive to rebuild.
 
 ## Broadcast delay
 

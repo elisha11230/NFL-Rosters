@@ -154,6 +154,10 @@ def check_settings():
     hand, so it is worth printing what is actually set."""
     try:
         import site_config as cfg
+    except ImportError:
+        # Not an error: the file is optional and never shipped, so a repository
+        # without one simply has no hosts set.
+        return True, "no site_config.py (links stay relative)"
     except Exception as e:
         return False, f"site_config.py will not import: {e}"
     bits = []

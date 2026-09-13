@@ -10,8 +10,22 @@ The template is never modified, so it stays readable and editable.
 """
 import os
 
-import site_config
 from embed_icons import build_head
+
+# site_config.py is yours and is deliberately NOT shipped with the pipeline, so
+# that handing over a new copy of these files cannot overwrite your settings.
+# Absent, everything falls back to relative links, which is a working default.
+try:
+    import site_config
+except ImportError:
+    class site_config:                      # noqa: N801 - stands in for the module
+        STREAM_BASE = EMBED_BASE = PROXY = ""
+
+        @staticmethod
+        def as_js():
+            return '{"streamBase":"","embedBase":"","proxy":""}'
+
+    print("note: no site_config.py found, using relative links")
 
 TPL = "app_template.html"
 DATA = "nfl_data.json"
