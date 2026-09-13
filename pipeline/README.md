@@ -196,6 +196,26 @@ say which you are looking at.
 This is a different question from the season leaderboard: one afternoon, not a
 body of work.
 
+## Your settings live in site_config.py
+
+`site_config.py` holds the handful of values a person sets, and **nothing
+overwrites it** — not the pipeline, and not a handover of a new
+`app_template.html`.
+
+That split exists because of a real mistake. These values started at the top of
+the template, so every time the app's code changed the settings went with it and
+had to be typed again. Code and configuration belong in separate files.
+
+| | |
+|---|---|
+| `STREAM_BASE` | host for the Stream button: `/live/nfl/2026-09-13/tb-cin` |
+| `EMBED_BASE` | host for the player on a live game: `/embed/nfl/...`. Separate from the above, since the page and the player are often not on the same host. Falls back to `STREAM_BASE` when unset |
+| `PROXY` | optional CORS proxy for ESPN, only needed if direct access is ever blocked |
+
+Leave a value empty and its links stay relative. Edit, commit, and the push
+rebuilds the site with the values baked in. `build_app.py` prints what it used and
+`verify_sources.py` lists them, so an unset host is visible rather than silent.
+
 ## Scores and schedule
 
 Games are drawn as **cards rather than rows** — a row per game reads as a list, a

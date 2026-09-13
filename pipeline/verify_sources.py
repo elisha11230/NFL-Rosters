@@ -149,6 +149,20 @@ def check_optional():
     return lines
 
 
+def check_settings():
+    """Not a data source, but the one thing in the pipeline a person edits by
+    hand, so it is worth printing what is actually set."""
+    try:
+        import site_config as cfg
+    except Exception as e:
+        return False, f"site_config.py will not import: {e}"
+    bits = []
+    for label, val in (("stream", cfg.STREAM_BASE), ("embed", cfg.EMBED_BASE),
+                       ("proxy", cfg.PROXY)):
+        bits.append(f"{label}={val or 'unset'}")
+    return True, "  ".join(bits)
+
+
 def check_top100():
     """The Top 100 is hand maintained, so it gets checked like a source."""
     try:
@@ -181,6 +195,11 @@ def main():
         print(f"{name:<16}{'ok' if ok else 'FAIL':<8}{detail}")
         if not ok:
             bad.append((name, detail))
+
+    ok, detail = check_settings()
+    print(f"{'settings':<16}{'ok' if ok else 'FAIL':<8}{detail}")
+    if not ok:
+        bad.append(("settings", detail))
 
     ok, detail = check_top100()
     print(f"{'top 100':<16}{'ok' if ok else 'FAIL':<8}{detail}")
