@@ -168,10 +168,19 @@ games of a week — passing, rushing, receiving, sacks and tackles, five deep, w
 the opponent and a supporting line so it reads like a box score rather than a bare
 number.
 
-Built in the pipeline rather than fetched live. Assembling it in the browser would
-mean pulling a box score for every game on the slate, sixteen requests to answer
-one question, and the answer stops changing once the games end. It appears a day
-or so after each week and grows a week at a time.
+**Two sources, because they have different strengths.**
+
+While a week is being played, leaders come from the scoreboard the fixture list
+already fetches — each game carries its own leaders, so aggregating them answers
+the question live for **no extra requests**. Pulling a box score per game would
+have been sixteen requests to answer one.
+
+Once the games are done, the pipeline's set from nflverse takes over. It is fuller:
+it covers defence, which the scoreboard leaders do not include, and it is settled.
+
+The view draws the settled set first so nothing flashes empty, then replaces it
+with live figures if that week is still running. A pulsing dot and "updating live"
+say which you are looking at.
 
 This is a different question from the season leaderboard: one afternoon, not a
 body of work.
@@ -397,15 +406,44 @@ carrying that field:
   and between preseason and regular season. Players on a depth chart in the app
   are clickable and open their profile; camp bodies who are not still appear, as
   plain rows
-- **Drives**, most recent first, with result, plays, yards and time
+- **Drives**, most recent first, in the team panel and alongside the feed in
+  watch mode. Tapping one opens a **drive chart**: the field with the ball walked
+  down it play by play, each play drawn as a bar covering the ground it gained and
+  coloured by pass, run, sack, kick or penalty. Sacks and losses run backwards,
+  which is the point of drawing it rather than listing it. The play list beside it
+  scrolls in step, and tapping any play jumps the ball to that point.
+
+  Positions come from `yardsToEndzone`, not `yardLine` — the latter depends on
+  which half of the field you are on and which way the team is facing, so it
+  cannot be drawn without knowing both. Everything is expressed as yards to the
+  end zone, which means the offence always moves left to right
+- **Drives** also list result, plays, yards and time
 - **Green ring** on the chip of any player confirmed on the field today, as
   opposed to merely projected there
 - **"Against his usual day"** on a player profile: today's figures set beside his
   own per-game average for last season, so a number means something
 
-The field position bar is deliberately its own strip and not drawn on the
-formation. The formation shows who lines up where; it is not a scale map of the
-field, and spotting a real yard line on it would misrepresent both.
+Field position is drawn as a small field of its own: end zones in each club's
+colours, yard lines, the red zone shaded, the ball, and the line to gain in green.
+It is drawn **from the offence's point of view — they always attack to the
+right**, so the direction of play needs no arrow to interpret and each end zone
+can simply be labelled with who defends it. A possession chip above it names the
+team with the ball, the down and distance, and the yards left to the end zone.
+
+Field position is not drawn on the formation diagram. That shows who lines up
+where; it is not a scale map of the field, and putting a real yard line on it
+would misrepresent both.
+
+**ESPN reports field position two ways and they disagree about what zero means.**
+`yardLine` is ambiguous alone; `possessionText` reads "NE 29", naming the half of
+the field, which is not. The text is parsed first and the number kept as a
+fallback, then everything is expressed as yards-to-goal for the team in
+possession — the only framing that makes the diagram readable.
+
+**Win probability is a line across the whole game**, not a row of bars. The shape
+is the point: a flat line is a comfortable afternoon, one that keeps crossing the
+middle is a game worth watching. The half above the midline is tinted in the home
+club's colour and the half below in the away club's.
 
 The strip has three treatments and only one of them is loud. A game in progress
 gets the red background and a pulsing dot; a scheduled game gets neutral styling,

@@ -851,6 +851,119 @@ body.simple #timebar{display:none}
   .gat{display:none}
 }
 
+/* ---------- drive chart ---------- */
+#drive{position:fixed;inset:0;z-index:82;background:rgba(8,12,14,.97);
+  display:flex;flex-direction:column;padding:16px 18px}
+#drive[hidden]{display:none}
+#drivebody{flex:1 1 auto;overflow-y:auto;max-width:760px;margin:0 auto;width:100%}
+.dres{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
+  text-transform:uppercase;padding:3px 9px;border-radius:10px;
+  border:1px solid var(--line);color:var(--mute)}
+.dres.td{border-color:var(--rise);color:var(--rise);
+  background:color-mix(in srgb,var(--rise) 14%,transparent)}
+.dres.fg{border-color:var(--brass);color:var(--brass)}
+.dres.to{border-color:var(--fall);color:var(--fall)}
+.dfield{display:flex;height:72px;border-radius:var(--r);overflow:hidden;
+  margin:12px 0 6px;border:1px solid var(--line)}
+.dplay{position:relative;flex:1 1 auto;background:var(--field)}
+/* Each play is a bar covering the ground it gained, stacked in three lanes so
+   consecutive plays stay separable. */
+.dplay .seg{position:absolute;height:7px;border-radius:4px;
+  transition:width .55s ease, left .55s ease}
+.seg.pass{background:#6E9FD8} .seg.rush{background:#5FBF8A}
+.seg.sack{background:#C98080} .seg.kick{background:#A88C5F}
+.seg.flag{background:#D9B84A} .seg.other{background:var(--mute)}
+.dlegend .seg{position:static;display:block;width:12px;height:7px}
+.dstart{position:absolute;top:8%;bottom:8%;width:2px;
+  background:color-mix(in srgb,var(--chalk) 45%,transparent)}
+.dball{position:absolute;bottom:10%;width:12px;height:9px;
+  border-radius:50%/60% 60% 40% 40%;background:var(--brass);
+  transform:translateX(-50%) rotate(18deg);
+  box-shadow:0 0 10px color-mix(in srgb,var(--brass) 80%,transparent);
+  transition:left .55s cubic-bezier(.3,.7,.4,1);z-index:3}
+.dlegend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.dlegend span{display:flex;align-items:center;gap:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim)}
+.dlist{max-height:320px;overflow-y:auto;border:1px solid var(--line);
+  border-radius:var(--r)}
+.drow{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;
+  padding:8px 10px;border-bottom:1px solid var(--rule)}
+.drow:last-child{border-bottom:0}
+.drow.on{background:color-mix(in srgb,var(--team) 20%,transparent)}
+.drow:hover{background:#243039}
+.dnum{flex:0 0 16px;font-family:'Archivo Black',sans-serif;font-size:10px;
+  color:var(--dim);padding-top:2px}
+.dkind{flex:0 0 48px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  padding:2px 0;border-radius:2px;text-align:center;color:#10171A}
+.dkind.pass{background:#6E9FD8} .dkind.rush{background:#5FBF8A}
+.dkind.sack{background:#C98080} .dkind.kick{background:#A88C5F}
+.dkind.flag{background:#D9B84A} .dkind.other{background:var(--mute)}
+.dtxt{flex:1 1 auto;min-width:0}
+.ddd{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--dim)}
+.dt2{font-size:12.5px;line-height:1.4;color:var(--chalk)}
+.dgain{font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--mute);
+  min-width:30px;text-align:right}
+.dgain.pos{color:var(--rise)} .dgain.neg{color:var(--fall)}
+.wdrives{border:1px solid var(--line);border-radius:var(--r);padding:4px 8px;
+  margin-bottom:6px}
+.wdrives .drv{width:100%;text-align:left}
+.drv:disabled{cursor:default;opacity:.6}
+
+/* ---------- mini field ----------
+   Drawn from the offence's point of view: they always attack right, so the
+   direction of play needs no arrow to interpret and the end zones can simply be
+   labelled with who defends them. */
+.mfield{display:flex;height:42px;border-radius:var(--r);overflow:hidden;
+  margin:10px 0 6px;border:1px solid var(--line)}
+.mez{flex:0 0 34px;display:flex;align-items:center;justify-content:center;
+  position:relative}
+.mez span{font-family:'Archivo Black',sans-serif;font-size:10px;color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.8);letter-spacing:.04em}
+.mez.own{border-right:2px solid rgba(255,255,255,.5)}
+.mez.def{border-left:2px solid rgba(255,255,255,.5)}
+.mplay{position:relative;flex:1 1 auto;background:var(--field)}
+.mline{position:absolute;top:0;bottom:0;width:1px;
+  background:color-mix(in srgb,var(--chalk) 22%,transparent)}
+.mline.mid{background:color-mix(in srgb,var(--chalk) 45%,transparent);width:2px}
+.mrz{position:absolute;top:0;bottom:0;right:0;width:20%;
+  background:color-mix(in srgb,#C25B5B 20%,transparent)}
+.mfd{position:absolute;top:0;bottom:0;width:2px;background:var(--rise);
+  box-shadow:0 0 6px color-mix(in srgb,var(--rise) 80%,transparent)}
+.mball{position:absolute;top:50%;width:11px;height:8px;border-radius:50%/60% 60% 40% 40%;
+  background:var(--brass);transform:translate(-50%,-50%) rotate(20deg);
+  box-shadow:0 0 9px color-mix(in srgb,var(--brass) 80%,transparent);z-index:2}
+/* Direction of travel, sitting just ahead of the ball. */
+.marrow{position:absolute;top:50%;transform:translateY(-50%);
+  width:0;height:0;border-left:7px solid var(--brass);
+  border-top:5px solid transparent;border-bottom:5px solid transparent;
+  opacity:.75;z-index:2}
+
+/* ---------- possession ---------- */
+.poss{display:flex;align-items:center;gap:10px;padding:8px 11px;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+  margin-bottom:2px}
+.posslogo{width:26px;height:26px;object-fit:contain;flex:0 0 auto}
+.posstxt{flex:1 1 auto;min-width:0}
+.possn{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.possd{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);margin-top:2px}
+.possrz{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:#E4A4A4;border:1px solid #C25B5B;
+  padding:2px 7px;border-radius:9px;white-space:nowrap}
+
+/* ---------- win probability ---------- */
+.wpwrap{margin:4px 0 12px}
+svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
+  border:1px solid var(--line)}
+.wpleg{display:flex;justify-content:space-between;margin-top:6px}
+.wpleg span{display:flex;align-items:center;gap:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--mute)}
+.wpleg i{width:9px;height:9px;border-radius:2px;display:block}
+
 /* ---------- weekly leaders ---------- */
 .wlrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
   padding:8px 0;border-bottom:1px solid var(--rule)}
@@ -874,6 +987,10 @@ body.simple #timebar{display:none}
   text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
 .wlv{text-align:right;flex:0 0 auto}
+.wkmeta.livebadge{color:#E4A4A4}
+.wkmeta.livebadge::before{content:"";display:inline-block;width:7px;height:7px;
+  border-radius:50%;background:#E05B5B;margin-right:6px;
+  animation:pulse 1.6s ease-in-out infinite;vertical-align:middle}
 .wlnum{display:block;font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
   line-height:1}
 .wlrow.top .wlnum{color:var(--brass)}
@@ -1469,18 +1586,6 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
 .gsc .d{color:var(--dim)}
 .ddbig{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--chalk);
   margin-bottom:8px}
-/* The field position bar is deliberately separate from the formation diagram.
-   The formation shows who lines up where; it is not a scale map of the field,
-   so spotting a real yard line on it would misrepresent both. */
-.fieldbar2{position:relative;height:12px;border-radius:2px;background:var(--rule);
-  overflow:hidden;margin-bottom:6px}
-.fieldbar2 .rz{position:absolute;right:0;top:0;bottom:0;width:20%;
-  background:color-mix(in srgb,#C25B5B 22%,transparent)}
-.fieldbar2 .ball{position:absolute;top:1px;bottom:1px;width:3px;border-radius:2px;
-  background:var(--brass);transform:translateX(-50%)}
-.fblab{display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;
-  font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
-.fblab .hot{color:#E0A4A4}
 .lastplay{margin-top:9px;font-size:12.5px;line-height:1.45;color:var(--mute)}
 .drv{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--rule)}
 .drv:last-of-type{border-bottom:0}
@@ -1819,6 +1924,14 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
     <button class="qx" id="wallclose">Close</button>
   </div>
   <div id="wallbody"></div>
+</div>
+
+<div id="drive" hidden role="dialog" aria-modal="true" aria-label="Drive">
+  <div class="lhead">
+    <div id="drivehead"></div>
+    <button class="qx" id="driveclose">Close</button>
+  </div>
+  <div id="drivebody"></div>
 </div>
 
 <div id="watch" hidden role="dialog" aria-modal="true" aria-label="Watch mode">
@@ -3581,6 +3694,7 @@ document.addEventListener("keydown", e=>{
   }
   else if(e.key === "Escape" && !$("#game").hidden) $("#game").hidden = true;
   else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
+  else if(e.key === "Escape" && !$("#drive").hidden) closeDrive();
   else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
   else if(e.key === "Escape" && !$("#scores").hidden) closeScores();
@@ -4063,16 +4177,39 @@ async function fetchGame(gameId){
       })),
     }));
 
+    // ESPN reports a play's position two ways. `yardsToEndzone` is unambiguous;
+    // `yardLine` depends on which half you are on and which way the team is
+    // going. Prefer the first, keep the second as a fallback.
+    const yardsOut = spot => {
+      if(!spot) return null;
+      const y = num(spot.yardsToEndzone);
+      if(y != null) return Math.max(0, Math.min(100, y));
+      const l = num(spot.yardLine);
+      return l == null ? null : Math.max(0, Math.min(100, l));
+    };
     const dr = j.drives || {};
     const list = [...(dr.previous || [])];
     if(dr.current) list.push(dr.current);
-    LIVE.drives = list.slice(-12).reverse().map(d=>({
+    // Each drive keeps its plays with the ground they covered, which is what a
+    // drive chart needs and the flat play feed does not carry.
+    LIVE.drives = list.slice(-14).reverse().map((d, idx)=>({
+      id: d.id ? String(d.id) : ("d" + idx),
       team: normTeam(((d.team || {}).abbreviation) || ""),
       result: d.displayResult || d.result || "",
       plays: (d.plays || []).length || num(d.offensivePlays) || null,
       yards: num(d.yards),
       time: (d.timeElapsed || {}).displayValue || null,
       scoring: !!d.isScore,
+      start: ((d.start || {}).text) || null,
+      detail: (d.plays || []).map(p=>({
+        text: p.text || ((p.type || {}).text) || "",
+        kind: ((p.type || {}).text) || "",
+        from: yardsOut(p.start),
+        to: yardsOut(p.end),
+        gain: num(p.statYardage),
+        dd: ((p.start || {}).downDistanceText) || null,
+        score: !!p.scoringPlay,
+      })).filter(p => p.text),
     }));
 
     const wp = j.winprobability;
@@ -4303,56 +4440,29 @@ function sectionGame(d){
   }
   sec.appendChild(sc);
 
-  // Field position. Drawn as its own bar rather than on the formation, because
-  // the formation is a diagram of personnel, not a scale map of the field --
-  // putting a real yard line on it would be a lie.
+  // Field position on its own diagram rather than on the formation, because the
+  // formation is a picture of personnel and not a scale map of the field.
   const st = LIVE.situation;
+  const offAb2 = st && st.possession
+    ? (g.teams.find(t => String(t.id) === String(st.possession)) || {}).ab : null;
+  const defAb2 = offAb2 ? (offAb2 === h.ab ? a.ab : h.ab) : null;
+  const pos2 = fieldPosition(st, offAb2);
   if(st){
     const dd = st.downDistanceText || st.shortDownDistanceText;
     if(dd) sec.appendChild(el("div","ddbig", dd));
-    const yl = num(st.yardLine);
-    if(yl != null){
-      const strip = el("div","fieldbar2");
-      const rz = el("i","rz"); strip.appendChild(rz);
-      const ball = el("i","ball");
-      ball.style.left = Math.max(0, Math.min(100, yl)) + "%";
-      strip.appendChild(ball);
-      sec.appendChild(strip);
-      const lab = el("div","fblab");
-      lab.appendChild(el("span", null, st.possessionText || ""));
-      if(st.isRedZone) lab.appendChild(el("span","hot","Red zone"));
-      sec.appendChild(lab);
-    }
-    if(st.lastPlay && st.lastPlay.text){
-      const lp = el("div","lastplay", st.lastPlay.text);
-      sec.appendChild(lp);
-    }
+    if(offAb2) sec.appendChild(possessionChip(offAb2, st, pos2));
+    sec.appendChild(miniField(offAb2 || a.ab, defAb2 || h.ab, pos2));
+    if(st.lastPlay && st.lastPlay.text)
+      sec.appendChild(el("div","lastplay", st.lastPlay.text));
   }
 
-  // Win probability, with the swing so far
+  // Win probability across the whole game, so the shape is visible.
   if(LIVE.wp){
-    const mine = home ? LIVE.wp.home : 100 - LIVE.wp.home;
-    const wrap = el("div");
-    wrap.style.marginTop = "12px";
-    const top = el("div","qmeta");
-    top.style.marginBottom = "4px";
-    const l = el("span");
-    l.appendChild(el("b", null, mine + "%"));
-    l.appendChild(document.createTextNode(" win probability"));
-    top.appendChild(l);
-    wrap.appendChild(top);
-    const series = LIVE.wp.series.map(v => home ? v : 1 - v);
-    if(series.length > 3){
-      const sp = el("div","spark");
-      sp.style.height = "28px";
-      series.forEach(v=>{
-        const b = el("i");
-        b.style.height = Math.max(3, Math.round(v * 100)) + "%";
-        sp.appendChild(b);
-      });
-      wrap.appendChild(sp);
+    const chart = winChart(h.ab, a.ab, LIVE.wp.series, LIVE.wp.home);
+    if(chart){
+      sec.appendChild(el("div","advsub","Win probability"));
+      sec.appendChild(chart);
     }
-    sec.appendChild(wrap);
   }
 
   // Who has actually played
@@ -4380,7 +4490,8 @@ function sectionGame(d){
   if(LIVE.drives.length){
     disclose(d, "drives", "Drives", LIVE.drives.length + " shown", body=>{
       LIVE.drives.forEach(dv=>{
-        const row = el("div","drv" + (dv.scoring ? " score" : ""));
+        const row = el("button","drv" + (dv.scoring ? " score" : ""));
+        if(dv.detail && dv.detail.length) row.onclick = () => openDrive(dv);
         row.appendChild(el("span","dt", dv.team));
         row.appendChild(el("span","dr2", dv.result || "\u2013"));
         const bits = [];
@@ -4965,6 +5076,400 @@ function drawPlay(play, idx){
     + ' ' + (x1*10).toFixed(1) + ' ' + (y1*7).toFixed(1) + '"'
     + ' fill="none" stroke="' + colour + '" stroke-width="4" stroke-linecap="round"'
     + ' ' + dash + ' marker-end="url(#ah)" filter="url(#gl)" opacity=".95"/>';
+}
+
+/* ---------------- where the ball is ----------------
+   ESPN reports field position two ways and they disagree about what zero means.
+   `yardLine` is ambiguous on its own; `possessionText` reads "NE 29", naming the
+   half of the field, which is not ambiguous at all. So parse the text first and
+   keep the number as a fallback.
+
+   Everything is then expressed as yards-to-goal for the team in possession,
+   which is the only framing that makes a diagram readable. */
+function fieldPosition(sit, offAb){
+  if(!sit) return null;
+  const txt = sit.possessionText || "";
+  const m = txt.match(/^([A-Z]{2,3})\s+(\d{1,2})$/);
+  let toGoal = null;
+  if(m){
+    const side = normTeam(m[1]), yard = parseInt(m[2], 10);
+    // On your own half the whole field is ahead of you; past midfield only the
+    // yard number remains.
+    toGoal = (side === offAb) ? 100 - yard : yard;
+  } else if(/midfield/i.test(txt)){
+    toGoal = 50;
+  } else {
+    const y = num(sit.yardLine);
+    if(y != null) toGoal = Math.max(0, Math.min(100, y));
+  }
+  if(toGoal == null) return null;
+  const dist = num(sit.distance);
+  return {
+    toGoal,
+    // The line to gain sits `distance` yards nearer the goal, and cannot be
+    // beyond it on a goal-to-go snap.
+    firstDown: dist == null ? null : Math.max(0, toGoal - dist),
+    redZone: toGoal <= 20,
+    text: txt,
+  };
+}
+
+/* A field drawn from the offence's point of view: they always attack to the
+   right. That makes direction self-evident without an arrow to interpret, and
+   the end zones can just be labelled. */
+function miniField(offAb, defAb, pos){
+  const wrap = el("div","mfield");
+  const off = DATA.teams[offAb] || {}, def = DATA.teams[defAb] || {};
+
+  const ownEz = el("div","mez own");
+  ownEz.style.background = off.c1 || "var(--line)";
+  ownEz.appendChild(el("span", null, offAb || ""));
+  wrap.appendChild(ownEz);
+
+  const play = el("div","mplay");
+  for(let i = 1; i < 10; i++){
+    const l = el("i","mline");
+    l.style.left = i * 10 + "%";
+    if(i === 5) l.classList.add("mid");
+    play.appendChild(l);
+  }
+  const rz = el("i","mrz");
+  play.appendChild(rz);
+
+  if(pos){
+    // x runs from the offence's goal line at 0 to the opposing goal at 100.
+    const x = 100 - pos.toGoal;
+    if(pos.firstDown != null && pos.firstDown > 0){
+      const fd = el("i","mfd");
+      fd.style.left = Math.min(100, 100 - pos.firstDown) + "%";
+      fd.title = "Line to gain";
+      play.appendChild(fd);
+    }
+    const ball = el("i","mball");
+    ball.style.left = x + "%";
+    play.appendChild(ball);
+    const arrow = el("i","marrow");
+    arrow.style.left = Math.min(97, x + 2) + "%";
+    play.appendChild(arrow);
+  }
+  wrap.appendChild(play);
+
+  const defEz = el("div","mez def");
+  defEz.style.background = def.c1 || "var(--line)";
+  defEz.appendChild(el("span", null, defAb || ""));
+  wrap.appendChild(defEz);
+  return wrap;
+}
+
+/* Possession, said plainly, with the team's own colours. */
+function possessionChip(offAb, sit, pos){
+  const t = DATA.teams[offAb] || {};
+  const chip = el("div","poss");
+  const lg = el("img","posslogo");
+  if(t.logo){ lg.src = t.logo; lg.alt = ""; }
+  chip.appendChild(lg);
+  const txt = el("div","posstxt");
+  txt.appendChild(el("div","possn", (t.nick || offAb) + " ball"));
+  const bits = [];
+  if(sit && (sit.downDistanceText || sit.shortDownDistanceText))
+    bits.push(sit.downDistanceText || sit.shortDownDistanceText);
+  if(pos) bits.push(pos.toGoal + " to the end zone");
+  txt.appendChild(el("div","possd", bits.join("  \u00b7  ")));
+  chip.appendChild(txt);
+  if(pos && pos.redZone) chip.appendChild(el("span","possrz","Red zone"));
+  return chip;
+}
+
+/* ---------------- win probability ----------------
+   Drawn as a line across the whole game rather than a row of bars. The shape is
+   the point: a flat line is a comfortable afternoon, a line that crosses the
+   middle repeatedly is a game worth watching. */
+function winChart(homeAb, awayAb, series, homeNow){
+  if(!series || series.length < 3) return null;
+  const W = 320, H = 108, PAD = 4;
+  const home = DATA.teams[homeAb] || {}, away = DATA.teams[awayAb] || {};
+  const hc = readableAccent(home.c1 || "#4A7C6F");
+  const ac = readableAccent(away.c1 || "#8C6A6A");
+  const x = i => PAD + i / (series.length - 1) * (W - PAD * 2);
+  const y = v => PAD + (1 - v) * (H - PAD * 2);
+
+  const pts = series.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+  const bits = [];
+  // Above the midline the home side is favoured, below it the away side.
+  bits.push('<rect x="0" y="0" width="' + W + '" height="' + (H/2)
+    + '" fill="' + hc + '" opacity=".10"/>');
+  bits.push('<rect x="0" y="' + (H/2) + '" width="' + W + '" height="' + (H/2)
+    + '" fill="' + ac + '" opacity=".10"/>');
+  bits.push('<line x1="0" y1="' + (H/2) + '" x2="' + W + '" y2="' + (H/2)
+    + '" stroke="var(--chalk)" stroke-opacity=".3" stroke-dasharray="4 4"/>');
+  bits.push('<polyline points="' + pts + '" fill="none" stroke="var(--chalk)"'
+    + ' stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>');
+  const last = series[series.length - 1];
+  bits.push('<circle cx="' + x(series.length - 1).toFixed(1) + '" cy="'
+    + y(last).toFixed(1) + '" r="4" fill="var(--chalk)"/>');
+
+  const wrap = el("div","wpwrap");
+  const svg = el("div");
+  svg.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="wpchart"'
+    + ' role="img" aria-label="Win probability">' + bits.join("") + '</svg>';
+  wrap.appendChild(svg.firstElementChild);
+
+  const legend = el("div","wpleg");
+  const side = (ab, pct, col) => {
+    const sp = el("span");
+    const i = el("i"); i.style.background = col;
+    sp.appendChild(i);
+    sp.appendChild(document.createTextNode(
+      ((DATA.teams[ab] || {}).nick || ab) + "  " + pct + "%"));
+    return sp;
+  };
+  legend.appendChild(side(awayAb, 100 - homeNow, ac));
+  legend.appendChild(side(homeAb, homeNow, hc));
+  wrap.appendChild(legend);
+  return wrap;
+}
+
+/* ---------------- live week leaders ----------------
+   The pipeline builds a settled set of weekly leaders from nflverse, which is
+   correct but arrives a day after the games. The scoreboard we already fetch for
+   the fixture list carries each game's leaders, so the same question can be
+   answered while the games are still being played, for no extra requests.
+
+   Two sources with different strengths, so both are kept: live for the week in
+   progress, settled for weeks gone by. The settled set also covers defence,
+   which the scoreboard leaders do not include. */
+const LIVE_LEADER_CATS = [
+  {match:/passingYards/i,   name:"Passing",   label:"Pass yds"},
+  {match:/rushingYards/i,   name:"Rushing",   label:"Rush yds"},
+  {match:/receivingYards/i, name:"Receiving", label:"Rec yds"},
+];
+
+function liveWeekLeaders(week){
+  const cache = scoreCache[week];
+  if(!cache) return null;
+  const games = Object.values(cache).filter(g => g.state && g.state !== "pre");
+  if(!games.length) return null;
+
+  const out = [];
+  LIVE_LEADER_CATS.forEach(spec=>{
+    const pool = [];
+    games.forEach(g=>{
+      (g.leaders || []).forEach(cat=>{
+        if(!spec.match.test(cat.key)) return;
+        cat.rows.forEach(r=>{
+          if(r.value == null) return;
+          // The same man can lead more than one game's category only if the feed
+          // repeats him; keep his best line either way.
+          const prev = pool.find(x => x.name === r.name && x.team === r.team);
+          if(!prev || r.value > prev.value) {
+            if(prev) Object.assign(prev, r);
+            else pool.push({...r});
+          }
+        });
+      });
+    });
+    if(!pool.length) return;
+    pool.sort((a, b) => b.value - a.value);
+    out.push({
+      name: spec.name, label: spec.label,
+      rows: pool.slice(0, 5).map(r=>({
+        pid: (Object.values(DATA.players).find(p => p.eid === r.eid) || {}).id || null,
+        n: r.name, t: r.team, o: null,
+        v: r.value,
+        // ESPN's display string already reads "268 YDS, 2 TD", which is a better
+        // supporting line than anything reassembled from the number alone.
+        x: r.display.replace(/^\s*[\d.]+\s*(YDS|YD)?,?\s*/i, "").trim(),
+      })),
+    });
+  });
+  return out.length ? out : null;
+}
+
+/* Is the week being viewed still going on? */
+function weekInProgress(week){
+  const cache = scoreCache[week];
+  if(!cache) return false;
+  return Object.values(cache).some(g => g.state === "in");
+}
+
+/* ---------------- drive chart ----------------
+   A drive is the unit a game is actually made of, and a list of results does not
+   show you one. This draws the field and walks the ball down it, play by play,
+   coloured by whether it came through the air or on the ground, ending on what
+   the drive produced.
+
+   Everything is in yards-to-the-end-zone, so the offence always moves left to
+   right regardless of which way they were really facing. */
+let driveOpen = null, driveTimer = null;
+
+const PLAY_KIND = t => {
+  const s = (t || "").toLowerCase();
+  if(/sack/.test(s)) return "sack";
+  if(/pass|reception|interception/.test(s)) return "pass";
+  if(/punt|field goal|kick|extra point/.test(s)) return "kick";
+  if(/penalty/.test(s)) return "flag";
+  if(/rush|run|scramble|kneel/.test(s)) return "rush";
+  return "other";
+};
+const KIND_LABEL = {pass:"Pass", rush:"Run", sack:"Sack", kick:"Kick",
+                    flag:"Penalty", other:"Play"};
+
+function resultTone(result){
+  const r = (result || "").toLowerCase();
+  if(/touchdown/.test(r)) return "td";
+  if(/field goal/.test(r) && !/missed|blocked/.test(r)) return "fg";
+  if(/interception|fumble|downs|safety/.test(r)) return "to";
+  return "";
+}
+
+function openDrive(d){
+  driveOpen = d;
+  $("#drive").hidden = false;
+  renderDrive(d);
+}
+function closeDrive(){
+  clearTimeout(driveTimer);
+  $("#drive").hidden = true;
+  driveOpen = null;
+}
+
+function renderDrive(d){
+  const head = $("#drivehead"), body = $("#drivebody");
+  head.innerHTML = ""; body.innerHTML = "";
+  clearTimeout(driveTimer);
+
+  const t = DATA.teams[d.team] || {};
+  const line = el("div","boxscore-line");
+  const lg = el("img","posslogo");
+  if(t.logo){ lg.src = t.logo; lg.alt = ""; }
+  line.appendChild(lg);
+  line.appendChild(el("span","bt", t.nick || d.team));
+  const tone = resultTone(d.result);
+  line.appendChild(el("span","dres " + tone, d.result || "Drive"));
+  head.appendChild(line);
+
+  const meta = el("div","lsub");
+  meta.textContent = [
+    d.plays ? d.plays + " plays" : null,
+    d.yards != null ? d.yards + " yards" : null,
+    d.time ? d.time : null,
+    d.start ? "from " + d.start : null,
+  ].filter(Boolean).join("  \u00b7  ");
+  body.appendChild(meta);
+
+  const plays = (d.detail || []).filter(p => p.from != null);
+  if(!plays.length){
+    body.appendChild(el("div","carnote",
+      "This drive has no play-by-play attached yet."));
+    return;
+  }
+
+  // ---- the field
+  const wrap = el("div","dfield");
+  const ownEz = el("div","mez own");
+  ownEz.style.background = t.c1 || "var(--line)";
+  ownEz.appendChild(el("span", null, d.team));
+  wrap.appendChild(ownEz);
+
+  const play = el("div","dplay");
+  for(let i = 1; i < 10; i++){
+    const l = el("i","mline");
+    l.style.left = i * 10 + "%";
+    if(i === 5) l.classList.add("mid");
+    play.appendChild(l);
+  }
+  play.appendChild(el("i","mrz"));
+  wrap.appendChild(play);
+
+  const defEz = el("div","mez def");
+  defEz.appendChild(el("span", null, "\u2691"));
+  wrap.appendChild(defEz);
+  body.appendChild(wrap);
+
+  const legend = el("div","dlegend");
+  [["pass","Pass"],["rush","Run"],["sack","Sack"],["flag","Penalty"]].forEach(([k,lab])=>{
+    const sp = el("span");
+    const i = el("i"); i.className = "seg " + k;
+    sp.appendChild(i);
+    sp.appendChild(document.createTextNode(lab));
+    legend.appendChild(sp);
+  });
+  body.appendChild(legend);
+
+  // ---- the plays, listed and replayable
+  const list = el("div","dlist");
+  body.appendChild(list);
+  const rows = plays.map((p, i)=>{
+    const row = el("button","drow");
+    row.appendChild(el("span","dnum", String(i + 1)));
+    const k = PLAY_KIND(p.kind || p.text);
+    row.appendChild(el("span","dkind " + k, KIND_LABEL[k] || "Play"));
+    const w = el("div","dtxt");
+    if(p.dd) w.appendChild(el("div","ddd", p.dd));
+    w.appendChild(el("div","dt2", p.text));
+    row.appendChild(w);
+    if(p.gain != null){
+      const g = el("span","dgain" + (p.gain > 0 ? " pos" : p.gain < 0 ? " neg" : ""));
+      g.textContent = (p.gain > 0 ? "+" : "") + p.gain;
+      row.appendChild(g);
+    }
+    row.onclick = () => stepTo(i);
+    list.appendChild(row);
+    return row;
+  });
+
+  const ctl = el("div","cctl");
+  const again = el("button","areplay","Replay drive");
+  again.onclick = () => runDrive();
+  ctl.appendChild(again);
+  body.appendChild(ctl);
+
+  // ---- animation
+  const x = yards => 100 - Math.max(0, Math.min(100, yards));
+  let ball = null;
+
+  function drawTo(i){
+    play.querySelectorAll(".seg,.dball,.dstart").forEach(n => n.remove());
+    const first = plays[0];
+    const st = el("i","dstart");
+    st.style.left = x(first.from) + "%";
+    play.appendChild(st);
+
+    for(let k = 0; k <= i; k++){
+      const p = plays[k];
+      if(p.to == null) continue;
+      const a = x(p.from), b = x(p.to);
+      const seg = el("i","seg " + PLAY_KIND(p.kind || p.text));
+      seg.style.left = Math.min(a, b) + "%";
+      seg.style.width = Math.max(0.8, Math.abs(b - a)) + "%";
+      seg.style.top = (14 + (k % 3) * 9) + "%";
+      seg.title = p.text;
+      play.appendChild(seg);
+    }
+    const last = plays[i];
+    ball = el("i","dball");
+    ball.style.left = x(last.to != null ? last.to : last.from) + "%";
+    play.appendChild(ball);
+
+    rows.forEach((r, k) => r.classList.toggle("on", k === i));
+    rows[i].scrollIntoView({block:"nearest"});
+  }
+
+  function stepTo(i){ clearTimeout(driveTimer); drawTo(i); }
+
+  function runDrive(){
+    clearTimeout(driveTimer);
+    let i = 0;
+    const tick = () => {
+      drawTo(i);
+      if(i < plays.length - 1){
+        i++;
+        driveTimer = setTimeout(tick, 950);
+      }
+    };
+    tick();
+  }
+  runDrive();
 }
 
 /* ---------------- live box score, alongside the game ----------------
@@ -5879,31 +6384,32 @@ function renderWatch(g){
   const st = el("div","wstat", g.detail || "");
   b.appendChild(st);
 
-  // down, distance, field position
+  // Who has it, where it is, and which way they are going.
   const sit = LIVE.situation;
+  const offAb = sit && sit.possession
+    ? (g.teams.find(t => String(t.id) === String(sit.possession)) || {}).ab : null;
+  const defAb = offAb ? (offAb === h.ab ? a.ab : h.ab) : null;
+  const pos = fieldPosition(sit, offAb);
+
   if(sit){
     const dd = sit.downDistanceText || sit.shortDownDistanceText;
     if(dd) b.appendChild(el("div","wdd", dd));
-    const yl = num(sit.yardLine);
-    if(yl != null){
-      const bar = el("div","wfield");
-      const rz = el("i","rz"); bar.appendChild(rz);
-      const ball = el("i","ball");
-      ball.style.left = Math.max(0, Math.min(100, yl)) + "%";
-      bar.appendChild(ball);
-      b.appendChild(bar);
-      const lab = el("div","wfl");
-      lab.appendChild(el("span", null, sit.possessionText || ""));
-      if(sit.isRedZone) lab.appendChild(el("span","hot","Red zone"));
-      b.appendChild(lab);
-    }
+    if(offAb) b.appendChild(possessionChip(offAb, sit, pos));
+    b.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
+    if(sit.lastPlay && sit.lastPlay.text)
+      b.appendChild(el("div","lastplay", sit.lastPlay.text));
   }
 
   if(LIVE.wp){
-    const home = h.ab === team;
-    const mine = home ? LIVE.wp.home : 100 - LIVE.wp.home;
-    b.appendChild(el("div","wwp",
-      ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  " + mine + "% to win"));
+    b.appendChild(el("div","wsub","Win probability"));
+    const chart = winChart(h.ab, a.ab, LIVE.wp.series, LIVE.wp.home);
+    if(chart) b.appendChild(chart);
+    else {
+      const home = h.ab === team;
+      b.appendChild(el("div","wwp",
+        ((DATA.teams[home ? h.ab : a.ab] || {}).nick || "") + "  "
+        + (home ? LIVE.wp.home : 100 - LIVE.wp.home) + "% to win"));
+    }
   }
 
   const boxHd = el("div","wsub","Box score");
@@ -5911,6 +6417,25 @@ function renderWatch(g){
   const boxHost = el("div","wboxwrap");
   aside.appendChild(boxHost);
   renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
+
+  if(LIVE.drives && LIVE.drives.length){
+    aside.appendChild(el("div","wsub","Drives"));
+    const dl = el("div","wdrives");
+    LIVE.drives.slice(0, 10).forEach(dv=>{
+      const row = el("button","drv" + (dv.scoring ? " score" : ""));
+      row.appendChild(el("span","dt", dv.team));
+      row.appendChild(el("span","dr2", dv.result || "\u2013"));
+      const bits = [];
+      if(dv.plays) bits.push(dv.plays + " pl");
+      if(dv.yards != null) bits.push(dv.yards + " yds");
+      row.appendChild(el("span","dm", bits.join(" \u00b7 ")));
+      if(dv.detail && dv.detail.length) row.onclick = () => openDrive(dv);
+      else row.disabled = true;
+      dl.appendChild(row);
+    });
+    aside.appendChild(dl);
+    aside.appendChild(el("div","carnote","Tap a drive to watch it play out."));
+  }
 
   // the feed
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
@@ -6133,9 +6658,26 @@ async function loadWeekScores(wk){
         // nothing extra. Shape varies by provider, so read it defensively.
         const o = (c.odds || [])[0] || null;
         const venue = ((c.venue || {}).fullName) || null;
+        // Per-game leaders ride along on the scoreboard. Aggregating these is
+        // how the week's leaders can be live without pulling a box score for
+        // every fixture -- sixteen requests to answer one question.
+        const leaders = (c.leaders || []).map(cat=>({
+          key: cat.name || "",
+          rows: (cat.leaders || []).map(L=>{
+            const ath = L.athlete || {};
+            return {
+              eid: ath.id ? String(ath.id) : null,
+              name: ath.displayName || ath.shortName || "",
+              team: normTeam(((L.team || {}).abbreviation) || ""),
+              display: L.displayValue || "",
+              value: num(L.value),
+            };
+          }).filter(x => x.name),
+        })).filter(cat => cat.rows.length);
         if(a && h) out[a.ab + "@" + h.ab] = {
           id: e.id, state: st.state, detail: st.shortDetail,
           a: a.score, h: h.score,
+          leaders,
           odds: o ? {
             line: o.details || null,
             total: num(o.overUnder),
@@ -6172,7 +6714,7 @@ async function renderScores(){
   modes.style.marginTop = "0";
   [["games","Games"],["stand","Standings"],["lead","Week leaders"]].forEach(([k,lab])=>{
     if(k === "stand" && !hasStandings()) return;
-    if(k === "lead" && !hasWeekly()) return;
+    if(k === "lead" && !hasWeekly() && !LIVE.on) return;
     const b = el("button", null, lab);
     b.setAttribute("aria-pressed", k === scoreMode);
     b.onclick = () => { scoreMode = k; renderScores(); };
@@ -6666,60 +7208,82 @@ const hasWeekly = () => !!(DATA.weekly && Object.keys(DATA.weekly).length);
 /* The best individual games of a week, which is a different question from the
    season leaderboard: one afternoon rather than a body of work. It follows the
    same week selector as the fixtures, so moving between them keeps your place. */
-function renderWeekLeaders(host){
-  const weeks = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
-  if(!weeks.length){
-    host.appendChild(el("div","carnote","Weekly leaders appear once a week has been played."));
-    return;
-  }
-  // Fall back to the newest week that has been played, not the week being
-  // browsed, so an unplayed week does not show an empty panel.
-  const wk = weeks.includes(scoreWeek) ? scoreWeek : weeks[weeks.length - 1];
+async function renderWeekLeaders(host){
+  const settled = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
+  const weeks = [...new Set([...settled, scoreWeek])].sort((a,b)=>a-b);
 
   const strip = el("div","wkstrip");
   weeks.forEach(w=>{
     const b = el("button", null, String(w));
-    b.setAttribute("aria-pressed", w === wk);
+    b.setAttribute("aria-pressed", w === scoreWeek);
     b.onclick = () => { scoreWeek = w; renderScores(); };
     strip.appendChild(b);
   });
   host.appendChild(strip);
 
   const head = el("div","wkhead");
-  head.appendChild(el("span","wknum", "Week " + wk));
-  head.appendChild(el("span","wkmeta", "best individual games"));
+  head.appendChild(el("span","wknum", "Week " + scoreWeek));
+  const badge = el("span","wkmeta", "best individual games");
+  head.appendChild(badge);
   host.appendChild(head);
 
-  (DATA.weekly[String(wk)] || []).forEach(cat=>{
-    host.appendChild(el("div","advsub", cat.name));
-    cat.rows.forEach((r, i)=>{
-      const row = el("button","wlrow" + (i === 0 ? " top" : ""));
-      row.appendChild(el("span","wlr", String(i + 1)));
-      const p = r.pid ? DATA.players[r.pid] : null;
-      const f = el("div","wlf");
-      const im = p ? faceImg(p, 96, {lazy: true}) : null;
-      if(im) f.appendChild(im);
-      else f.appendChild(el("div","wlfb", (r.n || "?").slice(0, 1)));
-      row.appendChild(f);
-      const who = el("div","wlw");
-      who.appendChild(el("div","wln", r.n));
-      who.appendChild(el("div","wlm",
-        (r.t || "") + (r.o ? " v " + r.o : "") + (r.x ? "   " + r.x : "")));
-      row.appendChild(who);
-      const v = el("div","wlv");
-      v.appendChild(el("span","wlnum", r.v.toLocaleString()));
-      v.appendChild(el("span","wlu", cat.label));
-      row.appendChild(v);
-      if(p) row.onclick = () => { $("#scores").hidden = true; goPlayer(p.id); };
-      else row.disabled = true;
-      host.appendChild(row);
-    });
-  });
+  const list = el("div");
+  host.appendChild(list);
 
-  const n = el("div","carnote");
-  n.textContent = "One week's work, not a season's. Names in white are on a depth "
-    + "chart here \u2014 tap for the full profile.";
-  host.appendChild(n);
+  const draw = (cats, live) => {
+    list.innerHTML = "";
+    if(!cats || !cats.length){
+      list.appendChild(el("div","carnote",
+        "Nothing to show for that week yet."));
+      return;
+    }
+    badge.textContent = live ? "updating live" : "best individual games";
+    badge.classList.toggle("livebadge", !!live);
+
+    cats.forEach(cat=>{
+      list.appendChild(el("div","advsub", cat.name));
+      cat.rows.forEach((r, i)=>{
+        const row = el("button","wlrow" + (i === 0 ? " top" : ""));
+        row.appendChild(el("span","wlr", String(i + 1)));
+        const p = r.pid ? DATA.players[r.pid] : null;
+        const f = el("div","wlf");
+        const im = p ? faceImg(p, 96, {lazy: true}) : null;
+        if(im) f.appendChild(im);
+        else f.appendChild(el("div","wlfb", (r.n || "?").slice(0, 1)));
+        row.appendChild(f);
+        const who = el("div","wlw");
+        who.appendChild(el("div","wln", r.n));
+        who.appendChild(el("div","wlm",
+          (r.t || "") + (r.o ? " v " + r.o : "") + (r.x ? "   " + r.x : "")));
+        row.appendChild(who);
+        const v = el("div","wlv");
+        v.appendChild(el("span","wlnum", r.v.toLocaleString()));
+        v.appendChild(el("span","wlu", cat.label));
+        row.appendChild(v);
+        if(p) row.onclick = () => { $("#scores").hidden = true; goPlayer(p.id); };
+        else row.disabled = true;
+        list.appendChild(row);
+      });
+    });
+
+    const n = el("div","carnote");
+    n.textContent = live
+      ? "Live from the scoreboard while the games are on, so it moves as they "
+        + "play. Defensive leaders and the settled figures land the following day."
+      : "One week's work, not a season's. Names in white are on a depth chart "
+        + "here \u2014 tap for the full profile.";
+    list.appendChild(n);
+  };
+
+  // Settled data first if we have it, so nothing flashes empty, then live on top
+  // once the scoreboard for that week is in hand.
+  draw((DATA.weekly || {})[String(scoreWeek)], false);
+  await loadWeekScores(scoreWeek);
+  const live = liveWeekLeaders(scoreWeek);
+  // Live wins only while the week is actually running; once the games are done
+  // the pipeline's set is fuller, covering defence too.
+  if(live && weekInProgress(scoreWeek)) draw(live, true);
+  else if(live && !(DATA.weekly || {})[String(scoreWeek)]) draw(live, false);
 }
 
 function renderStandings(host){
@@ -7412,6 +7976,8 @@ $("#leadclose").onclick = () => { $("#lead").hidden = true; };
 $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
+$("#driveclose").onclick = closeDrive;
+$("#drive").addEventListener("click", e=>{ if(e.target.id === "drive") closeDrive(); });
 $("#facesbtn").onclick = () => {
   $("#wall").hidden = false;
   $("#wallhead").textContent = (DATA.teams[team] || {}).name || "Faces";
