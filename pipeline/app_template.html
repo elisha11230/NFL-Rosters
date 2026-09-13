@@ -1053,8 +1053,29 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
 }
 .gwatch:hover{background:#D06A6A}
 
+/* ---------- broadcast delay ---------- */
+.dlybar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.dlylab{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-right:3px}
+.dly{padding:4px 9px;border:1px solid var(--line);border-radius:11px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;
+  color:var(--mute)}
+.dly:hover{border-color:var(--team);color:var(--chalk)}
+.dly[aria-pressed="true"]{border-color:var(--brass);color:var(--brass);
+  background:color-mix(in srgb,var(--brass) 16%,transparent)}
+.dlynote{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-left:4px}
+/* Unmistakable, because a delayed score that looks live is worse than no score. */
+.dlyflag{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:#E0B48A;
+  background:color-mix(in srgb,var(--brass) 13%,transparent);
+  border:1px solid color-mix(in srgb,var(--brass) 38%,transparent);
+  border-radius:var(--r);padding:5px 10px;margin-bottom:12px}
+
 /* ---------- embedded player ---------- */
-.pwrap{margin-bottom:14px}
+#playerhost{max-width:1360px;margin:0 auto 14px;width:100%}
+#playerhost:empty{display:none}
+#watchcontent{display:contents}
 .pbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .plab{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
@@ -4141,17 +4162,56 @@ function embedUrl(g){
 
 /* The player, in a box that holds its shape before anything loads. Kept behind a
    toggle: an iframe starts fetching the moment it exists, and watch mode is also
-   useful without it. */
-let playerOn = true;
+   useful without it.
 
-function gamePlayer(g, fixture){
-  const src = embedUrl(fixture);
-  if(!src) return null;
+   It lives in its own container that the refresh never touches. Watch mode
+   rebuilds itself every ten seconds, and an iframe inside that was being
+   destroyed and recreated each time -- so the stream restarted and had to be
+   played again. Note that moving an iframe in the DOM reloads it too, so the
+   node has to stay exactly where it is rather than being re-parented. */
+let playerOn = true, playerSrc = null;
 
-  const wrap = el("div","pwrap");
+function mountPlayer(fixture){
+  const host = document.getElementById("playerhost");
+  if(!host) return;
+  const src = fixture ? embedUrl(fixture) : null;
+
+  if(!src || !playerOn){
+    if(playerSrc !== null){ host.innerHTML = ""; playerSrc = null; }
+    if(src) renderPlayerBar(host, fixture, true);
+    return;
+  }
+  // Already showing this game: leave the frame completely alone.
+  if(playerSrc === src) return;
+
+  host.innerHTML = "";
+  playerSrc = src;
+  renderPlayerBar(host, fixture, false);
+  const frame = el("div","pframe");
+  const f = document.createElement("iframe");
+  f.id = "player";
+  f.src = src;
+  f.scrolling = "no";
+  f.allowFullscreen = true;
+  f.setAttribute("allow", "encrypted-media; picture-in-picture;");
+  f.setAttribute("frameborder", "0");
+  f.setAttribute("marginheight", "0");
+  f.setAttribute("marginwidth", "0");
+  f.width = "100%";
+  f.height = "100%";
+  frame.appendChild(f);
+  host.appendChild(frame);
+}
+
+function renderPlayerBar(host, fixture, hidden){
   const bar = el("div","pbar");
   bar.appendChild(el("span","plab", "Stream"));
-  const toggle = el("button","pbtn", playerOn ? "Hide" : "Show");
+  const toggle = el("button","pbtn", hidden ? "Show" : "Hide");
+  toggle.onclick = () => {
+    playerOn = !playerOn;
+    playerSrc = null;              // force a rebuild in the new state
+    mountPlayer(fixture);
+  };
   bar.appendChild(toggle);
   const out = document.createElement("a");
   out.className = "pbtn";
@@ -4160,36 +4220,15 @@ function gamePlayer(g, fixture){
   out.rel = "noopener noreferrer";
   out.textContent = "Open";
   bar.appendChild(out);
-  wrap.appendChild(bar);
-
-  const frame = el("div","pframe");
-  wrap.appendChild(frame);
-
-  const mount = () => {
-    frame.innerHTML = "";
-    if(!playerOn){ frame.hidden = true; return; }
-    frame.hidden = false;
-    const f = document.createElement("iframe");
-    f.id = "player";
-    f.src = src;
-    f.scrolling = "no";
-    f.allowFullscreen = true;
-    f.setAttribute("allow", "encrypted-media; picture-in-picture;");
-    f.setAttribute("frameborder", "0");
-    f.setAttribute("marginheight", "0");
-    f.setAttribute("marginwidth", "0");
-    f.width = "100%";
-    f.height = "100%";
-    frame.appendChild(f);
-  };
-  toggle.onclick = () => {
-    playerOn = !playerOn;
-    toggle.textContent = playerOn ? "Hide" : "Show";
-    mount();
-  };
-  mount();
-  return wrap;
+  host.appendChild(bar);
 }
+
+function clearPlayer(){
+  const host = document.getElementById("playerhost");
+  if(host) host.innerHTML = "";
+  playerSrc = null;
+}
+
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 const espnUrl = path => (PROXY ? PROXY + encodeURIComponent(ESPN + path) : ESPN + path);
 
@@ -6452,6 +6491,119 @@ function defensiveCredit(text){
   return out.length ? out : null;
 }
 
+/* ---------------- broadcast delay ----------------
+   A stream runs anywhere from twenty seconds to a minute behind the field, so a
+   live feed spoils plays before you see them.
+
+   Delaying only the play list would not fix it: the score jumping is the loudest
+   spoiler of the lot, and so is a down-and-distance that suddenly reads 1st and
+   10 on the other forty. So the whole game state is held back together -- score,
+   clock, situation, win probability and plays -- by replaying a snapshot from
+   however many seconds ago.
+
+   Snapshots are taken on every refresh and kept for ten minutes. Nothing is
+   fetched twice; this is purely about what gets shown. */
+const DELAY_CHOICES = [0, 10, 20, 30, 45, 60, 90];
+const SNAP_KEEP = 6e5;                    // ten minutes of history
+let liveDelay = 0, liveHistory = [];      // liveDelay set from storage at boot
+
+function loadDelay(){
+  if(!store.ok) return 0;
+  const v = parseInt(PROG.delay, 10);
+  return DELAY_CHOICES.includes(v) ? v : 0;
+}
+function saveDelay(v){
+  liveDelay = v;
+  if(!store.ok) return;
+  PROG.delay = v;
+  store.save(PROG);
+}
+
+/* Everything that changes during a game, captured together so it can be replayed
+   together. Taken by value: holding references would let later refreshes mutate
+   the past. */
+function snapshotLive(g){
+  if(!g) return;
+  liveHistory.push({
+    t: Date.now(),
+    state: g.state,
+    detail: g.detail,
+    scores: g.teams.map(x => ({ab: x.ab, score: x.score, home: x.home, id: x.id})),
+    situation: g.situation ? JSON.parse(JSON.stringify(g.situation)) : null,
+    wp: LIVE.wp ? JSON.parse(JSON.stringify(LIVE.wp)) : null,
+    plays: (LIVE.plays || []).slice(),
+    drives: (LIVE.drives || []).slice(),
+    box: LIVE.box || [],
+    teamStats: LIVE.teamStats || [],
+    stats: LIVE.stats || {},
+    active: LIVE.active || new Set(),
+  });
+  const cutoff = Date.now() - SNAP_KEEP;
+  while(liveHistory.length > 1 && liveHistory[0].t < cutoff) liveHistory.shift();
+}
+
+/* The newest snapshot at least `liveDelay` seconds old. Early on there may not be
+   one yet, in which case the oldest we have is closer to the truth than the
+   newest -- and better than a blank screen. */
+function delayedLive(){
+  if(!liveDelay || !liveHistory.length) return null;
+  const want = Date.now() - liveDelay * 1000;
+  let pick = null;
+  for(const s of liveHistory){ if(s.t <= want) pick = s; else break; }
+  return pick || liveHistory[0];
+}
+
+/* How far behind we actually are, which is not always the delay asked for: at
+   the start of a game the history is shorter than the setting. */
+function delayLag(){
+  const s = delayedLive();
+  return s ? Math.round((Date.now() - s.t) / 1000) : 0;
+}
+
+/* Present the delayed snapshot as if it were now, so every renderer downstream
+   needs no knowledge of any of this. */
+function applyDelay(g){
+  const s = delayedLive();
+  if(!s) return g;
+  LIVE.wp = s.wp;
+  LIVE.plays = s.plays;
+  LIVE.drives = s.drives;
+  LIVE.box = s.box;
+  LIVE.teamStats = s.teamStats;
+  LIVE.stats = s.stats;
+  LIVE.active = s.active;
+  LIVE.situation = s.situation;
+  return {
+    ...g,
+    state: s.state, detail: s.detail, situation: s.situation,
+    teams: s.scores,
+  };
+}
+
+function delayControl(){
+  const wrap = el("div","dlybar");
+  const lab = el("span","dlylab", "Delay");
+  wrap.appendChild(lab);
+  DELAY_CHOICES.forEach(v=>{
+    const b = el("button","dly", v === 0 ? "Off" : v + "s");
+    b.setAttribute("aria-pressed", v === liveDelay);
+    b.onclick = () => {
+      saveDelay(v);
+      retimeWatch();
+      renderWatch(LIVE.games.find(x => x.id === watchGame) || LIVE.byTeam[team]);
+    };
+    wrap.appendChild(b);
+  });
+  if(liveDelay){
+    const lag = delayLag();
+    wrap.appendChild(el("span","dlynote",
+      lag < liveDelay - 2
+        ? "catching up \u00b7 " + lag + "s behind"
+        : "showing " + lag + "s behind"));
+  }
+  return wrap;
+}
+
 /* ---------------- watch mode ----------------
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
@@ -6464,12 +6616,25 @@ function openWatch(gameId){
   $("#watch").hidden = false;
   document.body.classList.add("watching");
   refreshWatch();
-  clearInterval(watchPoll);
-  watchPoll = setInterval(refreshWatch, 20000);
+  retimeWatch();
 }
+/* Snapshots are only as fine-grained as the polling, so a ten second delay
+   against a twenty second poll really means somewhere between ten and thirty.
+   Sampling twice as often when a delay is set halves that error, and it is one
+   game rather than the whole scoreboard. */
+function retimeWatch(){
+  clearInterval(watchPoll);
+  watchPoll = setInterval(refreshWatch, liveDelay ? 10000 : 20000);
+}
+
 function closeWatch(){
   watchOn = false;
   clearInterval(watchPoll);
+  // Tear the frame down on the way out, otherwise it keeps streaming behind a
+  // hidden panel.
+  clearPlayer();
+  const outer = $("#watchbody");
+  if(outer) outer.innerHTML = "";
   $("#watch").hidden = true;
   document.body.classList.remove("watching");
 }
@@ -6484,20 +6649,43 @@ async function refreshWatch(){
       await fetchGame(g.id);
       await fetchPlays(g.id);
     }
+    // Record the real state before anything is held back, so the delay has a
+    // history to replay from.
+    snapshotLive(g);
   }
   renderWatch(g);
 }
 
-function renderWatch(g){
-  const host = $("#watchbody");
+function renderWatch(gRaw){
+  const outer = $("#watchbody");
+  // Two regions: the player, which must never be torn down, and everything else,
+  // which is rebuilt on every refresh.
+  let pHost = document.getElementById("playerhost");
+  let host = document.getElementById("watchcontent");
+  if(!pHost || !host){
+    outer.innerHTML = "";
+    pHost = el("div"); pHost.id = "playerhost"; outer.appendChild(pHost);
+    host = el("div"); host.id = "watchcontent"; outer.appendChild(host);
+  }
   host.innerHTML = "";
-  if(!g){
+  if(!gRaw){
+    clearPlayer();
     host.appendChild(el("div","carnote","No game to follow right now."));
     return;
   }
+  // Everything below this line sees the delayed state as though it were now.
+  const g = (liveDelay && gRaw.state === "in") ? applyDelay(gRaw) : gRaw;
   // Two columns where there is room, stacked where there is not. The box score
   // is the thing you glance at between plays, so it wants to be beside the feed
   // rather than behind a tap.
+  // The stream sits above the split, in its own untouched container.
+  if(gRaw.state === "in"){
+    const fixture = (DATA.slate && Object.values(DATA.slate).flat()
+      .find(x => x.a === (gRaw.teams.find(t=>!t.home)||{}).ab
+              && x.h === (gRaw.teams.find(t=>t.home)||{}).ab)) || null;
+    mountPlayer(fixture);
+  } else clearPlayer();
+
   const split = el("div","wsplit");
   const b = el("div","wmain");
   const aside = el("div","waside");
@@ -6506,13 +6694,7 @@ function renderWatch(g){
   host.appendChild(split);
   const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
 
-  // The stream, above everything else, for a game in progress.
-  if(g.state === "in"){
-    const fixture = (DATA.slate && Object.values(DATA.slate).flat()
-      .find(x => x.a === a.ab && x.h === h.ab)) || null;
-    const player = fixture ? gamePlayer(g, fixture) : null;
-    if(player) b.appendChild(player);
-  }
+  if(gRaw.state === "in") b.appendChild(delayControl());
 
   // score
   const sc = el("div","wsc");
@@ -6530,6 +6712,10 @@ function renderWatch(g){
 
   const st = el("div","wstat", g.detail || "");
   b.appendChild(st);
+  if(liveDelay && gRaw.state === "in"){
+    b.appendChild(el("div","dlyflag",
+      "Held " + delayLag() + " seconds back to match your stream"));
+  }
 
   // Who has it, where it is, and which way they are going.
   const sit = LIVE.situation;
@@ -8236,6 +8422,7 @@ $("#stamp").textContent = "Chart updated " + new Date(DATA.snapshot)
   .toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 
 // A deep link wins over the default team on load.
+liveDelay = loadDelay();
 if(!applyHash()){ renderAll(); syncHash(); }
 startLive();
 </script>

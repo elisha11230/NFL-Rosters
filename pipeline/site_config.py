@@ -13,12 +13,12 @@ Edit, commit, done: the push rebuilds the site and the values are baked in.
 #   "" leaves links relative:  /live/nfl/2026-09-13/tb-cin
 #   a host makes them absolute: https://example.com/live/nfl/2026-09-13/tb-cin
 # No trailing slash.
-STREAM_BASE = "https://ppv.to"
+STREAM_BASE = ""
 
 # Where the embedded player on a live game loads from. Separate from the above
 # because the page and the player are often not on the same host.
 #   /embed/nfl/2026-09-13/nyj-ten
-EMBED_BASE = "https://embedindia.st"
+EMBED_BASE = ""
 
 # Optional. A Cloudflare Worker (or similar) that fetches an ESPN URL and returns
 # it with CORS headers. Only needed if direct browser access to ESPN is ever

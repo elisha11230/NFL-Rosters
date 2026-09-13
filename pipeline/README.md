@@ -355,6 +355,31 @@ Best score per team and unit is saved alongside the quiz progress.
 `build_charts.py` stores a target as `[air_yards, direction, flags]` — three small
 numbers, because a busy receiver has over two hundred of them.
 
+## Broadcast delay
+
+A stream runs twenty to sixty seconds behind the field, so a live feed spoils
+plays before you see them. Watch mode carries a delay: **off, 10, 20, 30, 45, 60
+or 90 seconds**, remembered between sessions.
+
+**The whole game state is held back, not just the play list.** Delaying only the
+plays would not work — the score jumping is the loudest spoiler of the lot, and so
+is a down-and-distance that suddenly reads first and ten on the other forty. So
+score, clock, situation, win probability, plays, drives and the box score are all
+replayed from a snapshot taken however many seconds ago.
+
+Snapshots are taken on every refresh and kept for ten minutes. Nothing is fetched
+twice; this only changes what is shown.
+
+Two honesty details. The view carries an unmistakable band while it is held back,
+because a delayed score that looks live is worse than no score at all. And the
+control reports the **actual** lag, which early in a game is shorter than the
+setting because there is not yet enough history — "catching up, 12s behind".
+
+Sampling is only as fine as the polling, so a ten second delay against a twenty
+second poll really means somewhere between ten and thirty. Setting any delay
+tightens the poll to ten seconds, which halves that error for one game's worth of
+extra requests.
+
 ## Watch mode
 
 A **Watch** button appears on the live strip while a game is actually in progress.
