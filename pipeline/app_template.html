@@ -1105,7 +1105,7 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
 
 #playerhost{max-width:1360px;margin:0 auto 14px;width:100%}
 #playerhost:empty{display:none}
-#watchcontent{display:contents}
+#watchcontent{width:100%}
 .pbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .plab{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
@@ -1127,7 +1127,14 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
   /* Each column scrolls on its own. Sticky positioning pinned the box score to
      the top, which meant anything past the fold in it was unreachable -- the
      wheel only ever moved the feed. */
-  #watchbody{overflow:hidden;display:flex}
+  /* A column, explicitly. This was a bare `display:flex`, which was harmless
+     while the split was the only child -- once the strip and the player joined
+     it, all three became flex items in a ROW and the player was squeezed to one
+     side. The axis has to be stated. */
+  #watchbody{overflow:hidden;display:flex;flex-direction:column}
+  #striphost,#playerhost{flex:0 0 auto}
+  /* Holds the split and gives it the remaining height to scroll inside. */
+  #watchcontent{flex:1 1 auto;min-height:0;display:flex;width:100%}
   .wsplit{grid-template-columns:minmax(0,1fr) minmax(330px,400px);
     max-width:1360px;height:100%;align-items:stretch;gap:26px}
   .wmain,.waside{overflow-y:auto;min-height:0;padding-right:6px;
