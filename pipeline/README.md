@@ -164,9 +164,20 @@ them only if they are present.
 ## Weekly leaders
 
 A third tab on the scores page, next to Games and Standings: the best individual
-games of a week — passing, rushing, receiving, sacks and tackles, five deep, with
-the opponent and a supporting line so it reads like a box score rather than a bare
-number.
+games of a week, ten deep, with position, opponent and a supporting line so each
+row reads like a box score rather than a bare number.
+
+**Eighteen categories in three groups** — ten on offence, seven on defence, one on
+special teams — shown as chips with only the chosen leaderboard drawn. Eighteen
+leaderboards stacked end to end is not something anyone reads. The chosen category
+carries across weeks where it exists, so flicking between weeks compares like with
+like instead of resetting to passing every time.
+
+Two categories are derived rather than read from a column: **scrimmage yards** and
+**touchdowns**, both of which answer "who had the biggest day" better than any
+single column, because they do not care how a player got there. Touchdowns counts
+passing as well, otherwise a quarterback's three appeared with nothing to explain
+where they came from.
 
 **Two sources, because they have different strengths.**
 

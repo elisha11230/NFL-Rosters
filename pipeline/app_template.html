@@ -821,7 +821,7 @@ body.simple #timebar{display:none}
 .sbgrid{display:grid;gap:10px;margin-bottom:6px;
   grid-template-columns:repeat(auto-fill,minmax(268px,1fr))}
 .sbcard{
-  position:relative;display:block;text-align:left;padding:12px 13px 10px;
+  display:block;text-align:left;padding:12px 13px 10px;
   border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
   transition:border-color .13s,background .13s;
 }
@@ -846,19 +846,32 @@ body.simple #timebar{display:none}
   min-width:30px;text-align:right}
 .sbteam.won .sbscore{color:#fff}
 .sbteam.lost .sbscore{color:var(--dim)}
-.sbfoot{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
-  margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
+.sbfoot{display:flex;align-items:center;gap:10px;
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--rule);min-height:24px}
+.sbdd{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
 .sbtime{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.09em;
   text-transform:uppercase;color:var(--dim);white-space:nowrap}
 .sbtime.hot{color:#E4A4A4;font-weight:600}
 .sbdd{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.07em;
   text-transform:uppercase;color:var(--mute)}
 .sbdd.rz{color:#E4A4A4}
+.sbstream{
+  margin-left:auto;flex:0 0 auto;text-decoration:none;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:600;color:var(--team-accent);
+  border:1px solid color-mix(in srgb,var(--team-accent) 50%,transparent);
+  padding:3px 10px;border-radius:9px;white-space:nowrap;
+}
+.sbstream:hover{color:#fff;background:color-mix(in srgb,var(--team-accent) 22%,transparent)}
+/* Watch sits to the left of Stream once both are present. */
+.sbfoot .sbstream + .sbwatch,
+.sbfoot .sbwatch{margin-left:6px}
 .sbwatch{
-  position:absolute;top:10px;right:11px;
+  flex:0 0 auto;
   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.1em;
   text-transform:uppercase;font-weight:600;color:#fff;background:#C25B5B;
-  padding:3px 9px;border-radius:9px;
+  padding:3px 10px;border-radius:9px;
 }
 .sbwatch:hover{background:#D06A6A}
 @media (max-width:420px){
@@ -1010,6 +1023,18 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
   text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
 .wlv{text-align:right;flex:0 0 auto}
+/* Category chips, grouped. */
+.wcats{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:12px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.wcatg{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim);width:100%;margin:6px 0 1px}
+.wcatg:first-child{margin-top:0}
+.wcat{padding:5px 11px;border:1px solid var(--line);border-radius:13px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.06em;
+  color:var(--mute);white-space:nowrap}
+.wcat:hover{border-color:var(--team);color:var(--chalk)}
+.wcat[aria-pressed="true"]{border-color:var(--team);color:#fff;
+  background:color-mix(in srgb,var(--team) 24%,transparent)}
 .wkmeta.livebadge{color:#E4A4A4}
 .wkmeta.livebadge::before{content:"";display:inline-block;width:7px;height:7px;
   border-radius:50%;background:#E05B5B;margin-right:6px;
@@ -4074,6 +4099,18 @@ if(TL){
      /summary?event=ID    box score, drives, win probability
 */
 const PROXY = "";
+
+/* Where the STREAM link on a scorecard points. You gave the path but not the
+   host, so this is the one thing to set: leave it empty and links stay relative
+   ("/live/nfl/2026-09-13/tb-cin"), or put a host in and they become absolute. */
+const STREAM_BASE = "https://ppv.to";
+
+/* Slug for a fixture: /live/nfl/<date>/<away>-<home>, clubs lowercased. */
+function streamUrl(g){
+  if(!g || !g.d || !g.a || !g.h) return null;
+  return STREAM_BASE + "/live/nfl/" + g.d + "/"
+       + g.a.toLowerCase() + "-" + g.h.toLowerCase();
+}
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 const espnUrl = path => (PROXY ? PROXY + encodeURIComponent(ESPN + path) : ESPN + path);
 
@@ -5294,7 +5331,7 @@ function liveWeekLeaders(week){
     if(!pool.length) return;
     pool.sort((a, b) => b.value - a.value);
     out.push({
-      name: spec.name, label: spec.label,
+      g: "Offence", name: spec.name, label: spec.label,
       rows: pool.slice(0, 5).map(r=>({
         pid: (Object.values(DATA.players).find(p => p.eid === r.eid) || {}).id || null,
         n: r.name, t: r.team, o: null,
@@ -6832,6 +6869,19 @@ async function renderScores(){
     foot.appendChild(el("span","sbtime", fmtKick(g)));
     const extra = el("span","sbdd", "");
     foot.appendChild(extra);
+    const su = streamUrl(g);
+    if(su){
+      const link = document.createElement("a");
+      link.className = "sbstream";
+      link.href = su;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Stream";
+      link.title = su;
+      // The card itself opens the box score, so the link must not bubble.
+      link.onclick = e => e.stopPropagation();
+      foot.appendChild(link);
+    }
     card.appendChild(foot);
 
     card.onclick = () => pickGame(key, g);
@@ -6876,6 +6926,8 @@ async function renderScores(){
       if(pos && pos.redZone) dd.classList.add("rz");
     }
     if(s2.state === "in"){
+      // In the footer, not floating over the card: absolutely positioned it sat
+      // on top of the away side's score, which is also hard right at the top.
       const wb = el("span","sbwatch","Watch");
       wb.onclick = e => {
         e.stopPropagation();
@@ -6883,7 +6935,7 @@ async function renderScores(){
         $("#scores").hidden = true;
         openWatch(s2.id);
       };
-      card.appendChild(wb);
+      rows[key].foot.appendChild(wb);
     }
     rows[key].id = s2.id;
   }
@@ -7265,6 +7317,11 @@ const hasWeekly = () => !!(DATA.weekly && Object.keys(DATA.weekly).length);
 /* The best individual games of a week, which is a different question from the
    season leaderboard: one afternoon rather than a body of work. It follows the
    same week selector as the fixtures, so moving between them keeps your place. */
+let weekCat = null;
+
+/* Eighteen leaderboards stacked end to end is not something anyone reads, so the
+   categories are grouped and only the chosen one is drawn. Live figures from the
+   scoreboard replace the settled set while a week is still being played. */
 async function renderWeekLeaders(host){
   const settled = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
   const weeks = [...new Set([...settled, scoreWeek])].sort((a,b)=>a-b);
@@ -7284,61 +7341,77 @@ async function renderWeekLeaders(host){
   head.appendChild(badge);
   host.appendChild(head);
 
+  const chips = el("div","wcats");
+  host.appendChild(chips);
   const list = el("div");
   host.appendChild(list);
 
   const draw = (cats, live) => {
-    list.innerHTML = "";
+    chips.innerHTML = ""; list.innerHTML = "";
     if(!cats || !cats.length){
-      list.appendChild(el("div","carnote",
-        "Nothing to show for that week yet."));
+      list.appendChild(el("div","carnote","Nothing to show for that week yet."));
       return;
     }
     badge.textContent = live ? "updating live" : "best individual games";
     badge.classList.toggle("livebadge", !!live);
 
-    cats.forEach(cat=>{
-      list.appendChild(el("div","advsub", cat.name));
-      cat.rows.forEach((r, i)=>{
-        const row = el("button","wlrow" + (i === 0 ? " top" : ""));
-        row.appendChild(el("span","wlr", String(i + 1)));
-        const p = r.pid ? DATA.players[r.pid] : null;
-        const f = el("div","wlf");
-        const im = p ? faceImg(p, 96, {lazy: true}) : null;
-        if(im) f.appendChild(im);
-        else f.appendChild(el("div","wlfb", (r.n || "?").slice(0, 1)));
-        row.appendChild(f);
-        const who = el("div","wlw");
-        who.appendChild(el("div","wln", r.n));
-        who.appendChild(el("div","wlm",
-          (r.t || "") + (r.o ? " v " + r.o : "") + (r.x ? "   " + r.x : "")));
-        row.appendChild(who);
-        const v = el("div","wlv");
-        v.appendChild(el("span","wlnum", r.v.toLocaleString()));
-        v.appendChild(el("span","wlu", cat.label));
-        row.appendChild(v);
-        if(p) row.onclick = () => { $("#scores").hidden = true; goPlayer(p.id); };
-        else row.disabled = true;
-        list.appendChild(row);
-      });
+    // Keep the chosen category across weeks where it exists, so flicking through
+    // weeks compares like with like instead of resetting to passing every time.
+    if(!weekCat || !cats.some(c => c.name === weekCat)) weekCat = cats[0].name;
+
+    let lastGroup = null;
+    cats.forEach(c=>{
+      const g = c.g || "";
+      if(g !== lastGroup){
+        lastGroup = g;
+        if(g) chips.appendChild(el("span","wcatg", g));
+      }
+      const b = el("button","wcat", c.name);
+      b.setAttribute("aria-pressed", c.name === weekCat);
+      b.onclick = () => { weekCat = c.name; draw(cats, live); };
+      chips.appendChild(b);
+    });
+
+    const cat = cats.find(c => c.name === weekCat) || cats[0];
+    cat.rows.forEach((r, i)=>{
+      const row = el("button","wlrow" + (i === 0 ? " top" : ""));
+      row.appendChild(el("span","wlr", String(i + 1)));
+      const p = r.pid ? DATA.players[r.pid] : null;
+      const f = el("div","wlf");
+      const im = p ? faceImg(p, 96, {lazy: true}) : null;
+      if(im) f.appendChild(im);
+      else f.appendChild(el("div","wlfb", (r.n || "?").slice(0, 1)));
+      row.appendChild(f);
+      const who = el("div","wlw");
+      who.appendChild(el("div","wln", r.n));
+      const meta = [
+        [r.p, r.t].filter(Boolean).join("  "),
+        r.o ? "v " + r.o : null,
+        r.x || null,
+      ].filter(Boolean).join("   \u00b7   ");
+      who.appendChild(el("div","wlm", meta));
+      row.appendChild(who);
+      const v = el("div","wlv");
+      v.appendChild(el("span","wlnum", r.v.toLocaleString()));
+      v.appendChild(el("span","wlu", cat.label));
+      row.appendChild(v);
+      if(p) row.onclick = () => { $("#scores").hidden = true; goPlayer(p.id); };
+      else row.disabled = true;
+      list.appendChild(row);
     });
 
     const n = el("div","carnote");
     n.textContent = live
       ? "Live from the scoreboard while the games are on, so it moves as they "
-        + "play. Defensive leaders and the settled figures land the following day."
-      : "One week's work, not a season's. Names in white are on a depth chart "
-        + "here \u2014 tap for the full profile.";
+        + "play. Defensive and special teams figures land the following day."
+      : "One week's work, not a season's. Scrimmage yards and touchdowns count "
+        + "every way a player got there.";
     list.appendChild(n);
   };
 
-  // Settled data first if we have it, so nothing flashes empty, then live on top
-  // once the scoreboard for that week is in hand.
   draw((DATA.weekly || {})[String(scoreWeek)], false);
   await loadWeekScores(scoreWeek);
   const live = liveWeekLeaders(scoreWeek);
-  // Live wins only while the week is actually running; once the games are done
-  // the pipeline's set is fuller, covering defence too.
   if(live && weekInProgress(scoreWeek)) draw(live, true);
   else if(live && !(DATA.weekly || {})[String(scoreWeek)]) draw(live, false);
 }
