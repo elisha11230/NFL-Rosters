@@ -376,6 +376,31 @@ The strip sits in its own region above the player and is redrawn on every refres
 which is fine for a row of scores — unlike the iframe below it, nothing here is
 expensive to rebuild.
 
+## More in watch mode
+
+- **Line score** by quarter, straight off the scoreboard response. A 21-0 first
+  quarter and a 7-7 fourth say something the final score does not.
+- **Scoring plays** in order, so tuning in at half time is a ten second catch-up
+  rather than scrolling forty plays to find the three that mattered.
+- **Game flow**: one stroke per drive, height being field position, gold where a
+  drive scored. A side pinned deep all afternoon is a shape you can read.
+- **Biggest swings**: the plays where win probability moved most are the plays
+  that decided the game — a definition, not an opinion. Matched to the play list
+  by position in the game, so the pairing is close rather than exact, and the note
+  says so.
+- **Cross-game alerts**: every game is already polled for the switcher strip, so
+  the app knows the moment another one changes. A score or a lead change raises a
+  toast; tapping it switches to that game. Nothing fires on first sight of a game,
+  since a score you have not seen before is not news.
+
+## Desktop layout
+
+Watch mode is a grid rather than a stack: strip across the top, player top left,
+box score down the right, feed below the player. The player is sized by the column
+it sits in, so it grows with the window — roughly 1000px wide on a large display
+against 540px when it was stacked full width above everything and capped by height
+to stop it swallowing the viewport.
+
 ## Broadcast delay
 
 A stream runs twenty to sixty seconds behind the field, so a live feed spoils
@@ -400,6 +425,29 @@ Sampling is only as fine as the polling, so a ten second delay against a twenty
 second poll really means somewhere between ten and thirty. Setting any delay
 tightens the poll to ten seconds, which halves that error for one game's worth of
 extra requests.
+
+## Demo mode
+
+Open **`#/demo`** for a simulated Sunday: five games, three of them live and
+advancing, with the clock running, scores changing, plays arriving, drives
+building and win probability moving.
+
+Everything live in this app only exists during a game, which makes it impossible
+to work on for six days a week. This stands in for one.
+
+It works by answering **at the fetch layer, in ESPN's own shapes**, rather than by
+feeding components directly. Nothing downstream knows the difference, so demo mode
+also exercises every parser — if a response shape changes and something breaks,
+this breaks with it.
+
+Names come from the real depth charts of the clubs involved, so the feed links to
+real profiles and the name matcher is tested against actual players rather than
+invented ones. A gold band along the bottom makes it unmistakable, with an Exit
+button.
+
+Worth recording: building this immediately found a real bug. With the demo clock
+unset, elapsed time read as epoch seconds, the scoring loop ran nineteen million
+times and exhausted the heap. Both the clock and the play count are now clamped.
 
 ## Watch mode
 

@@ -1053,6 +1053,75 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
 }
 .gwatch:hover{background:#D06A6A}
 
+/* ---------- line score ---------- */
+.lsc{margin:10px 0 4px;border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden}
+.lscrow{display:grid;grid-template-columns:44px repeat(auto-fit,minmax(0,1fr)) 40px;
+  align-items:center;text-align:center;padding:5px 8px;
+  border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums}
+.lscrow:last-child{border-bottom:0}
+.lscrow.lschd{font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+  background:color-mix(in srgb,var(--chalk) 4%,transparent)}
+.lscrow span{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--chalk)}
+.lscrow.lschd span{font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  color:var(--dim)}
+.lsct{text-align:left;color:var(--team-accent)!important;font-size:11.5px!important}
+.lsctot{color:#fff!important}
+
+/* ---------- scoring plays ---------- */
+.scorelist{border:1px solid var(--line);border-radius:var(--r);
+  padding:2px 10px;margin-bottom:12px}
+.scorerow{display:flex;gap:9px;align-items:flex-start;padding:8px 0;
+  border-bottom:1px solid var(--rule)}
+.scorerow:last-child{border-bottom:0}
+.sct{flex:0 0 34px;font-family:'Archivo Black',sans-serif;font-size:10.5px;
+  color:var(--brass);padding-top:2px}
+
+/* ---------- biggest swings ---------- */
+.swings{margin-bottom:12px}
+.swingrow{display:flex;gap:10px;align-items:flex-start;padding:8px 0;
+  border-bottom:1px solid var(--rule)}
+.swingrow:last-of-type{border-bottom:0}
+.swingv{flex:0 0 52px;text-align:center;font-family:'Archivo Black',sans-serif;
+  font-size:12px;padding:3px 0;border-radius:3px}
+.swingv.home{color:var(--rise);background:color-mix(in srgb,var(--rise) 15%,transparent)}
+.swingv.away{color:var(--fall);background:color-mix(in srgb,var(--fall) 15%,transparent)}
+.swingt{flex:1 1 auto;min-width:0}
+
+/* ---------- game flow ---------- */
+svg.flowchart{width:100%;height:auto;display:block;border:1px solid var(--line);
+  border-radius:var(--r);background:var(--field)}
+
+/* ---------- demo banner ---------- */
+#demobar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:96;
+  display:flex;align-items:center;gap:12px;padding:7px 14px;border-radius:20px;
+  background:color-mix(in srgb,var(--brass) 20%,var(--panel));
+  border:1px solid var(--brass);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#demobar span{font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600}
+#demobar button{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
+  border:1px solid var(--line);padding:3px 10px;border-radius:10px}
+#demobar button:hover{color:var(--chalk)}
+
+/* ---------- cross-game alerts ---------- */
+#toasts{position:fixed;right:14px;bottom:14px;z-index:95;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:280px}
+.toast{pointer-events:auto;padding:10px 13px;border-radius:var(--r);
+  background:var(--panel);border:1px solid var(--line);
+  box-shadow:0 10px 28px rgba(0,0,0,.55);
+  animation:toastin .28s ease-out}
+.toast.strong{border-color:color-mix(in srgb,var(--brass) 55%,transparent);
+  background:color-mix(in srgb,var(--brass) 12%,transparent)}
+.toast.out{opacity:0;transform:translateY(6px);transition:.35s}
+@keyframes toastin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.toastt{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.toasts2{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+.toast.strong .toasts2{color:#E0B48A}
+@media (max-width:520px){ #toasts{left:14px;right:14px;max-width:none} }
+
 /* ---------- broadcast delay ---------- */
 .dlybar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .dlylab{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
@@ -1124,34 +1193,41 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
 .pframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 
 /* ---------- live box score ---------- */
-.wsplit{display:grid;grid-template-columns:1fr;gap:20px;max-width:660px;
-  margin:0 auto;width:100%}
+/* Stacked on a phone; on a desktop the player sits beside the box score rather
+   than above everything, which is the only way it gets a sensible size. Full
+   width at 16:9 in a 1360px column is 765px tall -- the whole viewport. */
+#watchbody{display:block}
+#striphost,#playerhost,#watchmain,#watchaside{width:100%;max-width:660px;
+  margin:0 auto}
+#playerhost{margin-bottom:14px}
+#watchaside{margin-top:20px}
 
 @media (min-width:900px){
-  /* Each column scrolls on its own. Sticky positioning pinned the box score to
-     the top, which meant anything past the fold in it was unreachable -- the
-     wheel only ever moved the feed. */
-  /* A column, explicitly. This was a bare `display:flex`, which was harmless
-     while the split was the only child -- once the strip and the player joined
-     it, all three became flex items in a ROW and the player was squeezed to one
-     side. The axis has to be stated. */
-  #watchbody{overflow:hidden;display:flex;flex-direction:column}
-  #striphost,#playerhost{flex:0 0 auto}
-  /* Give the player at most about a third of the height, sized from the height
-     so it stays 16:9 rather than being letterboxed by a clipped box. */
-  #playerhost .pframe{height:min(38vh, 45vw);width:auto;aspect-ratio:16/9;
-    max-width:100%}
-  /* Holds the split and gives it the remaining height to scroll inside. */
-  #watchcontent{flex:1 1 auto;min-height:0;display:flex;width:100%}
-  .wsplit{grid-template-columns:minmax(0,1fr) minmax(330px,400px);
-    max-width:1360px;height:100%;align-items:stretch;gap:26px}
-  .wmain,.waside{overflow-y:auto;min-height:0;padding-right:6px;
+  #watchbody{
+    display:grid;overflow:hidden;
+    grid-template-columns:minmax(0,1fr) minmax(320px,390px);
+    grid-template-rows:auto auto minmax(0,1fr);
+    grid-template-areas:
+      "strip  strip"
+      "player aside"
+      "main   aside";
+    column-gap:24px;
+    max-width:1500px;margin:0 auto;width:100%;
+  }
+  #striphost{grid-area:strip}
+  #playerhost{grid-area:player}
+  #watchmain{grid-area:main}
+  #watchaside{grid-area:aside}
+  #striphost,#playerhost,#watchmain,#watchaside{max-width:none;margin:0}
+  #playerhost{margin-bottom:14px}
+  /* Sized by the column it sits in, so it grows with the window. */
+  #playerhost .pframe{width:100%;height:auto;aspect-ratio:16/9;max-height:52vh}
+  #watchmain,#watchaside{overflow-y:auto;min-height:0;padding-right:6px;
     scrollbar-width:thin}
-  .wmain::-webkit-scrollbar,.waside::-webkit-scrollbar{width:4px}
-  .wmain::-webkit-scrollbar-thumb,.waside::-webkit-scrollbar-thumb{
+  #watchmain::-webkit-scrollbar,#watchaside::-webkit-scrollbar{width:4px}
+  #watchmain::-webkit-scrollbar-thumb,#watchaside::-webkit-scrollbar-thumb{
     background:var(--line);border-radius:2px}
-  /* Keep the heading in place while its list moves. */
-  .waside .wsub{position:sticky;top:0;background:var(--ink);z-index:2;
+  #watchaside .wsub{position:sticky;top:0;background:var(--ink);z-index:2;
     padding-bottom:6px;margin-top:0}
 }
 
@@ -2054,6 +2130,8 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   </div>
   <div id="wallbody"></div>
 </div>
+
+<div id="toasts" aria-live="polite"></div>
 
 <div id="drive" hidden role="dialog" aria-modal="true" aria-label="Drive">
   <div class="lhead">
@@ -3868,6 +3946,11 @@ function applyHash(){
   const parts = h.split("/").filter(Boolean);
   applyingHash = true;
   try{
+    if(parts[0] === "demo"){
+      renderAll();
+      startDemo();
+      return true;
+    }
     if(parts[0] === "scores"){
       const w = parseInt(parts[1], 10);
       if(w >= 1 && w <= 18) scoreWeek = w;
@@ -4287,6 +4370,9 @@ const normTeam = ab => TEAMFIX[ab] || ab;
 const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
 
 async function getJSON(path){
+  // Demo mode answers here rather than anywhere downstream, so every parser and
+  // component runs exactly as it does against the real feed.
+  if(DEMO.on) return demoFetch(path);
   const r = await fetch(espnUrl(path), {cache:"no-store"});
   if(!r.ok) throw new Error(r.status);
   return r.json();
@@ -4339,6 +4425,7 @@ async function fetchLive(){
       LIVE.on = LIVE.games.some(g => g.state === "in");
       LIVE.at = Date.now();
       LIVE.err = null;
+      checkAlerts();
       liveLog("teams with a game today:", Object.keys(LIVE.byTeam).join(","),
               "| any live:", LIVE.on);
       return true;
@@ -6649,6 +6736,287 @@ function delayControl(){
   return wrap;
 }
 
+/* ---------------- demo mode ----------------
+   Reachable at #/demo. Everything live in this app only appears during a game,
+   which makes it impossible to work on for six days a week, so this stands in a
+   simulated Sunday.
+
+   It works by answering at the fetch layer in ESPN's own shapes rather than by
+   feeding components directly. Nothing downstream knows the difference, which
+   means demo mode also exercises every parser -- if a shape changes and a parser
+   breaks, this breaks too. */
+const DEMO = {on: false, t0: 0, games: null};
+
+const DEMO_FIXTURES = [
+  {id:"d1", a:"TB",  h:"CIN", ao:17, ho:21, live:true,  q:3, clock:"7:24"},
+  {id:"d2", a:"PHI", h:"DAL", ao:24, ho:20, live:true,  q:4, clock:"2:51"},
+  {id:"d3", a:"KC",  h:"BUF", ao:10, ho:13, live:true,  q:2, clock:"0:48"},
+  {id:"d4", a:"NE",  h:"SEA", ao:10, ho:13, live:false, q:4, clock:"0:00"},
+  {id:"d5", a:"SF",  h:"LA",  ao:null, ho:null, live:null, q:0, clock:""},
+];
+
+const DEMO_PLAYS = [
+  {t:"{QB1} pass short right to {WR1} for 9 yards ({CB2}).", k:"Pass Reception", g:9},
+  {t:"{RB1} left tackle for 4 yards ({LB2}).", k:"Rush", g:4},
+  {t:"{QB1} pass deep left to {WR2} for 31 yards ({S2}).", k:"Pass Reception", g:31},
+  {t:"{QB1} sacked at {OWN} for -7 yards ({DE2}).", k:"Sack", g:-7},
+  {t:"{RB1} up the middle for 2 yards ({LB2}, {DT2}).", k:"Rush", g:2},
+  {t:"{QB1} pass incomplete deep middle intended for {WR1} ({CB2}).", k:"Pass Incompletion", g:0},
+  {t:"{QB1} pass short middle to {TE1} for 14 yards ({LB2}).", k:"Pass Reception", g:14},
+  {t:"{RB1} right end for 11 yards ({S2}).", k:"Rush", g:11},
+];
+
+/* Names come from the real depth charts, so the feed links to real profiles and
+   the name matcher is exercised properly rather than against made-up people. */
+function demoCast(ab, opp){
+  const pick = (grps, slot) => {
+    const rows = (DATA.depth[ab] || [])
+      .filter(r => grps.includes(r.grp) && r.slot === slot)
+      .sort((a,b)=>a.rank-b.rank);
+    const p = rows.length ? DATA.players[rows[0].pid] : null;
+    if(!p) return {short:"J.Doe", id:null, name:"J. Doe"};
+    const parts = p.name.split(" ");
+    return {short: parts[0][0] + "." + parts.slice(1).join(" "),
+            id: p.id, name: p.name, eid: p.eid, pos: p.pos};
+  };
+  const O = ["3WR 1TE"], D = ["Base 4-3 D","Base 3-4 D"];
+  const other = t => {
+    const o = ["Base 4-3 D","Base 3-4 D"];
+    const rows = (DATA.depth[t] || []);
+    return o.find(g => rows.some(r => r.grp === g)) || "Base 4-3 D";
+  };
+  const dg = [other(opp)];
+  const dpick = (slot) => {
+    const rows = (DATA.depth[opp] || [])
+      .filter(r => dg.includes(r.grp) && r.slot === slot)
+      .sort((a,b)=>a.rank-b.rank);
+    const p = rows.length ? DATA.players[rows[0].pid] : null;
+    if(!p) return {short:"A.Smith", id:null};
+    const parts = p.name.split(" ");
+    return {short: parts[0][0] + "." + parts.slice(1).join(" "),
+            id: p.id, name: p.name, eid: p.eid, pos: p.pos};
+  };
+  return {
+    QB1: pick(O,9), RB1: pick(O,11), WR1: pick(O,1), WR2: pick(O,2),
+    TE1: pick(O,10),
+    CB2: dpick(8), S2: dpick(9), LB2: dpick(6), DE2: dpick(1), DT2: dpick(2),
+  };
+}
+
+/* Guarded, and deliberately so. With t0 unset this returns epoch seconds, and
+   everything downstream multiplies it: the score loop ran nineteen million times
+   and exhausted the heap. Clamped to one simulated hour, which is longer than
+   anybody will sit on a demo. */
+const DEMO_MAX_SECONDS = 3600;
+function demoElapsed(){
+  if(!DEMO.t0) DEMO.t0 = Date.now();
+  const s = Math.floor((Date.now() - DEMO.t0) / 1000);
+  return Math.max(0, Math.min(DEMO_MAX_SECONDS, s));
+}
+
+/* The simulated clock. Games advance about a play every eight seconds so the
+   feed, scores and win probability all visibly move while you watch. */
+function demoState(f){
+  if(f.live === null) return {state:"pre", detail:"Sun 4:25 PM EDT",
+                              a:null, h:null, plays:0};
+  if(f.live === false) return {state:"post", detail:"Final",
+                               a:f.ao, h:f.ho, plays:60};
+  // Capped independently of the clock, so no loop below can run away.
+  const plays = Math.min(150, 12 + Math.floor(demoElapsed() / 8));
+  // A score every eleventh play, alternating sides, so lead changes happen.
+  const scores = Math.min(12, Math.floor(plays / 11));
+  let a = f.ao, h = f.ho;
+  for(let i = 0; i < scores; i++){
+    if(i % 2 === 0) a += 7; else h += 3;
+  }
+  // Loops around the quarter so the clock always reads plausibly.
+  const secs = 900 - (demoElapsed() * 2) % 900;
+  const mm = Math.floor(secs / 60), ss = secs % 60;
+  return {state:"in", a, h, plays,
+          detail:"Q" + f.q + " " + mm + ":" + String(ss).padStart(2,"0")};
+}
+
+function demoScoreboard(){
+  return {events: DEMO_FIXTURES.map(f=>{
+    const st = demoState(f);
+    const cast = demoCast(f.a, f.h);
+    const toGoal = 100 - ((demoElapsed() * 3) % 80) - 10;
+    return {
+      id: f.id,
+      shortName: f.a + " @ " + f.h,
+      status: {type:{state: st.state, shortDetail: st.detail},
+               period: f.q, displayClock: st.detail.split(" ")[1] || ""},
+      competitions: [{
+        venue: {fullName: "Demo Stadium"},
+        situation: st.state === "in" ? {
+          possession: f.a,
+          downDistanceText: ["1st & 10","2nd & 6","3rd & 2","1st & Goal"][
+            Math.floor(demoElapsed()/8) % 4],
+          distance: 6,
+          possessionText: (toGoal > 50 ? f.a : f.h) + " "
+            + (toGoal > 50 ? 100 - toGoal : toGoal),
+          isRedZone: toGoal <= 20,
+          lastPlay: {text: demoPlayText(f, cast, st.plays - 1)},
+        } : null,
+        odds: [{provider:{name:"Demo Book"}, details: f.h + " -3.5",
+                overUnder: 47.5, spread: -3.5}],
+        leaders: st.state === "pre" ? [] : [
+          {name:"passingYards", leaders:[{athlete:{id:cast.QB1.eid,
+            displayName:cast.QB1.name}, team:{abbreviation:f.a},
+            displayValue: (180 + st.plays * 3) + " YDS, 2 TD",
+            value: 180 + st.plays * 3}]},
+          {name:"rushingYards", leaders:[{athlete:{id:cast.RB1.eid,
+            displayName:cast.RB1.name}, team:{abbreviation:f.a},
+            displayValue: (40 + st.plays) + " YDS, 1 TD", value: 40 + st.plays}]},
+          {name:"receivingYards", leaders:[{athlete:{id:cast.WR1.eid,
+            displayName:cast.WR1.name}, team:{abbreviation:f.a},
+            displayValue: (60 + st.plays * 2) + " YDS", value: 60 + st.plays * 2}]},
+        ],
+        competitors: [
+          {team:{abbreviation:f.a, id:f.a}, score: st.a == null ? null : String(st.a),
+           homeAway:"away", linescores: demoLine(st.a, f.q)},
+          {team:{abbreviation:f.h, id:f.h}, score: st.h == null ? null : String(st.h),
+           homeAway:"home", linescores: demoLine(st.h, f.q)},
+        ],
+      }],
+    };
+  })};
+}
+
+function demoLine(total, q){
+  if(total == null) return [];
+  const out = [];
+  let left = total;
+  for(let i = 0; i < Math.max(1, q); i++){
+    const v = i === q - 1 ? left : Math.min(left, [7,3,7,0][i % 4]);
+    out.push({value: v});
+    left -= v;
+  }
+  return out;
+}
+
+function demoPlayText(f, cast, i){
+  const tpl = DEMO_PLAYS[Math.abs(i) % DEMO_PLAYS.length];
+  return tpl.t.replace(/\{(\w+)\}/g, (_, k) =>
+    k === "OWN" ? f.a + " 32" : (cast[k] ? cast[k].short : "J.Doe"));
+}
+
+function demoSummary(id){
+  const f = DEMO_FIXTURES.find(x => x.id === id) || DEMO_FIXTURES[0];
+  const st = demoState(f);
+  const cast = demoCast(f.a, f.h);
+  const n = Math.max(6, st.plays);
+
+  // Drives of six plays each, marching down the field.
+  const drives = [];
+  for(let d = 0; d < Math.ceil(n / 6); d++){
+    const plays = [];
+    let spot = 75;
+    for(let p = 0; p < 6; p++){
+      const idx = d * 6 + p;
+      if(idx >= n) break;
+      const tpl = DEMO_PLAYS[idx % DEMO_PLAYS.length];
+      const to = Math.max(0, spot - tpl.g);
+      plays.push({
+        text: demoPlayText(f, cast, idx),
+        type: {text: tpl.k},
+        start: {yardsToEndzone: spot, downDistanceText: ["1st & 10","2nd & 6","3rd & 2"][p % 3]},
+        end: {yardsToEndzone: to},
+        statYardage: tpl.g,
+        scoringPlay: to === 0,
+        period: {number: f.q}, clock: {displayValue: st.detail.split(" ")[1] || "0:00"},
+      });
+      spot = to;
+    }
+    drives.push({
+      id: "dr" + d,
+      team: {abbreviation: d % 2 ? f.h : f.a},
+      displayResult: d % 3 === 0 ? "Touchdown" : d % 3 === 1 ? "Punt" : "Field Goal",
+      isScore: d % 3 !== 1,
+      yards: 75 - spot, offensivePlays: plays.length,
+      timeElapsed: {displayValue: "3:1" + d},
+      start: {text: "own 25"},
+      plays,
+    });
+  }
+
+  const wp = [];
+  for(let i = 0; i < Math.max(8, n); i++){
+    // A wandering line with a couple of real swings in it.
+    const base = 0.5 + Math.sin(i / 3) * 0.18 + (i > n * 0.7 ? 0.2 : 0);
+    wp.push({homeWinPercentage: Math.max(0.03, Math.min(0.97, base))});
+  }
+
+  const statRow = (who, stats) => ({athlete:{id: who.eid, displayName: who.name,
+    position:{abbreviation: who.pos}}, stats});
+  return {
+    boxscore: {
+      teams: [
+        {team:{abbreviation:f.a}, statistics:[
+          {label:"Total Yards", displayValue:String(180 + n * 4)},
+          {label:"First Downs", displayValue:String(8 + Math.floor(n/4))},
+          {label:"3rd down efficiency", displayValue:"5-11"},
+          {label:"Turnovers", displayValue:"1"}]},
+        {team:{abbreviation:f.h}, statistics:[
+          {label:"Total Yards", displayValue:String(150 + n * 3)},
+          {label:"First Downs", displayValue:String(7 + Math.floor(n/5))},
+          {label:"3rd down efficiency", displayValue:"4-10"},
+          {label:"Turnovers", displayValue:"0"}]},
+      ],
+      players: [
+        {team:{abbreviation:f.a}, statistics:[
+          {name:"passing", text:"Passing", labels:["C/ATT","YDS","TD","INT"],
+           athletes:[statRow(cast.QB1, [Math.floor(n*0.6)+"/"+n, String(180+n*3), "2", "1"])]},
+          {name:"rushing", text:"Rushing", labels:["CAR","YDS","AVG","TD"],
+           athletes:[statRow(cast.RB1, [String(8+Math.floor(n/4)), String(40+n), "4.4", "1"])]},
+          {name:"receiving", text:"Receiving", labels:["REC","YDS","AVG","TD"],
+           athletes:[statRow(cast.WR1, [String(4+Math.floor(n/6)), String(60+n*2), "13.1", "1"]),
+                     statRow(cast.TE1, [String(2+Math.floor(n/9)), String(20+n), "9.4", "0"])]},
+        ]},
+        {team:{abbreviation:f.h}, statistics:[
+          {name:"defensive", text:"Defence", labels:["TOT","SOLO","SACKS","TFL","PD"],
+           athletes:[statRow(cast.LB2, [String(5+Math.floor(n/6)), "6", "0.0", "1", "1"]),
+                     statRow(cast.DE2, ["4", "3", "2.0", "3", "0"]),
+                     statRow(cast.CB2, ["5", "5", "0.0", "0", "3"])]},
+        ]},
+      ],
+    },
+    drives: {previous: drives.slice(0, -1), current: drives[drives.length - 1]},
+    winprobability: wp,
+    injuries: [],
+  };
+}
+
+/* The only hook: answer in ESPN's shape when demo mode is on. */
+function demoFetch(path){
+  if(path.indexOf("/summary") === 0){
+    const id = (path.match(/event=([^&]+)/) || [])[1];
+    return demoSummary(id);
+  }
+  return demoScoreboard();
+}
+
+function startDemo(){
+  DEMO.on = true;
+  DEMO.t0 = Date.now();
+  document.body.classList.add("demo");
+  let bar = document.getElementById("demobar");
+  if(!bar){
+    bar = el("div", null, "");
+    bar.id = "demobar";
+    bar.appendChild(el("span", null, "Demo data"));
+    const b = el("button", null, "Exit");
+    b.onclick = () => { location.hash = "#/" + team + "/" + unit; location.reload(); };
+    bar.appendChild(b);
+    document.body.appendChild(bar);
+  }
+  // Drop straight into the first live game so there is something to look at.
+  refreshLive().then(()=>{
+    $("#scores").hidden = true;
+    openWatch("d1");
+  });
+}
+
 /* ---------------- game switcher ----------------
    A strip of every game on today, across the top of watch mode, so moving
    between them is one tap rather than closing out and starting again.
@@ -6720,6 +7088,200 @@ function switchGame(id){
   refreshWatch();
 }
 
+/* ---------------- line score ----------------
+   Quarter by quarter, which is a basic scoreboard element and tells you how a
+   game actually unfolded rather than only where it ended up. */
+function lineScore(g){
+  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+  if(!(a.line || []).length && !(h.line || []).length) return null;
+  const n = Math.max((a.line || []).length, (h.line || []).length);
+  const wrap = el("div","lsc");
+  const head = el("div","lscrow lschd");
+  head.appendChild(el("span","lsct",""));
+  for(let i = 0; i < n; i++)
+    head.appendChild(el("span", null, i < 4 ? "Q" + (i + 1) : "OT"));
+  head.appendChild(el("span","lsctot","T"));
+  wrap.appendChild(head);
+  [a, h].forEach(t=>{
+    const row = el("div","lscrow");
+    row.appendChild(el("span","lsct", t.ab || ""));
+    for(let i = 0; i < n; i++){
+      const v = (t.line || [])[i];
+      row.appendChild(el("span", null, v == null ? "\u2013" : String(v)));
+    }
+    row.appendChild(el("span","lsctot", String(t.score ?? 0)));
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+/* ---------------- scoring plays ----------------
+   Tune in at half time and this is the catch-up: every score, in order, in ten
+   seconds, instead of scrolling forty plays to find the three that mattered. */
+function scoringPlays(idx){
+  const scores = [];
+  (LIVE.drives || []).slice().reverse().forEach(d=>{
+    (d.detail || []).forEach(p=>{
+      if(p.score) scores.push({team: d.team, text: p.text, result: d.result});
+    });
+  });
+  // Fall back to the play feed if drives have not been parsed.
+  if(!scores.length){
+    (LIVE.plays || []).slice().reverse().forEach(p=>{
+      if(p.scoring) scores.push({team: p.team, text: p.text,
+                                 clock: p.clock, period: p.period});
+    });
+  }
+  if(!scores.length) return null;
+  const wrap = el("div","scorelist");
+  scores.forEach(sc=>{
+    const row = el("div","scorerow");
+    row.appendChild(el("span","sct", sc.team || ""));
+    row.appendChild(playText(sc.text, idx));
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+/* ---------------- biggest swings ----------------
+   The plays where win probability moved most are the plays that decided the
+   game. That is a definition rather than an opinion, which is what makes it
+   worth showing. */
+function biggestSwings(idx, limit){
+  const wp = LIVE.wp;
+  if(!wp || !wp.series || wp.series.length < 6) return null;
+  const plays = (LIVE.plays || []).slice().reverse();   // oldest first
+  const moves = [];
+  for(let i = 1; i < wp.series.length; i++){
+    const d = wp.series[i] - wp.series[i - 1];
+    if(Math.abs(d) < 0.04) continue;
+    moves.push({i, d});
+  }
+  if(!moves.length) return null;
+  moves.sort((a, b) => Math.abs(b.d) - Math.abs(a.d));
+
+  const wrap = el("div","swings");
+  moves.slice(0, limit || 4).forEach(m=>{
+    // The series and the play list are two views of the same game but not the
+    // same length, so line them up proportionally rather than by index.
+    const frac = m.i / (wp.series.length - 1);
+    const p = plays[Math.min(plays.length - 1, Math.round(frac * (plays.length - 1)))];
+    const row = el("div","swingrow");
+    const pct = Math.round(Math.abs(m.d) * 100);
+    const chip = el("span","swingv" + (m.d > 0 ? " home" : " away"));
+    chip.textContent = (m.d > 0 ? "+" : "\u2212") + pct + "%";
+    row.appendChild(chip);
+    const w = el("div","swingt");
+    if(p) w.appendChild(playText(p.text, idx));
+    else w.appendChild(el("span", null, "Play " + m.i));
+    row.appendChild(w);
+    wrap.appendChild(row);
+  });
+  const n = el("div","carnote");
+  n.textContent = "Where the odds moved most. Matched to the play list by "
+    + "position in the game, so the pairing is close rather than exact.";
+  wrap.appendChild(n);
+  return wrap;
+}
+
+/* ---------------- game flow ----------------
+   Every drive as a stroke of field position over time. A side pinned deep all
+   afternoon, or an evening of trading punts, is a shape you can read at a
+   glance. */
+function gameFlow(g){
+  const drives = (LIVE.drives || []).slice().reverse();   // oldest first
+  const usable = drives.filter(d => (d.detail || []).some(p => p.from != null));
+  if(usable.length < 2) return null;
+  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+  const W = 320, H = 108, PAD = 6;
+  const step = (W - PAD * 2) / usable.length;
+
+  const bits = [];
+  bits.push('<line x1="' + PAD + '" y1="' + (H/2) + '" x2="' + (W-PAD)
+    + '" y2="' + (H/2) + '" stroke="var(--chalk)" stroke-opacity=".22"'
+    + ' stroke-dasharray="3 4"/>');
+  usable.forEach((d, i)=>{
+    const pts = (d.detail || []).filter(p => p.from != null);
+    const startY = pts[0].from;
+    const endPt = pts[pts.length - 1];
+    const endY = endPt.to != null ? endPt.to : endPt.from;
+    // Yards-to-goal, so nearer the top is nearer scoring.
+    const y = v => PAD + (v / 100) * (H - PAD * 2);
+    const x0 = PAD + i * step, x1 = PAD + (i + 1) * step - 2;
+    const col = d.team === h.ab
+      ? readableAccent((DATA.teams[h.ab] || {}).c1 || "#4A7C6F")
+      : readableAccent((DATA.teams[a.ab] || {}).c1 || "#8C6A6A");
+    bits.push('<line x1="' + x0.toFixed(1) + '" y1="' + y(startY).toFixed(1)
+      + '" x2="' + x1.toFixed(1) + '" y2="' + y(endY).toFixed(1)
+      + '" stroke="' + col + '" stroke-width="2.6" stroke-linecap="round"/>');
+    if(d.scoring)
+      bits.push('<circle cx="' + x1.toFixed(1) + '" cy="' + y(endY).toFixed(1)
+        + '" r="3.4" fill="var(--brass)"/>');
+  });
+
+  const wrap = el("div");
+  const svg = el("div");
+  svg.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="flowchart"'
+    + ' role="img" aria-label="Game flow">' + bits.join("") + '</svg>';
+  wrap.appendChild(svg.firstElementChild);
+  const leg = el("div","wpleg");
+  [[a.ab, readableAccent((DATA.teams[a.ab]||{}).c1 || "#8C6A6A")],
+   [h.ab, readableAccent((DATA.teams[h.ab]||{}).c1 || "#4A7C6F")]].forEach(([ab,c])=>{
+    const sp = el("span");
+    const i = el("i"); i.style.background = c;
+    sp.appendChild(i);
+    sp.appendChild(document.createTextNode((DATA.teams[ab]||{}).nick || ab));
+    leg.appendChild(sp);
+  });
+  wrap.appendChild(leg);
+  const n = el("div","carnote");
+  n.textContent = "One stroke per drive, top of the chart being the goal line. "
+    + "Gold marks a drive that scored.";
+  wrap.appendChild(n);
+  return wrap;
+}
+
+/* ---------------- cross-game alerts ----------------
+   Every game on the slate is already being polled for the switcher, so the app
+   knows the moment another one changes and has until now said nothing. Scores,
+   lead changes and the final two minutes are worth a word. */
+const ALERT_SEEN = {};
+let alertsOn = true;
+
+function checkAlerts(){
+  if(!alertsOn) return;
+  (LIVE.games || []).forEach(g=>{
+    if(g.state !== "in" || String(g.id) === String(watchGame)) return;
+    const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+    const as = num(a.score), hs = num(h.score);
+    if(as == null || hs == null) return;
+    const prev = ALERT_SEEN[g.id];
+    const leader = as === hs ? "tied" : (as > hs ? a.ab : h.ab);
+    ALERT_SEEN[g.id] = {as, hs, leader, detail: g.detail};
+    if(!prev) return;                       // first sighting is not news
+
+    if(as !== prev.as || hs !== prev.hs){
+      const scorer = as !== prev.as ? a.ab : h.ab;
+      const swung = leader !== prev.leader && leader !== "tied";
+      toast(
+        a.ab + " " + as + "  \u2013  " + h.ab + " " + hs,
+        swung ? leader + " take the lead" : scorer + " score",
+        g.id, swung);
+    }
+  });
+}
+
+function toast(title, sub, gameId, strong){
+  const host = document.getElementById("toasts");
+  if(!host) return;
+  const t = el("div","toast" + (strong ? " strong" : ""));
+  t.appendChild(el("div","toastt", title));
+  t.appendChild(el("div","toasts2", sub));
+  t.onclick = () => { t.remove(); if(gameId) switchGame(gameId); };
+  host.appendChild(t);
+  setTimeout(()=>{ t.classList.add("out"); setTimeout(()=>t.remove(), 400); }, 8000);
+}
+
 /* ---------------- watch mode ----------------
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
@@ -6778,20 +7340,24 @@ function renderWatch(gRaw){
   const outer = $("#watchbody");
   // Two regions: the player, which must never be torn down, and everything else,
   // which is rebuilt on every refresh.
+  // Four regions, each a grid cell. The player is one of them rather than living
+  // inside a rebuilt wrapper, because an iframe reloads if it is re-parented.
   let sHost = document.getElementById("striphost");
   let pHost = document.getElementById("playerhost");
-  let host = document.getElementById("watchcontent");
-  if(!sHost || !pHost || !host){
+  let mainHost = document.getElementById("watchmain");
+  let asideHost = document.getElementById("watchaside");
+  if(!sHost || !pHost || !mainHost || !asideHost){
     outer.innerHTML = "";
     sHost = el("div"); sHost.id = "striphost"; outer.appendChild(sHost);
     pHost = el("div"); pHost.id = "playerhost"; outer.appendChild(pHost);
-    host = el("div"); host.id = "watchcontent"; outer.appendChild(host);
+    mainHost = el("div"); mainHost.id = "watchmain"; outer.appendChild(mainHost);
+    asideHost = el("div"); asideHost.id = "watchaside"; outer.appendChild(asideHost);
   }
   renderGameStrip();
-  host.innerHTML = "";
+  mainHost.innerHTML = ""; asideHost.innerHTML = "";
   if(!gRaw){
     clearPlayer();
-    host.appendChild(el("div","carnote","No game to follow right now."));
+    mainHost.appendChild(el("div","carnote","No game to follow right now."));
     return;
   }
   // Everything below this line sees the delayed state as though it were now.
@@ -6807,12 +7373,7 @@ function renderWatch(gRaw){
     mountPlayer(fixture);
   } else clearPlayer();
 
-  const split = el("div","wsplit");
-  const b = el("div","wmain");
-  const aside = el("div","waside");
-  split.appendChild(b);
-  split.appendChild(aside);
-  host.appendChild(split);
+  const b = mainHost, aside = asideHost;
   const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
 
   if(gRaw.state === "in") b.appendChild(delayControl());
@@ -6833,6 +7394,9 @@ function renderWatch(gRaw){
 
   const st = el("div","wstat", g.detail || "");
   b.appendChild(st);
+  const ls = lineScore(g);
+  if(ls && g.state !== "pre") b.appendChild(ls);
+
   if(liveDelay && gRaw.state === "in"){
     b.appendChild(el("div","dlyflag",
       "Held " + delayLag() + " seconds back to match your stream"));
@@ -6891,8 +7455,27 @@ function renderWatch(gRaw){
     aside.appendChild(el("div","carnote","Tap a drive to watch it play out."));
   }
 
-  // the feed
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
+
+  const scp = scoringPlays(idx);
+  if(scp){
+    b.appendChild(el("div","wsub","Scoring"));
+    b.appendChild(scp);
+  }
+
+  const flow = gameFlow(g);
+  if(flow){
+    b.appendChild(el("div","wsub","Game flow"));
+    b.appendChild(flow);
+  }
+
+  const sw = biggestSwings(idx, 4);
+  if(sw){
+    b.appendChild(el("div","wsub","Biggest swings"));
+    b.appendChild(sw);
+  }
+
+  // the feed
   const feed = el("div","wfeed");
   if(!LIVE.plays.length){
     feed.appendChild(el("div","carnote","Waiting for the first play."));
@@ -7107,6 +7690,9 @@ async function loadWeekScores(wk){
           ab: normTeam((t.team || {}).abbreviation || ""),
           id: (t.team || {}).id,
           score: t.score, home: t.homeAway === "home",
+          // Per-quarter scores come free on the scoreboard. A 21-0 first quarter
+          // and a 7-7 fourth say something the final score does not.
+          line: (t.linescores || []).map(x => num(x.value)),
         }));
         const a = teams.find(t=>!t.home), h = teams.find(t=>t.home);
         // The betting line rides along on the scoreboard response, so it costs
