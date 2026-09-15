@@ -1203,14 +1203,19 @@ svg.flowchart{width:100%;height:auto;display:block;border:1px solid var(--line);
 #watchaside{margin-top:20px}
 
 @media (min-width:900px){
+  /* The page scrolls as a whole rather than locking every region to the
+     viewport. Locked, the feed only ever got whatever height the player left
+     over -- about 290px on a laptop, which is not enough to read anything. Now
+     the left column is as long as it needs to be and the box score stays put
+     beside it. */
   #watchbody{
-    display:grid;overflow:hidden;
+    display:grid;overflow-y:auto;
     grid-template-columns:minmax(0,1fr) minmax(320px,390px);
-    grid-template-rows:auto auto minmax(0,1fr);
     grid-template-areas:
       "strip  strip"
       "player aside"
       "main   aside";
+    grid-template-rows:auto auto 1fr;
     column-gap:24px;
     max-width:1500px;margin:0 auto;width:100%;
   }
@@ -1220,13 +1225,13 @@ svg.flowchart{width:100%;height:auto;display:block;border:1px solid var(--line);
   #watchaside{grid-area:aside}
   #striphost,#playerhost,#watchmain,#watchaside{max-width:none;margin:0}
   #playerhost{margin-bottom:14px}
-  /* Sized by the column it sits in, so it grows with the window. */
-  #playerhost .pframe{width:100%;height:auto;aspect-ratio:16/9;max-height:52vh}
-  #watchmain,#watchaside{overflow-y:auto;min-height:0;padding-right:6px;
-    scrollbar-width:thin}
-  #watchmain::-webkit-scrollbar,#watchaside::-webkit-scrollbar{width:4px}
-  #watchmain::-webkit-scrollbar-thumb,#watchaside::-webkit-scrollbar-thumb{
-    background:var(--line);border-radius:2px}
+  #playerhost .pframe{width:100%;height:auto;aspect-ratio:16/9;max-height:46vh}
+  /* Follows you down the page instead of scrolling away, and scrolls inside
+     itself if it is taller than the window. */
+  #watchaside{position:sticky;top:0;align-self:start;max-height:100vh;
+    overflow-y:auto;padding-right:6px;scrollbar-width:thin}
+  #watchaside::-webkit-scrollbar{width:4px}
+  #watchaside::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
   #watchaside .wsub{position:sticky;top:0;background:var(--ink);z-index:2;
     padding-bottom:6px;margin-top:0}
 }
@@ -4305,7 +4310,11 @@ function mountPlayer(fixture){
   const src = fixture ? embedUrl(fixture) : null;
 
   if(!src || !playerOn){
-    if(playerSrc !== null){ host.innerHTML = ""; playerSrc = null; }
+    // Always rebuild the hidden state. This used to be guarded on playerSrc, but
+    // the toggle nulled playerSrc before calling in -- so the guard never fired,
+    // the iframe was never removed and a second bar was appended on top of it.
+    host.innerHTML = "";
+    playerSrc = null;
     if(src) renderPlayerBar(host, fixture, true);
     return;
   }
@@ -4337,7 +4346,8 @@ function renderPlayerBar(host, fixture, hidden){
   const toggle = el("button","pbtn", hidden ? "Show" : "Hide");
   toggle.onclick = () => {
     playerOn = !playerOn;
-    playerSrc = null;              // force a rebuild in the new state
+    // mountPlayer decides what to tear down; nulling playerSrc here is what
+    // broke it.
     mountPlayer(fixture);
   };
   bar.appendChild(toggle);
