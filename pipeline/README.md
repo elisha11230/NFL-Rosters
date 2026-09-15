@@ -161,6 +161,40 @@ scores page stays hidden until there is something to show.
 state, not a failure, so it must not abort the run. `verify_sources.py` checks
 them only if they are present.
 
+## Power ratings
+
+A fourth tab on the scores page, and a section on each team's own panel.
+
+**Editorial power rankings have no feed.** A writer's weekly top 32 is an article;
+scraping it would be fragile and is a terms question. So these are computed, four
+independent ways, from data already in the pipeline:
+
+| | |
+|---|---|
+| SRS | margin of victory adjusted for who you played, solved by iteration |
+| Pythagorean | expected win rate from points for and against, so it sees through lucky close wins |
+| EPA | expected points added per play, offence minus defence — least affected by garbage time |
+| Differential | net points per game, the blunt transparent one |
+
+Each has a different blind spot, which is the point. The consensus is the average
+of the four placings, and **the spread between them is reported too** — a team
+rated 4th by one method and 20th by another is telling you something a single
+number would hide.
+
+**Movement is a real comparison, not a leftover.** The ratings are recomputed for
+every completed week using only the games up to that week, so "up 3" means the
+same four methods, run twice, placed the team three spots higher. Carrying a
+number over from the previous build would have been easier and would have broken
+the first time a build was re-run or a score corrected.
+
+That history also gives each team a line of its placing by week on its own panel,
+since a rank on its own has no direction.
+
+**Only teams that have played are rated.** An earlier version gave every team a
+rating of zero and ranked the ones with no games in whatever order the set
+iterated, which looks exactly like a ranking and is not one. Teams yet to play are
+named as unrated rather than placed.
+
 ## Weekly leaders
 
 A third tab on the scores page, next to Games and Standings: the best individual

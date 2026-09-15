@@ -599,6 +599,14 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .lgrp{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.15em;
   text-transform:uppercase;color:var(--dim);margin:12px 0 5px;padding-left:2px}
 .lgrp:first-child{margin-top:0}
+#leadseason{display:flex;gap:5px;padding:0 0 10px;margin-bottom:8px;
+  border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.leadnote{font-size:11.5px;line-height:1.45;color:var(--dim)}
+.lseason{flex:1 1 0;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r);
+  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.09em;
+  color:var(--mute)}
+.lseason[aria-pressed="true"]{border-color:var(--team);color:#fff;
+  background:color-mix(in srgb,var(--team) 24%,transparent)}
 .lcat{
   display:block;width:100%;text-align:left;padding:6px 9px;border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:12.5px;letter-spacing:.06em;
@@ -739,9 +747,6 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .yrpick button[aria-pressed="true"]{border-color:var(--team);color:#fff;
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 
-/* ---------- learn: simple mode ---------- */
-body.simple .mv,body.simple .t100,body.simple .stack,body.simple .injdot{display:none}
-body.simple #timebar{display:none}
 
 #learnbtn{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
@@ -944,7 +949,9 @@ body.simple #timebar{display:none}
   min-width:30px;text-align:right}
 .dgain.pos{color:var(--rise)} .dgain.neg{color:var(--fall)}
 .wdrives{border:1px solid var(--line);border-radius:var(--r);padding:4px 8px;
-  margin-bottom:6px}
+  margin-bottom:6px;max-height:260px;overflow-y:auto;scrollbar-width:thin}
+.wdrives::-webkit-scrollbar{width:4px}
+.wdrives::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
 .wdrives .drv{width:100%;text-align:left}
 .drv:disabled{cursor:default;opacity:.6}
 
@@ -999,6 +1006,35 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--mute)}
 .wpleg i{width:9px;height:9px;border-radius:2px;display:block}
+
+/* ---------- power ratings ---------- */
+.rkrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:9px 0;border-bottom:1px solid var(--rule)}
+.rkrow:last-of-type{border-bottom:0}
+.rkrow:hover .rkname{color:#fff}
+.rknum{flex:0 0 22px;text-align:right;font-family:'Archivo Black',sans-serif;
+  font-size:13px;color:var(--dim)}
+.rkrow.top .rknum{color:var(--brass)}
+.rklogo{width:28px;height:28px;object-fit:contain;flex:0 0 auto}
+.rkw{flex:1 1 auto;min-width:0}
+.rkname{font-size:14px;color:var(--chalk)}
+.rkmeta{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--dim);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.rkv{text-align:right;flex:0 0 auto}
+.rknum2{display:block;font-family:'Archivo Black',sans-serif;font-size:15px;
+  color:#fff;line-height:1}
+.rkspread{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+.rkspread.wide{color:#E0A15B}
+.rkmove{flex:0 0 46px;text-align:right;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:11.5px;letter-spacing:.05em;color:var(--dim)}
+.rkmove.up{color:var(--rise)} .rkmove.dn{color:var(--fall)}
+.rkmove.new{color:var(--brass)}
+.rkmoveline{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin:8px 0 4px}
+.rkmoveline.up{color:var(--rise)} .rkmoveline.dn{color:var(--fall)}
+svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2px}
 
 /* ---------- weekly leaders ---------- */
 .wlrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
@@ -2064,14 +2100,11 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
       </div>
       <div id="fieldbar">
         <div class="hint" id="formlab"></div>
+        <button id="scoresbtn">Scores</button>
         <button id="conceptbtn">How it works</button>
         <button id="gamebtn">Lineup</button>
         <button id="facesbtn">Faces</button>
-        <button id="simplebtn" aria-pressed="false">Simple</button>
-        <button id="t100btn" aria-pressed="false">Top 100</button>
-        <button id="scoresbtn">Scores</button>
         <button id="leadbtn">Leaders</button>
-        <button id="learnbtn">Learn</button>
       </div>
       <div id="field">
         <svg id="turf" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"></svg>
@@ -2222,7 +2255,7 @@ const UNITS = [
 const POSBUCKET = DATA.posBucket || {};
 
 /* ---------------- state ---------------- */
-let team = "PHI", unit = "off", sel = null, t100only = false, advOpen = false;
+let team = "PHI", unit = "off", sel = null, advOpen = false;
 let catchUpYear = 2021;
 const sub = {};   // "grp|slot" -> chosen depth rank, lets you swap a backup in
 
@@ -2493,7 +2526,6 @@ function renderField(){
     c.style.left = x+"%"; c.style.top = y+"%";
     if(sel===p.id) c.classList.add("sel");
     if(idx>0) c.classList.add("sub");
-    if(t100only && !p.t100) c.classList.add("faded");
     if(playedToday(p)) c.classList.add("played");
     c.setAttribute("aria-label", `${p.name}, ${row.name}`);
 
@@ -3518,6 +3550,74 @@ function sectionHistory(d){
 /* Who the fantasy world is suddenly interested in. A backup going from nobody to
    forty thousand adds overnight means something happened, and that is a signal
    this app cannot produce from its own data. */
+/* A team's own rating, on its page, with the four methods behind it shown rather
+   than a single number to take on trust. */
+function sectionRating(d){
+  const v = (DATA.rankings || {})[team];
+  if(!v) return;
+  const meta = DATA.rankMeta || {};
+  const sec = el("div","sect");
+  const h = el("h3", null, "Power rating");
+  h.appendChild(el("span", null, "through " + meta.games + " games"));
+  sec.appendChild(h);
+
+  const box = el("div","agebox");
+  const left = el("div");
+  left.appendChild(el("div","big", ord(v.rank)));
+  left.appendChild(el("div","lab", "of " + (meta.ranked || 32)));
+  box.appendChild(left);
+  const rk = el("div","rk");
+  rk.appendChild(el("b", null, v.avg.toFixed(1)));
+  rk.appendChild(document.createTextNode("average placing"));
+  box.appendChild(rk);
+  sec.appendChild(box);
+
+  if(v.move != null || v.new){
+    const mv = el("div","rkmoveline");
+    mv.textContent = v.new ? "First rating of the season"
+      : v.move === 0 ? "Unchanged from last week"
+      : (v.move > 0 ? "Up " : "Down ") + Math.abs(v.move)
+        + " from " + ord(v.was) + " last week";
+    mv.className += v.move > 0 ? " up" : v.move < 0 ? " dn" : "";
+    sec.appendChild(mv);
+  }
+
+  // The season so far as a line, since a rank on its own has no direction.
+  if((v.history || []).length > 2){
+    const H = v.history, W = 300, Ht = 64, P = 4;
+    const x = i => P + i / (H.length - 1) * (W - P * 2);
+    const y = r => P + ((r - 1) / 31) * (Ht - P * 2);
+    const pts = H.map((r, i) => x(i).toFixed(1) + "," + y(r).toFixed(1)).join(" ");
+    const wrap = el("div");
+    wrap.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + Ht + '" class="rkspark"'
+      + ' role="img" aria-label="Rating by week">'
+      + '<polyline points="' + pts + '" fill="none" stroke="var(--team-accent)"'
+      + ' stroke-width="2" stroke-linejoin="round"/>'
+      + '<circle cx="' + x(H.length - 1).toFixed(1) + '" cy="'
+      + y(H[H.length - 1]).toFixed(1) + '" r="3.2" fill="var(--brass)"/></svg>';
+    sec.appendChild(wrap.firstElementChild);
+    sec.appendChild(el("div","chartnote","Placing by week \u00b7 higher is better"));
+  }
+
+  v.methods.forEach(m=>{
+    const r = el("div","caprow");
+    r.appendChild(el("span","g", m.name));
+    r.appendChild(el("span","m", String(m.value)));
+    r.appendChild(el("span","p", ord(m.rank)));
+    sec.appendChild(r);
+  });
+
+  const n = el("div","carnote");
+  n.textContent = v.spread >= 8
+    ? "The four methods disagree about this team by " + v.spread + " places, "
+      + "which usually means the record and the underlying play are telling "
+      + "different stories."
+    : "Four independent methods, all computed from results rather than taken "
+      + "from a published list.";
+  sec.appendChild(n);
+  d.appendChild(sec);
+}
+
 function sectionTrending(d){
   const host = el("div","sect");
   host.appendChild(el("h3", null, "People are picking up"));
@@ -3705,6 +3805,7 @@ function renderTeam(){
   }
 
   sectionGame(d);
+  sectionRating(d);
   sectionTrending(d);
   sectionCatchUp(d);
   sectionMovement(d);
@@ -4508,8 +4609,7 @@ async function fetchGame(gameId){
       return l == null ? null : Math.max(0, Math.min(100, l));
     };
     const dr = j.drives || {};
-    const list = [...(dr.previous || [])];
-    if(dr.current) list.push(dr.current);
+    const list = mergeDrives(dr);
     // Each drive keeps its plays with the ground they covered, which is what a
     // drive chart needs and the flat play feed does not carry.
     LIVE.drives = list.slice(-14).reverse().map((d, idx)=>({
@@ -4521,7 +4621,7 @@ async function fetchGame(gameId){
       time: (d.timeElapsed || {}).displayValue || null,
       scoring: !!d.isScore,
       start: ((d.start || {}).text) || null,
-      detail: (d.plays || []).map(p=>({
+      detail: (d.plays || []).filter(isRealPlay).map(p=>({
         text: p.text || ((p.type || {}).text) || "",
         kind: ((p.type || {}).text) || "",
         from: yardsOut(p.start),
@@ -4617,13 +4717,9 @@ async function refreshLive(){
   else { LIVE.stats = {}; LIVE.active = new Set(); LIVE.drives = []; LIVE.wp = null; }
   renderLiveStrip(true);
   renderField();
-  // Draw the most recent play, but only onto a present-day view of a team that
-  // is actually in the game.
-  const latest = (LIVE.plays || [])[0];
-  const g2 = LIVE.byTeam[team];
-  if(latest && !isPast() && g2 && g2.state === "in"){
-    drawPlay(latest, buildFeedIndex(g2.teams.map(t => t.ab).filter(Boolean)));
-  } else clearPlayArrow();
+  // No play arrows here. The field's job is who lines up where; a line drawn
+  // across it during a game competes with that and belongs in watch mode.
+  clearPlayArrow();
   if(sel){ paintSel(); } else { renderTeam(); }
   return true;
 }
@@ -5011,14 +5107,54 @@ function playText(text, idx){
 
 /* Pull the play list out of a summary payload. Drives hold plays; shapes vary,
    so everything is read defensively and anything unrecognised is skipped. */
+/* ESPN lists a drive in `previous` once it ends, and the drive in progress under
+   `current`. The moment a drive finishes it can appear in both, so appending one
+   list to the other counts it twice -- which showed up as a touchdown listed
+   twice under Scoring, a doubled stroke in Game flow, and a repeated drive. Merge
+   on identity, newest wins. */
+function mergeDrives(dr){
+  const seen = new Map();
+  const add = d => {
+    if(!d) return;
+    // Fall back to a composite key when a drive carries no id of its own.
+    const key = d.id != null ? String(d.id)
+      : [((d.team || {}).abbreviation) || "?", (d.start || {}).text || "",
+         (d.plays || []).length].join("|");
+    seen.set(key, d);        // a later copy replaces an earlier one
+  };
+  (dr.previous || []).forEach(add);
+  add(dr.current);
+  return [...seen.values()];
+}
+
+/* ESPN's play list carries clock and administrative entries alongside actual
+   plays: timeouts, the two-minute warning, end of quarter, coin toss. They are
+   not plays, they have no yardage, and in a drive chart they draw a stroke that
+   means nothing. Filtered out of both the feed and the drive detail.
+
+   Checked on the type first and the text second, because the type is sometimes
+   missing on live entries that have not settled yet. */
+const NON_PLAY = /timeout|two.?minute|end (of )?(period|quarter|half|game|regulation)|coin toss|official review|end period/i;
+
+function isRealPlay(p){
+  const type = ((p.type || {}).text) || "";
+  const text = p.text || "";
+  if(NON_PLAY.test(type)) return false;
+  // A timeout's text is the whole entry, so an exact-ish match is safe. A real
+  // play that merely mentions a timeout later in its text is kept.
+  if(!type && NON_PLAY.test(text.slice(0, 28))) return false;
+  if(/^(timeout|two-minute warning|end of)/i.test(text.trim())) return false;
+  return true;
+}
+
 function extractPlays(j){
   const dr = j.drives || {};
-  const all = [...(dr.previous || [])];
-  if(dr.current) all.push(dr.current);
+  const all = mergeDrives(dr);
   const out = [];
   all.forEach(d=>{
     const tm = normTeam(((d.team || {}).abbreviation) || "");
     (d.plays || []).forEach(p=>{
+      if(!isRealPlay(p)) return;
       const txt = p.text || (p.type || {}).text;
       if(!txt) return;
       out.push({
@@ -6746,6 +6882,109 @@ function delayControl(){
   return wrap;
 }
 
+/* ---------------- power ratings ----------------
+   Four methods rather than one, because each has a different blind spot and the
+   disagreement between them carries information a single number would hide.
+   Editorial power rankings are published as articles with no feed, so these are
+   computed rather than borrowed. */
+const hasRankings = () => !!(DATA.rankings && Object.keys(DATA.rankings).length);
+let rankMethod = "Consensus";
+
+function renderRankings(host){
+  const R = DATA.rankings || {}, meta = DATA.rankMeta || {};
+  if(!Object.keys(R).length){
+    host.appendChild(el("div","carnote",
+      "Ratings appear once games have been played."));
+    return;
+  }
+  const methods = meta.methods || [];
+
+  const chips = el("div","wcats");
+  [{name:"Consensus", desc:"Average of the four"}, ...methods].forEach(m=>{
+    const b = el("button","wcat", m.name);
+    b.setAttribute("aria-pressed", m.name === rankMethod);
+    b.title = m.desc || "";
+    b.onclick = () => { rankMethod = m.name; host.innerHTML = ""; renderRankings(host); };
+    chips.appendChild(b);
+  });
+  host.appendChild(chips);
+
+  const active = rankMethod === "Consensus"
+    ? {name:"Consensus", desc:"Average of the four methods below"}
+    : (methods.find(m => m.name === rankMethod) || methods[0]);
+  host.appendChild(el("div","carnote", active.desc || ""));
+
+  const order = Object.keys(R).sort((a,b)=>{
+    if(rankMethod === "Consensus") return R[a].rank - R[b].rank;
+    const ra = (R[a].methods.find(m=>m.name===rankMethod) || {}).rank || 99;
+    const rb = (R[b].methods.find(m=>m.name===rankMethod) || {}).rank || 99;
+    return ra - rb;
+  });
+
+  order.forEach((tm, i)=>{
+    const v = R[tm];
+    const t = DATA.teams[tm] || {};
+    const row = el("button","rkrow" + (i < 3 ? " top" : ""));
+    row.appendChild(el("span","rknum", String(i + 1)));
+    const lg = el("img","rklogo");
+    if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
+    row.appendChild(lg);
+
+    const w = el("div","rkw");
+    w.appendChild(el("div","rkname", t.nick || tm));
+    const st = (DATA.standings && DATA.standings.teams || {})[tm];
+    const bits = [];
+    if(st) bits.push(st.rec);
+    // Each method's own placing, so the consensus is never a black box.
+    bits.push(v.methods.map(m => m.name.slice(0,4) + " " + m.rank).join("   "));
+    w.appendChild(el("div","rkmeta", bits.join("   \u00b7   ")));
+    row.appendChild(w);
+
+    // Movement only means anything for the consensus; a single method's own
+    // week-to-week wobble is noise.
+    if(rankMethod === "Consensus"){
+      const mv = el("span","rkmove");
+      if(v.move === 0) mv.textContent = "\u2013";
+      else if(v.move > 0){ mv.className += " up"; mv.textContent = "\u25B2 " + v.move; }
+      else if(v.move < 0){ mv.className += " dn"; mv.textContent = "\u25BC " + Math.abs(v.move); }
+      else if(v.new){ mv.className += " new"; mv.textContent = "new"; }
+      if(mv.textContent) row.appendChild(mv);
+    }
+
+    if(rankMethod === "Consensus"){
+      const sp = el("div","rkv");
+      sp.appendChild(el("span","rknum2", v.avg.toFixed(1)));
+      // A wide spread means the methods are arguing about this team.
+      sp.appendChild(el("span","rkspread" + (v.spread >= 8 ? " wide" : ""),
+        "\u00b1" + v.spread));
+      row.appendChild(sp);
+    } else {
+      const m = v.methods.find(x => x.name === rankMethod) || {};
+      const sp = el("div","rkv");
+      sp.appendChild(el("span","rknum2", String(m.value)));
+      sp.appendChild(el("span","rkspread", "rating"));
+      row.appendChild(sp);
+    }
+    row.onclick = () => { $("#scores").hidden = true; goTeam(tm); };
+    host.appendChild(row);
+  });
+
+  const n = el("div","carnote");
+  n.textContent = "Computed from results, not borrowed from a writer's list. "
+    + "Through " + meta.games + " games. "
+    + (meta.hasMovement
+       ? "Movement is against the same ratings run through week "
+         + (meta.week - 1) + ", so it compares two rankings rather than "
+         + "two builds. "
+       : "Movement appears from week two. ")
+    + (meta.unranked && meta.unranked.length
+       ? meta.unranked.join(" and ") + " have not played yet and cannot be rated. "
+       : "")
+    + "The \u00b1 figure is how far apart the four methods are about a team: a "
+    + "wide one means they disagree, which is worth knowing.";
+  host.appendChild(n);
+}
+
 /* ---------------- demo mode ----------------
    Reachable at #/demo. Everything live in this app only appears during a game,
    which makes it impossible to work on for six days a week, so this stands in a
@@ -7440,12 +7679,6 @@ function renderWatch(gRaw){
     }
   }
 
-  const boxHd = el("div","wsub","Box score");
-  aside.appendChild(boxHd);
-  const boxHost = el("div","wboxwrap");
-  aside.appendChild(boxHost);
-  renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
-
   if(LIVE.drives && LIVE.drives.length){
     aside.appendChild(el("div","wsub","Drives"));
     const dl = el("div","wdrives");
@@ -7464,6 +7697,12 @@ function renderWatch(gRaw){
     aside.appendChild(dl);
     aside.appendChild(el("div","carnote","Tap a drive to watch it play out."));
   }
+
+  const boxHd = el("div","wsub","Box score");
+  aside.appendChild(boxHd);
+  const boxHost = el("div","wboxwrap");
+  aside.appendChild(boxHost);
+  renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
 
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
 
@@ -7772,9 +8011,11 @@ async function renderScores(){
 
   const modes = el("div","boxtabs");
   modes.style.marginTop = "0";
-  [["games","Games"],["stand","Standings"],["lead","Week leaders"]].forEach(([k,lab])=>{
+  [["games","Games"],["stand","Standings"],["lead","Week leaders"],
+   ["rank","Power ratings"]].forEach(([k,lab])=>{
     if(k === "stand" && !hasStandings()) return;
     if(k === "lead" && !hasWeekly() && !LIVE.on) return;
+    if(k === "rank" && !hasRankings()) return;
     const b = el("button", null, lab);
     b.setAttribute("aria-pressed", k === scoreMode);
     b.onclick = () => { scoreMode = k; renderScores(); };
@@ -7790,6 +8031,11 @@ async function renderScores(){
   if(scoreMode === "lead"){
     wrap.innerHTML = "";
     renderWeekLeaders(wrap);
+    return;
+  }
+  if(scoreMode === "rank"){
+    wrap.innerHTML = "";
+    renderRankings(wrap);
     return;
   }
 
@@ -8312,21 +8558,32 @@ let weekCat = null;
 /* Eighteen leaderboards stacked end to end is not something anyone reads, so the
    categories are grouped and only the chosen one is drawn. Live figures from the
    scoreboard replace the settled set while a week is still being played. */
+/* The week shown here is not the week shown on the fixture list. The fixtures
+   default to the week now, which early in a week has no finished games -- so the
+   leaders fell through to the live scoreboard, which only carries passing,
+   rushing and receiving. That is why only three categories appeared. This view
+   defaults to the newest week with real data. */
+let weekLeadWeek = null;
+
 async function renderWeekLeaders(host){
   const settled = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
   const weeks = [...new Set([...settled, scoreWeek])].sort((a,b)=>a-b);
+  if(weekLeadWeek == null)
+    weekLeadWeek = settled.length ? settled[settled.length - 1] : scoreWeek;
+  const wk = weeks.includes(weekLeadWeek) ? weekLeadWeek : weeks[weeks.length - 1];
 
   const strip = el("div","wkstrip");
   weeks.forEach(w=>{
     const b = el("button", null, String(w));
-    b.setAttribute("aria-pressed", w === scoreWeek);
-    b.onclick = () => { scoreWeek = w; renderScores(); };
+    b.setAttribute("aria-pressed", w === wk);
+    if(!settled.includes(w)) b.title = "No finished games yet";
+    b.onclick = () => { weekLeadWeek = w; host.innerHTML = ""; renderWeekLeaders(host); };
     strip.appendChild(b);
   });
   host.appendChild(strip);
 
   const head = el("div","wkhead");
-  head.appendChild(el("span","wknum", "Week " + scoreWeek));
+  head.appendChild(el("span","wknum", "Week " + wk));
   const badge = el("span","wkmeta", "best individual games");
   head.appendChild(badge);
   host.appendChild(head);
@@ -8399,11 +8656,13 @@ async function renderWeekLeaders(host){
     list.appendChild(n);
   };
 
-  draw((DATA.weekly || {})[String(scoreWeek)], false);
-  await loadWeekScores(scoreWeek);
-  const live = liveWeekLeaders(scoreWeek);
-  if(live && weekInProgress(scoreWeek)) draw(live, true);
-  else if(live && !(DATA.weekly || {})[String(scoreWeek)]) draw(live, false);
+  draw((DATA.weekly || {})[String(wk)], false);
+  await loadWeekScores(wk);
+  const live = liveWeekLeaders(wk);
+  // Live only wins while that week is actually being played. Once it is done the
+  // settled set is fuller, and it is the one with all eighteen categories.
+  if(live && weekInProgress(wk)) draw(live, true);
+  else if(live && !(DATA.weekly || {})[String(wk)]) draw(live, false);
 }
 
 function renderStandings(host){
@@ -8891,8 +9150,21 @@ const SRC_LABEL = {st:"", adv:"charting", sit:"situational"};
 
 let LEAD = null, leadKey = null;
 
+/* Which season the leaderboards describe. They were hard-wired to last season's
+   block, so once the new one started the Leaders page was quietly a year out of
+   date. Current-season ranks are withheld until enough games are played, so the
+   toggle only offers this season once there is something to rank. */
+let leadSeason = "cur";
+
+function currentSeasonRankable(){
+  const c = DATA.current || {};
+  return !!(c.live && c.ranked);
+}
+
 function buildLeaders(){
-  if(LEAD) return LEAD;
+  const useCur = leadSeason === "cur" && currentSeasonRankable();
+  const cacheKey = useCur ? "cur" : "prev";
+  if(LEAD && LEAD.__key === cacheKey) return LEAD;
   const cats = {};
   const add = (group, key, label, sub, pid, v, r, n, unit) => {
     const k = group + "|" + key;
@@ -8905,7 +9177,8 @@ function buildLeaders(){
     if(!b) return;
     const g = BUCKET_LABEL[b];
     if(!g) return;
-    if(p.st) p.st.items.forEach(it=>{
+    const box = useCur ? p.cur : p.st;
+    if(box) box.items.forEach(it=>{
       if(it.r) add(g, "st:"+b+":"+it.l, it.l, "", p.id, it.v, it.r, it.n);
     });
     if(p.adv) p.adv.items.forEach(it=>{
@@ -8964,6 +9237,44 @@ function buildLeaders(){
    in the number: a player can gain yards and still fall. */
 let leadYear = "now";
 
+/* Offered only when the current season can actually be ranked -- early on there
+   are too few games, and a leaderboard from one afternoon is noise. */
+function renderLeadSeason(){
+  const host = $("#lcats");
+  const bar = document.getElementById("leadseason")
+    || (() => { const b = el("div"); b.id = "leadseason"; return b; })();
+  bar.innerHTML = "";
+  const c = DATA.current || {};
+  if(!currentSeasonRankable()){
+    // Say why rather than quietly showing last season as though it were now.
+    if(c.live){
+      const note = el("div","leadnote",
+        "Showing " + DATA.statsSeason + ". " + c.season + " needs a second week "
+        + "before anyone can be ranked — one afternoon is not a leaderboard. "
+        + "Week leaders on the Scores page cover the season so far.");
+      bar.appendChild(note);
+      const panel = document.getElementById("leadwrap") || $("#lcats").parentElement;
+      if(panel && !document.getElementById("leadseason"))
+        panel.insertBefore(bar, panel.firstChild);
+      return;
+    }
+    bar.remove();
+    return;
+  }
+  const cur = (DATA.current || {}).season, prev = DATA.statsSeason;
+  [["cur", String(cur)], ["prev", String(prev)]].forEach(([k, lab])=>{
+    const b = el("button","lseason", lab);
+    b.setAttribute("aria-pressed", leadSeason === k);
+    b.onclick = () => {
+      leadSeason = k; LEAD = null; leadKey = null; leadYear = "now"; renderLeaders();
+    };
+    bar.appendChild(b);
+  });
+  const panel = document.getElementById("leadwrap") || host.parentElement;
+  if(panel && !document.getElementById("leadseason"))
+    panel.insertBefore(bar, panel.firstChild);
+}
+
 function pastKeyFor(catKey){
   // live keys look like "Receivers|st:WR:Rec yds"; history keys like "WR|Rec yds"
   const m = /^[^|]+\|st:([A-Z]+):(.+)$/.exec(catKey);
@@ -8999,6 +9310,7 @@ function movementCell(r){
 
 function renderLeaders(){
   const cats = buildLeaders();
+  renderLeadSeason();
   const keys = Object.keys(cats);
   const groups = [];
   BUCKET_ORDER.forEach(b=>{ if(BUCKET_LABEL[b]) groups.push(BUCKET_LABEL[b]); });
@@ -9116,23 +9428,7 @@ $("#scoresbtn").onclick = openScores;
 $("#scoresclose").onclick = closeScores;
 $("#box").addEventListener("click", e=>{ if(e.target.id === "box") closeBox(); });
 
-$("#learnbtn").onclick = () => { $("#quiz").hidden = false; renderQuizSetup(); };
 $("#qclose").onclick = () => { $("#quiz").hidden = true; };
-
-/* ---------------- simple mode ---------------- */
-let simple = false;
-$("#simplebtn").onclick = e => {
-  simple = !simple;
-  e.currentTarget.setAttribute("aria-pressed", simple);
-  document.body.classList.toggle("simple", simple);
-  renderField(); renderTeam();
-};
-
-$("#t100btn").onclick = e => {
-  t100only = !t100only;
-  e.currentTarget.setAttribute("aria-pressed", t100only);
-  renderField(); if(sel) paintSel();
-};
 
 $("#src").textContent = "Depth charts, rosters and stats via nflverse";
 $("#stamp").textContent = "Chart updated " + new Date(DATA.snapshot)
