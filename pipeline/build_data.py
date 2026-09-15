@@ -516,6 +516,34 @@ print("current    " + (
     if cur_meta["live"] else
     f"no {cur_meta['season']} stats published yet"))
 
+import build_madden
+_team_names = {}
+for _ab, _m in team_meta.items():
+    if _m.get("name"):
+        _team_names[_m["name"]] = _ab
+        _team_names[_m["name"].split()[-1]] = _ab      # nickname alone
+_mad_in = {pid: {"name": p["name"], "pos": p["pos"],
+                 "team": _inj_team_of.get(pid) if "_inj_team_of" in dir() else None}
+           for pid, p in players.items()}
+for _t, _rows in team_rows.items():
+    for _r in _rows:
+        if _r["pid"] in _mad_in and not _mad_in[_r["pid"]]["team"]:
+            _mad_in[_r["pid"]]["team"] = _t
+madden, mad_meta = build_madden.build(_mad_in, _team_names)
+for pid, m in madden.items():
+    players[pid]["mad"] = m
+print("madden     " + (f"{mad_meta['players']} rated across {mad_meta['positions']} positions"
+                       + (f", {mad_meta['moved']} moved" if mad_meta.get("hasMovement") else "")
+                       if mad_meta["live"] else mad_meta.get("note", "unavailable")))
+
+import build_qbr
+_espn_ids = {p["eid"]: pid for pid, p in players.items() if p.get("eid")}
+qbr, qbr_meta = build_qbr.build(_espn_ids)
+for pid, q in qbr.items():
+    players[pid]["qbr"] = q
+print("qbr        " + (f"{qbr_meta['players']} quarterbacks, {qbr_meta['ranked']} ranked"
+                       if qbr_meta["live"] else "no current season QBR yet"))
+
 import build_rankings
 rankings, rank_meta = build_rankings.build(set(team_meta))
 print("rankings   " + (f"{len(rankings)} teams over {rank_meta['games']} games, "
@@ -598,6 +626,8 @@ payload = {
     "weeklyMeta": weekly_meta,
     "rankings": rankings,
     "rankMeta": rank_meta,
+    "qbrMeta": qbr_meta,
+    "madMeta": mad_meta,
     "leadersPast": leaders_past,
     "draft": draft_teams,
     "h2h": h2h,

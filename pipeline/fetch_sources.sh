@@ -59,6 +59,10 @@ optional stats_week_2026.csv  "$B/stats_player/stats_player_week_2026.csv"
 optional snaps_2026.csv       "$B/snap_counts/snap_counts_2026.csv"
 optional injuries_2026.csv    "$B/injuries/injuries_2026.csv"
 optional pbp2026.parquet      "$B/pbp/play_by_play_2026.parquet"
+for k in pass rush rec def; do
+  optional "advstats26_$k.csv" "$B/pfr_advstats/advstats_week_${k}_2026.csv"
+done
+optional qbr_week.csv         "$B/espn_data/qbr_week_level.csv"
 optional team_2026.csv        "$B/stats_team/stats_team_reg_2026.csv"
 
 echo "career history"

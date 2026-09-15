@@ -167,6 +167,26 @@ def check_settings():
     return True, "  ".join(bits)
 
 
+def check_madden():
+    """Reported, not enforced. EA is a third party with no guarantee to us, so a
+    failure here should never stop a build -- it just means one section of a
+    player's page is absent this week."""
+    import os
+    if not os.path.exists("madden_history.json"):
+        return True, "no ratings recorded yet"
+    try:
+        import json
+        h = json.load(open("madden_history.json"))
+        snaps = h.get("snapshots", [])
+        if not snaps:
+            return True, "history file present but empty"
+        last = snaps[-1]
+        return True, (f"{len(last.get('data', {}))} players, last seen "
+                      f"{last.get('at', '?')}, {len(snaps)} snapshots kept")
+    except Exception as e:
+        return True, f"history unreadable ({e}); will be rebuilt"
+
+
 def check_top100():
     """The Top 100 is hand maintained, so it gets checked like a source."""
     try:
@@ -199,6 +219,9 @@ def main():
         print(f"{name:<16}{'ok' if ok else 'FAIL':<8}{detail}")
         if not ok:
             bad.append((name, detail))
+
+    ok, detail = check_madden()
+    print(f"{'madden':<16}{'ok':<8}{detail}")
 
     ok, detail = check_settings()
     print(f"{'settings':<16}{'ok' if ok else 'FAIL':<8}{detail}")

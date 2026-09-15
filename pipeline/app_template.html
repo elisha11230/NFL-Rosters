@@ -1006,6 +1006,7 @@ svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--mute)}
 .wpleg i{width:9px;height:9px;border-radius:2px;display:block}
+.wplogo{width:17px;height:17px;object-fit:contain;display:block}
 
 /* ---------- power ratings ---------- */
 .rkrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
@@ -1675,6 +1676,37 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .drift span{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--team-accent)}
 .curow .trn{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--rise)}
+
+/* ---------- Madden ---------- */
+.madmove{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin:8px 0 6px}
+.madmove.up{color:var(--rise)} .madmove.dn{color:var(--fall)}
+
+/* ---------- QBR ---------- */
+.qrow{display:flex;align-items:center;gap:9px;padding:4px 0}
+.ql{flex:0 0 76px;font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+.qtrack{flex:1 1 auto;height:9px;background:var(--rule);border-radius:2px;
+  overflow:hidden}
+.qtrack i{display:block;height:100%;background:var(--team-accent);border-radius:2px}
+.qtrack i.neg{background:var(--fall)}
+.qv{flex:0 0 42px;text-align:right;font-family:'Archivo Black',sans-serif;
+  font-size:11.5px;color:var(--chalk)}
+
+/* ---------- play impact ---------- */
+.impact{margin-left:auto;font-family:'Archivo Black',sans-serif;font-size:10px;
+  padding:1px 6px;border-radius:9px;letter-spacing:0;
+  background:var(--rule);color:var(--mute)}
+.impact.big{background:color-mix(in srgb,var(--brass) 22%,transparent);
+  color:var(--brass)}
+.impact.huge{background:var(--brass);color:#181200}
+.ffilters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.ffil{padding:4px 10px;border:1px solid var(--line);border-radius:12px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;
+  color:var(--mute);white-space:nowrap}
+.ffil:hover{border-color:var(--team);color:var(--chalk)}
+.ffil[aria-pressed="true"]{border-color:var(--team);color:#fff;
+  background:color-mix(in srgb,var(--team) 24%,transparent)}
 
 /* ---------- defensive credit ---------- */
 .dcred{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -2895,6 +2927,113 @@ function renderDetail(grp,slot,idx){
     ss.appendChild(n);
   }
   d.appendChild(ss);
+
+  // Madden's rating. Labelled for what it is: a game designer's assessment, not
+  // a measurement of play. Its value here is breadth -- it covers the linemen and
+  // backups that statistics never reach -- and that it ranks within position,
+  // which is the only ranking that means anything for it.
+  if(p.mad && p.mad.ovr != null){
+    const m = p.mad;
+    const sec = el("div","sect");
+    const h3 = el("h3", null, "Madden rating");
+    if(m.rank) h3.appendChild(el("span", null,
+      ord(m.rank) + " of " + m.n + " at " + (m.pos || p.pos)));
+    sec.appendChild(h3);
+
+    const box = el("div","agebox");
+    const left = el("div");
+    left.appendChild(el("div","big", String(m.ovr)));
+    left.appendChild(el("div","lab", "overall"));
+    box.appendChild(left);
+    if(m.rank){
+      const rk = el("div","rk");
+      rk.appendChild(el("b", null, ord(m.rank)));
+      rk.appendChild(document.createTextNode("of " + m.n + " " + (m.pos || p.pos) + "s"));
+      box.appendChild(rk);
+    }
+    sec.appendChild(box);
+
+    if(m.dovr != null || m.drank != null){
+      const mv = el("div","madmove");
+      const bits = [];
+      if(m.dovr) bits.push((m.dovr > 0 ? "Up " : "Down ") + Math.abs(m.dovr)
+        + " overall");
+      if(m.drank) bits.push((m.drank > 0 ? "up " : "down ") + Math.abs(m.drank)
+        + " places at " + (m.pos || p.pos));
+      mv.textContent = bits.join(", ") + " since last week";
+      mv.className += (m.dovr || m.drank) > 0 ? " up" : " dn";
+      sec.appendChild(mv);
+    }
+
+    if((m.attrs || []).length){
+      m.attrs.forEach(a=>{
+        const r = el("div","qrow");
+        r.appendChild(el("span","ql", a.l));
+        const track = el("div","qtrack");
+        const fill = el("i");
+        fill.style.width = a.v + "%";
+        // Ratings run 0-99, so colour the genuinely elite ones.
+        if(a.v >= 90) fill.style.background = "var(--brass)";
+        track.appendChild(fill);
+        r.appendChild(track);
+        r.appendChild(el("span","qv", String(a.v)));
+        sec.appendChild(r);
+      });
+    }
+
+    const n = el("div","carnote");
+    n.textContent = "EA's rating, refreshed weekly through the season. It is a "
+      + "designer's assessment rather than a measurement of play \u2014 useful "
+      + "because it covers everyone, including the linemen and backups that "
+      + "statistics never reach.";
+    sec.appendChild(n);
+    d.appendChild(sec);
+  }
+
+  // QBR, which is a different question from yards: adjusted for down, distance
+  // and opponent, and it says where the value came from.
+  if(p.qbr && p.qbr.qbr != null){
+    const q = p.qbr;
+    const sec = el("div","sect");
+    const h3 = el("h3", null, "Total QBR");
+    h3.appendChild(el("span", null, (DATA.qbrMeta || {}).season + " \u00b7 "
+      + q.plays + " plays"));
+    sec.appendChild(h3);
+
+    const box = el("div","agebox");
+    const left = el("div");
+    left.appendChild(el("div","big", String(q.qbr)));
+    left.appendChild(el("div","lab", "of 100"));
+    box.appendChild(left);
+    if(q.rank){
+      const rk = el("div","rk");
+      rk.appendChild(el("b", null, ord(q.rank)));
+      rk.appendChild(document.createTextNode("of " + q.n + " quarterbacks"));
+      box.appendChild(rk);
+    }
+    sec.appendChild(box);
+
+    // The decomposition, as a signed bar per component.
+    if((q.parts || []).length){
+      const max = Math.max(...q.parts.map(x => Math.abs(x.v)), 1);
+      q.parts.forEach(x=>{
+        const r = el("div","qrow");
+        r.appendChild(el("span","ql", x.l));
+        const track = el("div","qtrack");
+        const fill = el("i", x.v < 0 ? "neg" : "");
+        fill.style.width = (Math.abs(x.v) / max * 100) + "%";
+        track.appendChild(fill);
+        r.appendChild(track);
+        r.appendChild(el("span","qv", (x.v > 0 ? "+" : "") + x.v));
+        sec.appendChild(r);
+      });
+      sec.appendChild(el("div","carnote",
+        "Points added, split by where they came from. QBR is adjusted for down, "
+        + "distance and opponent, so a quiet afternoon against a good defence "
+        + "can rate above a loud one in garbage time."));
+    }
+    d.appendChild(sec);
+  }
 
   // where he works
   const tc = targetChart(p), rc = runChart(p);
@@ -4472,8 +4611,8 @@ const ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 const espnUrl = path => (PROXY ? PROXY + encodeURIComponent(ESPN + path) : ESPN + path);
 
 const LIVE = {games:[], byTeam:{}, stats:{}, situation:null, drives:[],
-              wp:null, active:new Set(), box:[], teamStats:[], plays:[],
-              err:null, at:0, on:false, gameId:null};
+              wp:null, wpById:{}, active:new Set(), box:[], teamStats:[],
+              plays:[], err:null, at:0, on:false, gameId:null};
 let livePoll = null;
 
 const TEAMFIX = {WSH:"WAS", LAR:"LA", JAC:"JAX"};
@@ -4631,6 +4770,22 @@ async function fetchGame(gameId){
         score: !!p.scoringPlay,
       })).filter(p => p.text),
     }));
+
+    // Each probability entry names the play it followed. Joining on that is
+    // exact, where lining the two lists up by position is only approximate --
+    // they are different lengths because not every play gets an entry.
+    const wpById = {};
+    if(Array.isArray(j.winprobability)){
+      let prev = null;
+      j.winprobability.forEach(w=>{
+        const v = num(w.homeWinPercentage);
+        if(v == null) return;
+        const id = w.playId != null ? String(w.playId) : null;
+        if(id) wpById[id] = {v, d: prev == null ? 0 : v - prev};
+        prev = v;
+      });
+    }
+    LIVE.wpById = wpById;
 
     const wp = j.winprobability;
     if(Array.isArray(wp) && wp.length){
@@ -5047,6 +5202,65 @@ function renderBox(){
   body.scrollTop = 0;
 }
 
+/* ---------------- play impact ----------------
+   How much a play moved the game, taken from the win-probability entry that
+   followed it. A three yard run on first down and a three yard run on fourth and
+   two read identically in text and are not remotely the same event; without this
+   the feed presents forty plays as equally important.
+
+   Joined on play id. Lining the two lists up by position is only approximate --
+   they are different lengths, because not every play produces an entry. */
+function playImpact(play){
+  if(!play || !play.id) return null;
+  const hit = (LIVE.wpById || {})[play.id];
+  if(!hit || hit.d == null) return null;
+  const pct = Math.round(Math.abs(hit.d) * 100);
+  if(pct < 1) return null;
+  return {pct, dir: hit.d > 0 ? "home" : "away"};
+}
+
+function impactChip(play){
+  const im = playImpact(play);
+  if(!im) return null;
+  // Three bands rather than a continuous scale: the question is whether a play
+  // mattered a little, a lot, or decided something.
+  const band = im.pct >= 15 ? "huge" : im.pct >= 6 ? "big" : "";
+  const c = el("span","impact " + band + " " + im.dir);
+  c.textContent = im.pct + "%";
+  c.title = "Moved the win probability " + im.pct + " points";
+  return c;
+}
+
+/* ---------------- feed filters ----------------
+   A live feed's real failure is that everything in it looks equally important.
+   Markers fix that within a play; these fix it across plays. */
+let feedFilter = "all";
+
+function feedFilterBar(teams, onChange){
+  const bar = el("div","ffilters");
+  const opts = [["all","All"], ["big","Big plays"], ["score","Scoring"]];
+  teams.filter(Boolean).forEach(t => opts.push(["t:" + t,
+    (DATA.teams[t] || {}).nick || t]));
+  opts.forEach(([k, lab])=>{
+    const b = el("button","ffil", lab);
+    b.setAttribute("aria-pressed", k === feedFilter);
+    b.onclick = () => { feedFilter = k; onChange(); };
+    bar.appendChild(b);
+  });
+  return bar;
+}
+
+function feedKeep(p){
+  if(feedFilter === "all") return true;
+  if(feedFilter === "score") return !!p.scoring;
+  if(feedFilter === "big"){
+    const im = playImpact(p);
+    return !!(p.scoring || (im && im.pct >= 6));
+  }
+  if(feedFilter.indexOf("t:") === 0) return p.team === feedFilter.slice(2);
+  return true;
+}
+
 /* ---------------- live play feed ----------------
    Play text arrives as "J.Hurts pass short right to D.Smith for 8 yards." The
    whole point of this app is knowing who those people are, so every name that
@@ -5158,6 +5372,7 @@ function extractPlays(j){
       const txt = p.text || (p.type || {}).text;
       if(!txt) return;
       out.push({
+        id: p.id != null ? String(p.id) : null,
         team: tm,
         text: txt,
         clock: ((p.clock || {}).displayValue) || null,
@@ -5642,27 +5857,56 @@ function possessionChip(offAb, sit, pos){
    middle repeatedly is a game worth watching. */
 function winChart(homeAb, awayAb, series, homeNow){
   if(!series || series.length < 3) return null;
-  const W = 320, H = 108, PAD = 4;
+  const W = 340, H = 132, PAD = 4, GUT = 34;   // GUT: a column for the badges
   const home = DATA.teams[homeAb] || {}, away = DATA.teams[awayAb] || {};
   const hc = readableAccent(home.c1 || "#4A7C6F");
   const ac = readableAccent(away.c1 || "#8C6A6A");
-  const x = i => PAD + i / (series.length - 1) * (W - PAD * 2);
+  const x = i => GUT + i / (series.length - 1) * (W - GUT - PAD);
   const y = v => PAD + (1 - v) * (H - PAD * 2);
 
   const pts = series.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
   const bits = [];
-  // Above the midline the home side is favoured, below it the away side.
-  bits.push('<rect x="0" y="0" width="' + W + '" height="' + (H/2)
-    + '" fill="' + hc + '" opacity=".10"/>');
-  bits.push('<rect x="0" y="' + (H/2) + '" width="' + W + '" height="' + (H/2)
-    + '" fill="' + ac + '" opacity=".10"/>');
-  bits.push('<line x1="0" y1="' + (H/2) + '" x2="' + W + '" y2="' + (H/2)
+  // Above the midline the home side is ahead, below it the away side.
+  bits.push('<rect x="' + GUT + '" y="0" width="' + (W - GUT) + '" height="' + (H/2)
+    + '" fill="' + hc + '" opacity=".13"/>');
+  bits.push('<rect x="' + GUT + '" y="' + (H/2) + '" width="' + (W - GUT)
+    + '" height="' + (H/2) + '" fill="' + ac + '" opacity=".13"/>');
+  bits.push('<line x1="' + GUT + '" y1="' + (H/2) + '" x2="' + W + '" y2="' + (H/2)
     + '" stroke="var(--chalk)" stroke-opacity=".3" stroke-dasharray="4 4"/>');
+
+  /* Badges in the gutter rather than a colour key underneath. Which half of the
+     chart belongs to whom has to be readable at a glance, and two tinted bands
+     plus a legend was asking people to hold a mapping in their head. */
+  const badge = (t, cy, col) => {
+    const logo = (DATA.teams[t] || {}).logo;
+    const out = [];
+    out.push('<circle cx="' + (GUT/2) + '" cy="' + cy + '" r="13" fill="'
+      + col + '" opacity=".18"/>');
+    if(logo)
+      out.push('<image href="' + logo + '" x="' + (GUT/2 - 11) + '" y="'
+        + (cy - 11) + '" width="22" height="22" preserveAspectRatio="xMidYMid meet"/>');
+    else
+      out.push('<text x="' + (GUT/2) + '" y="' + (cy + 4)
+        + '" text-anchor="middle" font-family="Archivo Black" font-size="9" fill="'
+        + col + '">' + t + '</text>');
+    return out.join("");
+  };
+  bits.push(badge(homeAb, H * 0.25, hc));
+  bits.push(badge(awayAb, H * 0.75, ac));
+
   bits.push('<polyline points="' + pts + '" fill="none" stroke="var(--chalk)"'
-    + ' stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>');
+    + ' stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>');
   const last = series[series.length - 1];
   bits.push('<circle cx="' + x(series.length - 1).toFixed(1) + '" cy="'
-    + y(last).toFixed(1) + '" r="4" fill="var(--chalk)"/>');
+    + y(last).toFixed(1) + '" r="4.5" fill="var(--chalk)"/>');
+
+  // The live figure, parked next to the dot on whichever side is ahead.
+  const lead = homeNow >= 50 ? homeNow : 100 - homeNow;
+  const leadCol = homeNow >= 50 ? hc : ac;
+  const ly = homeNow >= 50 ? Math.max(16, y(last) - 14) : Math.min(H - 8, y(last) + 20);
+  bits.push('<text x="' + (W - 6) + '" y="' + ly + '" text-anchor="end"'
+    + ' font-family="Archivo Black" font-size="15" fill="' + leadCol + '">'
+    + lead + '%</text>');
 
   const wrap = el("div","wpwrap");
   const svg = el("div");
@@ -5671,261 +5915,21 @@ function winChart(homeAb, awayAb, series, homeNow){
   wrap.appendChild(svg.firstElementChild);
 
   const legend = el("div","wpleg");
-  const side = (ab, pct, col) => {
+  const side = (ab, pct) => {
     const sp = el("span");
-    const i = el("i"); i.style.background = col;
-    sp.appendChild(i);
-    sp.appendChild(document.createTextNode(
-      ((DATA.teams[ab] || {}).nick || ab) + "  " + pct + "%"));
+    const t = DATA.teams[ab] || {};
+    if(t.logo){
+      const im = new Image();
+      im.src = t.logo; im.alt = ""; im.className = "wplogo";
+      sp.appendChild(im);
+    }
+    sp.appendChild(document.createTextNode((t.nick || ab) + "  " + pct + "%"));
     return sp;
   };
-  legend.appendChild(side(awayAb, 100 - homeNow, ac));
-  legend.appendChild(side(homeAb, homeNow, hc));
+  legend.appendChild(side(awayAb, 100 - homeNow));
+  legend.appendChild(side(homeAb, homeNow));
   wrap.appendChild(legend);
   return wrap;
-}
-
-/* ---------------- live week leaders ----------------
-   The pipeline builds a settled set of weekly leaders from nflverse, which is
-   correct but arrives a day after the games. The scoreboard we already fetch for
-   the fixture list carries each game's leaders, so the same question can be
-   answered while the games are still being played, for no extra requests.
-
-   Two sources with different strengths, so both are kept: live for the week in
-   progress, settled for weeks gone by. The settled set also covers defence,
-   which the scoreboard leaders do not include. */
-const LIVE_LEADER_CATS = [
-  {match:/passingYards/i,   name:"Passing",   label:"Pass yds"},
-  {match:/rushingYards/i,   name:"Rushing",   label:"Rush yds"},
-  {match:/receivingYards/i, name:"Receiving", label:"Rec yds"},
-];
-
-function liveWeekLeaders(week){
-  const cache = scoreCache[week];
-  if(!cache) return null;
-  const games = Object.values(cache).filter(g => g.state && g.state !== "pre");
-  if(!games.length) return null;
-
-  const out = [];
-  LIVE_LEADER_CATS.forEach(spec=>{
-    const pool = [];
-    games.forEach(g=>{
-      (g.leaders || []).forEach(cat=>{
-        if(!spec.match.test(cat.key)) return;
-        cat.rows.forEach(r=>{
-          if(r.value == null) return;
-          // The same man can lead more than one game's category only if the feed
-          // repeats him; keep his best line either way.
-          const prev = pool.find(x => x.name === r.name && x.team === r.team);
-          if(!prev || r.value > prev.value) {
-            if(prev) Object.assign(prev, r);
-            else pool.push({...r});
-          }
-        });
-      });
-    });
-    if(!pool.length) return;
-    pool.sort((a, b) => b.value - a.value);
-    out.push({
-      g: "Offence", name: spec.name, label: spec.label,
-      rows: pool.slice(0, 5).map(r=>({
-        pid: (Object.values(DATA.players).find(p => p.eid === r.eid) || {}).id || null,
-        n: r.name, t: r.team, o: null,
-        v: r.value,
-        // ESPN's display string already reads "268 YDS, 2 TD", which is a better
-        // supporting line than anything reassembled from the number alone.
-        x: r.display.replace(/^\s*[\d.]+\s*(YDS|YD)?,?\s*/i, "").trim(),
-      })),
-    });
-  });
-  return out.length ? out : null;
-}
-
-/* Is the week being viewed still going on? */
-function weekInProgress(week){
-  const cache = scoreCache[week];
-  if(!cache) return false;
-  return Object.values(cache).some(g => g.state === "in");
-}
-
-/* ---------------- drive chart ----------------
-   A drive is the unit a game is actually made of, and a list of results does not
-   show you one. This draws the field and walks the ball down it, play by play,
-   coloured by whether it came through the air or on the ground, ending on what
-   the drive produced.
-
-   Everything is in yards-to-the-end-zone, so the offence always moves left to
-   right regardless of which way they were really facing. */
-let driveOpen = null, driveTimer = null;
-
-const PLAY_KIND = t => {
-  const s = (t || "").toLowerCase();
-  if(/sack/.test(s)) return "sack";
-  if(/pass|reception|interception/.test(s)) return "pass";
-  if(/punt|field goal|kick|extra point/.test(s)) return "kick";
-  if(/penalty/.test(s)) return "flag";
-  if(/rush|run|scramble|kneel/.test(s)) return "rush";
-  return "other";
-};
-const KIND_LABEL = {pass:"Pass", rush:"Run", sack:"Sack", kick:"Kick",
-                    flag:"Penalty", other:"Play"};
-
-function resultTone(result){
-  const r = (result || "").toLowerCase();
-  if(/touchdown/.test(r)) return "td";
-  if(/field goal/.test(r) && !/missed|blocked/.test(r)) return "fg";
-  if(/interception|fumble|downs|safety/.test(r)) return "to";
-  return "";
-}
-
-function openDrive(d){
-  driveOpen = d;
-  $("#drive").hidden = false;
-  renderDrive(d);
-}
-function closeDrive(){
-  clearTimeout(driveTimer);
-  $("#drive").hidden = true;
-  driveOpen = null;
-}
-
-function renderDrive(d){
-  const head = $("#drivehead"), body = $("#drivebody");
-  head.innerHTML = ""; body.innerHTML = "";
-  clearTimeout(driveTimer);
-
-  const t = DATA.teams[d.team] || {};
-  const line = el("div","boxscore-line");
-  const lg = el("img","posslogo");
-  if(t.logo){ lg.src = t.logo; lg.alt = ""; }
-  line.appendChild(lg);
-  line.appendChild(el("span","bt", t.nick || d.team));
-  const tone = resultTone(d.result);
-  line.appendChild(el("span","dres " + tone, d.result || "Drive"));
-  head.appendChild(line);
-
-  const meta = el("div","lsub");
-  meta.textContent = [
-    d.plays ? d.plays + " plays" : null,
-    d.yards != null ? d.yards + " yards" : null,
-    d.time ? d.time : null,
-    d.start ? "from " + d.start : null,
-  ].filter(Boolean).join("  \u00b7  ");
-  body.appendChild(meta);
-
-  const plays = (d.detail || []).filter(p => p.from != null);
-  if(!plays.length){
-    body.appendChild(el("div","carnote",
-      "This drive has no play-by-play attached yet."));
-    return;
-  }
-
-  // ---- the field
-  const wrap = el("div","dfield");
-  const ownEz = el("div","mez own");
-  ownEz.style.background = t.c1 || "var(--line)";
-  ownEz.appendChild(el("span", null, d.team));
-  wrap.appendChild(ownEz);
-
-  const play = el("div","dplay");
-  for(let i = 1; i < 10; i++){
-    const l = el("i","mline");
-    l.style.left = i * 10 + "%";
-    if(i === 5) l.classList.add("mid");
-    play.appendChild(l);
-  }
-  play.appendChild(el("i","mrz"));
-  wrap.appendChild(play);
-
-  const defEz = el("div","mez def");
-  defEz.appendChild(el("span", null, "\u2691"));
-  wrap.appendChild(defEz);
-  body.appendChild(wrap);
-
-  const legend = el("div","dlegend");
-  [["pass","Pass"],["rush","Run"],["sack","Sack"],["flag","Penalty"]].forEach(([k,lab])=>{
-    const sp = el("span");
-    const i = el("i"); i.className = "seg " + k;
-    sp.appendChild(i);
-    sp.appendChild(document.createTextNode(lab));
-    legend.appendChild(sp);
-  });
-  body.appendChild(legend);
-
-  // ---- the plays, listed and replayable
-  const list = el("div","dlist");
-  body.appendChild(list);
-  const rows = plays.map((p, i)=>{
-    const row = el("button","drow");
-    row.appendChild(el("span","dnum", String(i + 1)));
-    const k = PLAY_KIND(p.kind || p.text);
-    row.appendChild(el("span","dkind " + k, KIND_LABEL[k] || "Play"));
-    const w = el("div","dtxt");
-    if(p.dd) w.appendChild(el("div","ddd", p.dd));
-    w.appendChild(el("div","dt2", p.text));
-    row.appendChild(w);
-    if(p.gain != null){
-      const g = el("span","dgain" + (p.gain > 0 ? " pos" : p.gain < 0 ? " neg" : ""));
-      g.textContent = (p.gain > 0 ? "+" : "") + p.gain;
-      row.appendChild(g);
-    }
-    row.onclick = () => stepTo(i);
-    list.appendChild(row);
-    return row;
-  });
-
-  const ctl = el("div","cctl");
-  const again = el("button","areplay","Replay drive");
-  again.onclick = () => runDrive();
-  ctl.appendChild(again);
-  body.appendChild(ctl);
-
-  // ---- animation
-  const x = yards => 100 - Math.max(0, Math.min(100, yards));
-  let ball = null;
-
-  function drawTo(i){
-    play.querySelectorAll(".seg,.dball,.dstart").forEach(n => n.remove());
-    const first = plays[0];
-    const st = el("i","dstart");
-    st.style.left = x(first.from) + "%";
-    play.appendChild(st);
-
-    for(let k = 0; k <= i; k++){
-      const p = plays[k];
-      if(p.to == null) continue;
-      const a = x(p.from), b = x(p.to);
-      const seg = el("i","seg " + PLAY_KIND(p.kind || p.text));
-      seg.style.left = Math.min(a, b) + "%";
-      seg.style.width = Math.max(0.8, Math.abs(b - a)) + "%";
-      seg.style.top = (14 + (k % 3) * 9) + "%";
-      seg.title = p.text;
-      play.appendChild(seg);
-    }
-    const last = plays[i];
-    ball = el("i","dball");
-    ball.style.left = x(last.to != null ? last.to : last.from) + "%";
-    play.appendChild(ball);
-
-    rows.forEach((r, k) => r.classList.toggle("on", k === i));
-    rows[i].scrollIntoView({block:"nearest"});
-  }
-
-  function stepTo(i){ clearTimeout(driveTimer); drawTo(i); }
-
-  function runDrive(){
-    clearTimeout(driveTimer);
-    let i = 0;
-    const tick = () => {
-      drawTo(i);
-      if(i < plays.length - 1){
-        i++;
-        driveTimer = setTimeout(tick, 950);
-      }
-    };
-    tick();
-  }
-  runDrive();
 }
 
 /* ---------------- live box score, alongside the game ----------------
@@ -7399,6 +7403,29 @@ function scoringPlays(idx){
 function biggestSwings(idx, limit){
   const wp = LIVE.wp;
   if(!wp || !wp.series || wp.series.length < 6) return null;
+  // Prefer the exact join; fall back to position only if play ids are absent.
+  const byId = (LIVE.plays || [])
+    .map(p => ({p, im: playImpact(p)}))
+    .filter(x => x.im && x.im.pct >= 4);
+  if(byId.length){
+    byId.sort((x, y) => y.im.pct - x.im.pct);
+    const wrapX = el("div","swings");
+    byId.slice(0, limit || 4).forEach(({p, im})=>{
+      const row = el("div","swingrow");
+      const chip = el("span","swingv " + (im.dir === "home" ? "home" : "away"));
+      chip.textContent = im.pct + "%";
+      row.appendChild(chip);
+      const w = el("div","swingt");
+      w.appendChild(playText(p.text, idx));
+      row.appendChild(w);
+      wrapX.appendChild(row);
+    });
+    const nx = el("div","carnote");
+    nx.textContent = "Where the odds moved most, matched to each play exactly.";
+    wrapX.appendChild(nx);
+    return wrapX;
+  }
+
   const plays = (LIVE.plays || []).slice().reverse();   // oldest first
   const moves = [];
   for(let i = 1; i < wp.series.length; i++){
@@ -7725,16 +7752,23 @@ function renderWatch(gRaw){
   }
 
   // the feed
+  b.appendChild(feedFilterBar([a.ab, h.ab], () => renderWatch(gRaw)));
+
   const feed = el("div","wfeed");
+  const shown = LIVE.plays.filter(feedKeep);
   if(!LIVE.plays.length){
     feed.appendChild(el("div","carnote","Waiting for the first play."));
-  } else LIVE.plays.slice(0, 40).forEach(p=>{
+  } else if(!shown.length){
+    feed.appendChild(el("div","carnote","No plays match that filter yet."));
+  } else shown.slice(0, 60).forEach(p=>{
     const row = el("div","wplay" + (p.scoring ? " score" : ""));
     const meta = el("div","wpm");
     meta.appendChild(el("span","wpt", p.team || ""));
     if(p.clock) meta.appendChild(el("span", null,
       (p.period ? "Q" + p.period + "  " : "") + p.clock));
     if(p.down) meta.appendChild(el("span","wpd", p.down));
+    const chip = impactChip(p);
+    if(chip) meta.appendChild(chip);
     row.appendChild(meta);
     row.appendChild(playText(p.text, idx));
     const credit = defensiveCredit(p.text);

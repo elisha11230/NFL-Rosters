@@ -94,6 +94,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
+          # Madden publishes current ratings and no history, so the build records
+          # what it saw. Without committing this, week-on-week movement would
+          # never have a previous week to compare against.
+          git add -f pipeline/madden_history.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "no change this week"
           else
