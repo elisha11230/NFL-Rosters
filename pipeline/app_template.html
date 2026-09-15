@@ -1678,6 +1678,9 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .curow .trn{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--rise)}
 
 /* ---------- Madden ---------- */
+.madarch{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--team-accent);
+  margin:-2px 0 8px}
 .madmove{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin:8px 0 6px}
 .madmove.up{color:var(--rise)} .madmove.dn{color:var(--fall)}
@@ -2939,6 +2942,9 @@ function renderDetail(grp,slot,idx){
     if(m.rank) h3.appendChild(el("span", null,
       ord(m.rank) + " of " + m.n + " at " + (m.pos || p.pos)));
     sec.appendChild(h3);
+    // The archetype is the one-line description of what kind of player he is,
+    // which is often more use than the number beside it.
+    if(m.arch) sec.appendChild(el("div","madarch", m.arch));
 
     const box = el("div","agebox");
     const left = el("div");
@@ -2982,10 +2988,10 @@ function renderDetail(grp,slot,idx){
     }
 
     const n = el("div","carnote");
-    n.textContent = "EA's rating, refreshed weekly through the season. It is a "
-      + "designer's assessment rather than a measurement of play \u2014 useful "
-      + "because it covers everyone, including the linemen and backups that "
-      + "statistics never reach.";
+    n.textContent = "A game designer's assessment rather than a measurement of "
+      + "play. It earns its place by covering everyone \u2014 including the "
+      + "linemen and backups that statistics never reach \u2014 and by ranking "
+      + "within position, which is the only ranking that means anything here.";
     sec.appendChild(n);
     d.appendChild(sec);
   }

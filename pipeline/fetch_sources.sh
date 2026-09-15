@@ -65,6 +65,10 @@ done
 optional qbr_week.csv         "$B/espn_data/qbr_week_level.csv"
 optional team_2026.csv        "$B/stats_team/stats_team_reg_2026.csv"
 
+# Madden ratings come from a committed CSV in a public repository, not from EA:
+# there is no EA ratings API, and scraping their site is fragile and a terms
+# question. build_madden.py fetches it directly, so nothing is needed here.
+
 echo "career history"
 mkdir -p career
 for y in $(seq 2016 2025); do
