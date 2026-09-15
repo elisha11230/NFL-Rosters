@@ -5932,6 +5932,186 @@ function winChart(homeAb, awayAb, series, homeNow){
   return wrap;
 }
 
+/* ---------------- drive chart ----------------
+   A drive is the unit a game is actually made of, and a list of results does not
+   show you one. This draws the field and walks the ball down it, play by play,
+   coloured by whether it came through the air or on the ground, ending on what
+   the drive produced.
+
+   Everything is in yards-to-the-end-zone, so the offence always moves left to
+   right regardless of which way they were really facing. */
+let driveOpen = null, driveTimer = null;
+
+const PLAY_KIND = t => {
+  const s = (t || "").toLowerCase();
+  if(/sack/.test(s)) return "sack";
+  if(/pass|reception|interception/.test(s)) return "pass";
+  if(/punt|field goal|kick|extra point/.test(s)) return "kick";
+  if(/penalty/.test(s)) return "flag";
+  if(/rush|run|scramble|kneel/.test(s)) return "rush";
+  return "other";
+};
+const KIND_LABEL = {pass:"Pass", rush:"Run", sack:"Sack", kick:"Kick",
+                    flag:"Penalty", other:"Play"};
+
+function resultTone(result){
+  const r = (result || "").toLowerCase();
+  if(/touchdown/.test(r)) return "td";
+  if(/field goal/.test(r) && !/missed|blocked/.test(r)) return "fg";
+  if(/interception|fumble|downs|safety/.test(r)) return "to";
+  return "";
+}
+
+function openDrive(d){
+  driveOpen = d;
+  $("#drive").hidden = false;
+  renderDrive(d);
+}
+function closeDrive(){
+  clearTimeout(driveTimer);
+  $("#drive").hidden = true;
+  driveOpen = null;
+}
+
+function renderDrive(d){
+  const head = $("#drivehead"), body = $("#drivebody");
+  head.innerHTML = ""; body.innerHTML = "";
+  clearTimeout(driveTimer);
+
+  const t = DATA.teams[d.team] || {};
+  const line = el("div","boxscore-line");
+  const lg = el("img","posslogo");
+  if(t.logo){ lg.src = t.logo; lg.alt = ""; }
+  line.appendChild(lg);
+  line.appendChild(el("span","bt", t.nick || d.team));
+  const tone = resultTone(d.result);
+  line.appendChild(el("span","dres " + tone, d.result || "Drive"));
+  head.appendChild(line);
+
+  const meta = el("div","lsub");
+  meta.textContent = [
+    d.plays ? d.plays + " plays" : null,
+    d.yards != null ? d.yards + " yards" : null,
+    d.time ? d.time : null,
+    d.start ? "from " + d.start : null,
+  ].filter(Boolean).join("  \u00b7  ");
+  body.appendChild(meta);
+
+  const plays = (d.detail || []).filter(p => p.from != null);
+  if(!plays.length){
+    body.appendChild(el("div","carnote",
+      "This drive has no play-by-play attached yet."));
+    return;
+  }
+
+  // ---- the field
+  const wrap = el("div","dfield");
+  const ownEz = el("div","mez own");
+  ownEz.style.background = t.c1 || "var(--line)";
+  ownEz.appendChild(el("span", null, d.team));
+  wrap.appendChild(ownEz);
+
+  const play = el("div","dplay");
+  for(let i = 1; i < 10; i++){
+    const l = el("i","mline");
+    l.style.left = i * 10 + "%";
+    if(i === 5) l.classList.add("mid");
+    play.appendChild(l);
+  }
+  play.appendChild(el("i","mrz"));
+  wrap.appendChild(play);
+
+  const defEz = el("div","mez def");
+  defEz.appendChild(el("span", null, "\u2691"));
+  wrap.appendChild(defEz);
+  body.appendChild(wrap);
+
+  const legend = el("div","dlegend");
+  [["pass","Pass"],["rush","Run"],["sack","Sack"],["flag","Penalty"]].forEach(([k,lab])=>{
+    const sp = el("span");
+    const i = el("i"); i.className = "seg " + k;
+    sp.appendChild(i);
+    sp.appendChild(document.createTextNode(lab));
+    legend.appendChild(sp);
+  });
+  body.appendChild(legend);
+
+  // ---- the plays, listed and replayable
+  const list = el("div","dlist");
+  body.appendChild(list);
+  const rows = plays.map((p, i)=>{
+    const row = el("button","drow");
+    row.appendChild(el("span","dnum", String(i + 1)));
+    const k = PLAY_KIND(p.kind || p.text);
+    row.appendChild(el("span","dkind " + k, KIND_LABEL[k] || "Play"));
+    const w = el("div","dtxt");
+    if(p.dd) w.appendChild(el("div","ddd", p.dd));
+    w.appendChild(el("div","dt2", p.text));
+    row.appendChild(w);
+    if(p.gain != null){
+      const g = el("span","dgain" + (p.gain > 0 ? " pos" : p.gain < 0 ? " neg" : ""));
+      g.textContent = (p.gain > 0 ? "+" : "") + p.gain;
+      row.appendChild(g);
+    }
+    row.onclick = () => stepTo(i);
+    list.appendChild(row);
+    return row;
+  });
+
+  const ctl = el("div","cctl");
+  const again = el("button","areplay","Replay drive");
+  again.onclick = () => runDrive();
+  ctl.appendChild(again);
+  body.appendChild(ctl);
+
+  // ---- animation
+  const x = yards => 100 - Math.max(0, Math.min(100, yards));
+  let ball = null;
+
+  function drawTo(i){
+    play.querySelectorAll(".seg,.dball,.dstart").forEach(n => n.remove());
+    const first = plays[0];
+    const st = el("i","dstart");
+    st.style.left = x(first.from) + "%";
+    play.appendChild(st);
+
+    for(let k = 0; k <= i; k++){
+      const p = plays[k];
+      if(p.to == null) continue;
+      const a = x(p.from), b = x(p.to);
+      const seg = el("i","seg " + PLAY_KIND(p.kind || p.text));
+      seg.style.left = Math.min(a, b) + "%";
+      seg.style.width = Math.max(0.8, Math.abs(b - a)) + "%";
+      seg.style.top = (14 + (k % 3) * 9) + "%";
+      seg.title = p.text;
+      play.appendChild(seg);
+    }
+    const last = plays[i];
+    ball = el("i","dball");
+    ball.style.left = x(last.to != null ? last.to : last.from) + "%";
+    play.appendChild(ball);
+
+    rows.forEach((r, k) => r.classList.toggle("on", k === i));
+    rows[i].scrollIntoView({block:"nearest"});
+  }
+
+  function stepTo(i){ clearTimeout(driveTimer); drawTo(i); }
+
+  function runDrive(){
+    clearTimeout(driveTimer);
+    let i = 0;
+    const tick = () => {
+      drawTo(i);
+      if(i < plays.length - 1){
+        i++;
+        driveTimer = setTimeout(tick, 950);
+      }
+    };
+    tick();
+  }
+  runDrive();
+}
+
 /* ---------------- live box score, alongside the game ----------------
    A full box score is a wall of columns. What you want while a game is on is
    narrower: who is doing the damage, per team, per category, with a face

@@ -68,6 +68,15 @@ jobs:
           python3 build_app.py
           cp index.html ../index.html
 
+      # A syntax check is not enough. A build once passed one while a whole
+      # module had been deleted by an overlapping edit: the remaining handlers
+      # referenced functions that no longer existed, the script threw on load,
+      # and the page rendered nothing at all. This loads the script in a stub DOM
+      # and fails the build if it throws.
+      - name: Load the page in a stub browser
+        working-directory: pipeline
+        run: node smoke_test.js index.html
+
       - name: Confirm the page is valid before publishing
         run: |
           python3 - <<'PY'
