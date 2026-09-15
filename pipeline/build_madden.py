@@ -207,6 +207,20 @@ def build(players, team_names):
             # "Deep Threat - WR" reads better as just the role.
             found[pid]["arch"] = arch.split(" - ")[0].strip()
 
+        # X-Factor and abilities. These are the part of this dataset worth having
+        # most: "Double Me" says in two words what a rating of 96 does not, and
+        # only about fifty players carry one, so the exceptional mark themselves.
+        xf = r.get("x_factor")
+        if isinstance(xf, str) and xf.strip() and xf.strip().lower() != "none":
+            found[pid]["xf"] = xf.strip()
+        abil = []
+        for i in range(1, 7):
+            a = r.get("ability_" + str(i))
+            if isinstance(a, str) and a.strip() and a.strip().lower() != "none":
+                abil.append(a.strip())
+        if abil:
+            found[pid]["ab"] = abil
+
     if not found:
         return {}, {"live": False, "season": SEASON,
                     "note": "Madden ratings fetched but matched nobody"}

@@ -29,6 +29,16 @@
   --rise:#6FD69B; --fall:#E08A8A;
   --r:3px;
 }
+/* One rule for every scrolling panel in the app. These were being styled one at
+   a time, which is how the Leaders list ended up with a fat overlay bar sitting
+   on top of its right-aligned ratings while other panels were fine. */
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+*::-webkit-scrollbar{width:6px;height:6px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+*::-webkit-scrollbar-thumb:hover{background:var(--mute)}
+*::-webkit-scrollbar-corner{background:transparent}
+
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
@@ -189,7 +199,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .chip.sub .pname{color:var(--brass)}
 
 /* ---------- detail panel ---------- */
-#detail{
+#detail{padding-right:4px;
   flex:0 0 336px;border-left:1px solid var(--line);background:var(--panel);
   overflow-y:auto;padding:20px;
 }
@@ -644,7 +654,15 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .lcat:hover{background:#243039;color:var(--chalk)}
 .lcat[aria-pressed="true"]{background:color-mix(in srgb,var(--team) 22%,transparent);
   color:#fff}
-.lrows{flex:1 1 auto;overflow-y:auto;min-width:0}
+/* The values in here are right-aligned, and an overlay scrollbar sits on top of
+   whatever is under it -- so the ratings were partly hidden behind it. Reserve a
+   gutter and make the bar thin and quiet, as elsewhere in the app. */
+.lrows{flex:1 1 auto;overflow-y:auto;min-width:0;padding-right:10px;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.lrows::-webkit-scrollbar{width:5px}
+.lrows::-webkit-scrollbar-track{background:transparent}
+.lrows::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lrows::-webkit-scrollbar-thumb:hover{background:var(--mute)}
 .ltitle{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff;margin-bottom:3px}
 .lsub{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--dim);margin-bottom:11px}
@@ -831,7 +849,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   display:flex;flex-direction:column;padding:16px 18px}
 #scores[hidden]{display:none}
 #scoresnav{flex:0 0 auto;max-width:860px;margin:0 auto 4px;width:100%}
-#scoresbody{flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
+#scoresbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
 .wkstrip{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;
   border-bottom:1px solid var(--line);margin-bottom:12px}
 .wkstrip button{
@@ -956,7 +974,11 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--dim)}
 .dlist{max-height:320px;overflow-y:auto;border:1px solid var(--line);
-  border-radius:var(--r)}
+  border-radius:var(--r);scrollbar-width:thin;
+  scrollbar-color:var(--line) transparent}
+.dlist::-webkit-scrollbar{width:5px}
+.dlist::-webkit-scrollbar-track{background:transparent}
+.dlist::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .drow{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;
   padding:8px 10px;border-bottom:1px solid var(--rule)}
 .drow:last-child{border-bottom:0}
@@ -1364,6 +1386,7 @@ svg.flowchart{width:100%;height:auto;display:block;border:1px solid var(--line);
 .chip.holding .face{transform:scale(.92);transition:transform .42s ease}
 .swap{
   position:absolute;z-index:30;width:212px;max-height:246px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:0 14px 34px rgba(0,0,0,.6);padding:6px;
 }
@@ -1389,6 +1412,9 @@ svg.flowchart{width:100%;height:auto;display:block;border:1px solid var(--line);
 .swapmeta{font-family:'Barlow Condensed',sans-serif;font-size:10px;
   letter-spacing:.06em;color:var(--dim);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
+.swap::-webkit-scrollbar{width:5px}
+.swap::-webkit-scrollbar-track{background:transparent}
+.swap::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .swapnote{padding:6px;font-family:'Barlow Condensed',sans-serif;font-size:10px;
   letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:center;
   border-top:1px solid var(--rule);margin-top:4px}
@@ -1707,6 +1733,18 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .curow .trn{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--rise)}
 
 /* ---------- Madden ---------- */
+.xfac{display:flex;width:100%;text-align:left;align-items:center;gap:9px;margin:2px 0 10px;padding:7px 10px;
+  border-radius:var(--r);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--brass) 22%,transparent),transparent);
+  border:1px solid color-mix(in srgb,var(--brass) 45%,transparent)}
+.xfl{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brass)}
+.xfn{font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff}
+.abils{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.abil{padding:3px 9px;border-radius:11px;border:1px solid var(--line);
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.07em;
+  color:var(--mute)}
+.abil:hover{border-color:var(--team-accent);color:#fff}
 .madarch{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.11em;text-transform:uppercase;color:var(--team-accent);
   margin:-2px 0 8px}
@@ -1862,7 +1900,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 #box{position:fixed;inset:0;z-index:75;background:rgba(8,12,14,.97);
   display:flex;flex-direction:column;padding:16px 18px}
 #box[hidden]{display:none}
-#boxbody{flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
+#boxbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
 .boxscore-line{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
 .boxscore-line .bt{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
 .boxscore-line .bd{color:var(--dim)}
@@ -2111,7 +2149,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   #app{height:auto;min-height:100%}
   #split{flex-direction:column}
   #field{min-height:0;aspect-ratio:16/11}
-  #detail{flex:1 1 auto;border-left:0;border-top:1px solid var(--line);max-height:none}
+  #detail{padding-right:4px;flex:1 1 auto;border-left:0;border-top:1px solid var(--line);max-height:none}
 }
 /* Below ~920px even the full window is too narrow for five linemen at true
    spacing. Rather than distort the formation, hold the field at a minimum width
@@ -2974,6 +3012,35 @@ function renderDetail(grp,slot,idx){
     // The archetype is the one-line description of what kind of player he is,
     // which is often more use than the number beside it.
     if(m.arch) sec.appendChild(el("div","madarch", m.arch));
+
+    /* The X-Factor names what makes a player exceptional in a way a number
+       cannot. Only about fifty carry one, so it doubles as a marker of the
+       genuinely rare. */
+    if(m.xf){
+      const x = el("button","xfac");
+      x.appendChild(el("span","xfl","X-Factor"));
+      x.appendChild(el("span","xfn", m.xf));
+      x.onclick = () => {
+        leadKey = "X-Factors|xf:" + m.xf;
+        $("#lead").hidden = false;
+        renderLeaders();
+      };
+      sec.appendChild(x);
+    }
+    if((m.ab || []).length){
+      const w = el("div","abils");
+      m.ab.forEach(a=>{
+        const c = el("button","abil", a);
+        // Tapping one asks who else has it, which is how you learn what it means.
+        c.onclick = () => {
+          leadKey = "Abilities|abil:" + a;
+          $("#lead").hidden = false;
+          renderLeaders();
+        };
+        w.appendChild(c);
+      });
+      sec.appendChild(w);
+    }
 
     const box = el("div","agebox");
     const left = el("div");
@@ -9467,6 +9534,12 @@ function buildLeaders(){
       if(MAD_ATTR_BOARDS.includes(a.l))
         add("Madden", "matt:" + a.l, a.l, "all positions", p.id, a.v, null, null);
     });
+    // Everyone who carries a given X-Factor or ability, so tapping one on a
+    // profile answers "who else does this".
+    if(m.xf) add("X-Factors", "xf:" + m.xf, m.xf, "X-Factor", p.id, m.ovr, null, null);
+    (m.ab || []).forEach(a=>{
+      add("Abilities", "abil:" + a, a, "superstar ability", p.id, m.ovr, null, null);
+    });
   });
 
   // Attribute boards come in unranked, because the ranking is across everybody
@@ -9482,9 +9555,25 @@ function buildLeaders(){
     });
   });
 
+  /* X-Factor and ability boards are small on purpose -- only two players in the
+     league have "Bazooka", and that is the interesting part. The ten-row floor
+     that keeps thin statistical boards out would delete exactly the ones worth
+     showing, so they rank by overall and keep their own floor of one. */
+  Object.keys(cats).forEach(k=>{
+    if(k.indexOf("X-Factors|") !== 0 && k.indexOf("Abilities|") !== 0) return;
+    const rows = cats[k].rows;
+    rows.sort((a,b)=>b.v-a.v);
+    let rank = 0, last = null;
+    rows.forEach((row,i)=>{
+      if(row.v !== last){ rank = i+1; last = row.v; }
+      row.r = rank; row.n = rows.length;
+    });
+  });
+
   // Drop anything too thin to be a leaderboard.
   Object.keys(cats).forEach(k=>{
-    if(cats[k].rows.length < 10) delete cats[k];
+    const keep = k.indexOf("X-Factors|") === 0 || k.indexOf("Abilities|") === 0;
+    if(!keep && cats[k].rows.length < 10) delete cats[k];
     else cats[k].rows.sort((a,b)=>a.r-b.r);
   });
 
@@ -9603,7 +9692,7 @@ function renderLeaders(){
   const keys = Object.keys(cats);
   const groups = [];
   BUCKET_ORDER.forEach(b=>{ if(BUCKET_LABEL[b]) groups.push(BUCKET_LABEL[b]); });
-  groups.push("Madden", "Money", "Teams");
+  groups.push("Madden", "X-Factors", "Abilities", "Money", "Teams");
 
   if(!leadKey || !cats[leadKey]) leadKey = keys[0];
 
