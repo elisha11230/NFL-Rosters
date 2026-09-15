@@ -233,14 +233,40 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pill.new .sub{color:color-mix(in srgb,var(--team) 30%,var(--mute))}
 .pill.moved .arrow{color:var(--dim);font-size:12px}
 
-.sect{margin-top:20px}
-.sect h3{
-  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11.5px;
-  text-transform:uppercase;letter-spacing:.13em;color:var(--mute);
-  padding-bottom:7px;border-bottom:1px solid var(--line);margin-bottom:11px;
-  display:flex;justify-content:space-between;align-items:baseline;
+/* Sections were a margin and an underlined heading, which at six or seven of
+   them down a profile reads as one wall of text. Each is now a panel with its
+   own surface, and a coloured rule at the top that says what kind of thing it
+   is: measured play, money, a rating, health, or history. The colour is the
+   fastest cue -- you learn in a couple of visits that amber means an outside
+   rating and green means something he actually did. */
+.sect{
+  margin-top:16px;padding:14px 15px 15px;
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);position:relative;overflow:hidden;
 }
-.sect h3 span{color:var(--dim);letter-spacing:.09em}
+.sect::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:2px;
+  background:var(--team-accent);opacity:.75;
+}
+/* Kinds, applied per section by the renderer. */
+.sect.k-stat::before{background:var(--rise)}
+.sect.k-money::before{background:var(--brass)}
+.sect.k-rating::before{background:#E0A15B}
+.sect.k-health::before{background:#D06A6A}
+.sect.k-time::before{background:#6E9FD8}
+.sect.k-people::before{background:#A98BD0}
+
+.sect h3{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--chalk);
+  padding-bottom:9px;border-bottom:1px solid var(--rule);margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+}
+.sect h3 span{color:var(--dim);letter-spacing:.08em;font-weight:600;
+  font-size:10.5px;white-space:nowrap}
+/* A sub-heading inside a section should not compete with the section's own. */
+.sect .advsub{margin-top:14px}
+.sect .carnote:last-child{margin-bottom:0}
 
 .bio{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;font-size:13px}
 .bio div{display:flex;justify-content:space-between;gap:8px}
@@ -2790,7 +2816,7 @@ function renderDetail(grp,slot,idx){
   // contract
   const ct = p.ct;
   if(ct){
-    const cs = el("div","sect");
+    const cs = el("div","sect k-money");
     cs.appendChild(el("h3",null,"Contract"));
 
     const top = el("div","ctop");
@@ -2842,7 +2868,7 @@ function renderDetail(grp,slot,idx){
     d.appendChild(lb);
 
     if(vsU.length){
-      const vs = el("div","sect");
+      const vs = el("div","sect k-stat");
       vs.style.marginTop = "0";
       vs.appendChild(el("h3",null,"Against his usual day"));
       vsU.forEach(x=>{
@@ -2895,7 +2921,7 @@ function renderDetail(grp,slot,idx){
   }
 
   // stats
-  const ss = el("div","sect");
+  const ss = el("div","sect k-stat");
   const prevNick = p.prev ? (DATA.teams[p.prev]?.nick || p.prev) : null;
   const sh = el("h3", null,
     ((DATA.current || {}).live ? "Last season" : DATA.statsSeason + " season")
@@ -2937,7 +2963,7 @@ function renderDetail(grp,slot,idx){
   // which is the only ranking that means anything for it.
   if(p.mad && p.mad.ovr != null){
     const m = p.mad;
-    const sec = el("div","sect");
+    const sec = el("div","sect k-rating");
     const h3 = el("h3", null, "Madden rating");
     if(m.rank) h3.appendChild(el("span", null,
       ord(m.rank) + " of " + m.n + " at " + (m.pos || p.pos)));
@@ -3000,7 +3026,7 @@ function renderDetail(grp,slot,idx){
   // and opponent, and it says where the value came from.
   if(p.qbr && p.qbr.qbr != null){
     const q = p.qbr;
-    const sec = el("div","sect");
+    const sec = el("div","sect k-stat");
     const h3 = el("h3", null, "Total QBR");
     h3.appendChild(el("span", null, (DATA.qbrMeta || {}).season + " \u00b7 "
       + q.plays + " plays"));
@@ -3355,7 +3381,7 @@ function renderDetail(grp,slot,idx){
   }
 
   // depth at this spot
-  const ds = el("div","sect");
+  const ds = el("div","sect k-people");
   const dh = el("h3",null,"Depth at "+slotLabel(grp,slot,row.abb));
   dh.appendChild(el("span",null,stackArr.length+" listed"));
   ds.appendChild(dh);
@@ -3423,7 +3449,7 @@ const CAPCOLS = ["#4A7C6F","#6E8FA8","#A88C5F","#8A7BA8","#5F9E8A","#A87B7B","#7
 function sectionMovement(d){
   const rs = (DATA.risers || {})[team];
   if(!rs || !rs.length) return;
-  const h = el("div","sect");
+  const h = el("div","sect k-time");
   const hh = el("h3",null,"Moving up the chart");
   hh.appendChild(el("span",null,"since March"));
   h.appendChild(hh);
@@ -3480,7 +3506,7 @@ function sectionAge(d){
   const rv = (DATA.roster || {})[team];
   if(!rv || rv.age.avg == null) return;
   const a = rv.age;
-  const s = el("div","sect");
+  const s = el("div","sect k-time");
   s.appendChild(el("h3",null,"Roster age"));
   const box = el("div","agebox");
   const left = el("div");
@@ -3701,7 +3727,7 @@ function sectionRating(d){
   const v = (DATA.rankings || {})[team];
   if(!v) return;
   const meta = DATA.rankMeta || {};
-  const sec = el("div","sect");
+  const sec = el("div","sect k-rating");
   const h = el("h3", null, "Power rating");
   h.appendChild(el("span", null, "through " + meta.games + " games"));
   sec.appendChild(h);
@@ -3764,7 +3790,7 @@ function sectionRating(d){
 }
 
 function sectionTrending(d){
-  const host = el("div","sect");
+  const host = el("div","sect k-people");
   host.appendChild(el("h3", null, "People are picking up"));
   const body = el("div");
   body.appendChild(el("div","carnote","Checking\u2026"));
@@ -3899,7 +3925,7 @@ function renderTeam(){
   const co = DATA.coaches ? DATA.coaches[team] : null;
 
   if(co){
-    const h = el("div","sect");
+    const h = el("div","sect k-people");
     h.style.marginTop = "0";
     h.appendChild(el("h3",null,"Coaching staff"));
     d.appendChild(h);
@@ -3958,7 +3984,7 @@ function renderTeam(){
   sectionHistory(d);
   sectionDraft(d);
 
-  const h = el("div","sect");
+  const h = el("div","sect k-stat");
   const hh = el("h3", null,
     ((DATA.current || {}).live ? "Last season" : DATA.statsSeason + " season"));
   hh.appendChild(el("span",null,"League rank of 32"));
@@ -9381,6 +9407,16 @@ function currentSeasonRankable(){
   return !!(c.live && c.ranked);
 }
 
+/* Madden's position codes, spelled out. */
+const MAD_POS_LABEL = {
+  QB:"Quarterbacks", RB:"Running backs", FB:"Fullbacks", WR:"Receivers",
+  TE:"Tight ends", T:"Tackles", G:"Guards", C:"Centres",
+  EDGE:"Edge rushers", DT:"Interior line", LB:"Linebackers",
+  CB:"Cornerbacks", S:"Safeties", K:"Kickers", P:"Punters", LS:"Long snappers",
+};
+// Attributes every player is rated on, so a league-wide board is fair.
+const MAD_ATTR_BOARDS = ["Speed", "Acceleration", "Agility", "Strength", "Awareness"];
+
 function buildLeaders(){
   const useCur = leadSeason === "cur" && currentSeasonRankable();
   const cacheKey = useCur ? "cur" : "prev";
@@ -9410,6 +9446,37 @@ function buildLeaders(){
     if(p.ct && p.ct.r)
       add("Money", "pay:"+b, BUCKET_LABEL[b], "average per year", p.id,
           p.ct.apy, p.ct.r, p.ct.n, "M");
+  });
+
+  /* Madden gets its own group rather than being folded into the position groups
+     above. It uses its own position names -- edge rushers are one pool, not split
+     by which side they line up on -- so ranking it inside this app's buckets
+     would put players against a pool they were never ranked in. */
+  Object.values(DATA.players).forEach(p=>{
+    const m = p.mad;
+    if(!m || m.ovr == null) return;
+    if(m.rank && m.n >= 8)
+      add("Madden", "mad:" + m.pos, MAD_POS_LABEL[m.pos] || m.pos,
+          "overall rating", p.id, m.ovr, m.rank, m.n);
+    // A few attributes everyone is rated on, which make for the kind of
+    // leaderboard that is genuinely fun: who is actually the fastest.
+    (m.attrs || []).forEach(a=>{
+      if(MAD_ATTR_BOARDS.includes(a.l))
+        add("Madden", "matt:" + a.l, a.l, "all positions", p.id, a.v, null, null);
+    });
+  });
+
+  // Attribute boards come in unranked, because the ranking is across everybody
+  // rather than within a position. Rank them here, ties sharing a place.
+  Object.keys(cats).forEach(k=>{
+    if(k.indexOf("Madden|matt:") !== 0) return;
+    const rows = cats[k].rows;
+    rows.sort((a,b)=>b.v-a.v);
+    let rank = 0, last = null;
+    rows.forEach((row,i)=>{
+      if(row.v !== last){ rank = i+1; last = row.v; }
+      row.r = rank; row.n = rows.length;
+    });
   });
 
   // Drop anything too thin to be a leaderboard.
@@ -9534,7 +9601,7 @@ function renderLeaders(){
   const keys = Object.keys(cats);
   const groups = [];
   BUCKET_ORDER.forEach(b=>{ if(BUCKET_LABEL[b]) groups.push(BUCKET_LABEL[b]); });
-  groups.push("Money", "Teams");
+  groups.push("Madden", "Money", "Teams");
 
   if(!leadKey || !cats[leadKey]) leadKey = keys[0];
 

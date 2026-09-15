@@ -98,6 +98,25 @@ def norm(n):
     return re.sub(r"[^a-z]", "", n)
 
 
+def surname_key(name, team):
+    """Surname plus club, for the second pass.
+
+    Rosters and this source disagree about first names more often than you would
+    think: "Pat Surtain II" against "Patrick Surtain II", and the same for every
+    Mike and Michael. Full-name matching alone missed 170 players on depth
+    charts. A surname within one club is specific enough to be safe, and the pass
+    only runs for players the first pass did not already place.
+    """
+    if not name:
+        return None
+    n = unicodedata.normalize("NFKD", str(name)).encode("ascii", "ignore").decode()
+    n = re.sub(r"\b(jr|sr|ii|iii|iv|v)\b\.?", "", n.lower()).strip()
+    parts = [x for x in re.split(r"[^a-z]+", n) if x]
+    if len(parts) < 2:
+        return None
+    return parts[-1] + "|" + str(team or "")
+
+
 def fetch_all():
     import io
     import pandas as pd
@@ -123,14 +142,32 @@ def build(players, team_names):
                     "note": "Madden ratings source unreachable"}
 
     by_name = {}
+    by_surname = {}
     for pid, p in players.items():
         by_name.setdefault(norm(p["name"]), []).append(pid)
+        k = surname_key(p["name"], p.get("team"))
+        if k:
+            by_surname.setdefault(k, []).append(pid)
+
+    # Club nickname to abbreviation, so the surname pass can be scoped to a team.
+    nick_to_ab = {}
+    for full, ab in (team_names or {}).items():
+        nick_to_ab[str(full).strip()] = ab
+        nick_to_ab[str(full).split()[-1]] = ab
 
     found = {}
+    taken = set()
     for _, r in df.iterrows():
         cands = by_name.get(norm(r.get("full_name")))
         if not cands:
-            continue
+            # Second pass: surname within the same club. Only accept it when
+            # exactly one player fits, so a club with two Smiths is left alone.
+            ab = nick_to_ab.get(str(r.get("team_short") or "").strip())
+            k = surname_key(r.get("full_name"), ab)
+            alt = [c for c in (by_surname.get(k) or []) if c not in taken] if k else []
+            if len(alt) != 1:
+                continue
+            cands = alt
         pid = cands[0]
         if len(cands) > 1:
             # Shared name: prefer the club whose nickname matches.
@@ -163,6 +200,7 @@ def build(players, team_names):
             seen_l.add(a["l"])
             uniq.append(a)
 
+        taken.add(pid)
         found[pid] = {"ovr": ovr, "attrs": uniq[:9], "pos": pos}
         arch = r.get("archetype")
         if isinstance(arch, str) and arch.strip():
