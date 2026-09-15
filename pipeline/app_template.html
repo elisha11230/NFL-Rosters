@@ -625,9 +625,12 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .lgrp{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.15em;
   text-transform:uppercase;color:var(--dim);margin:12px 0 5px;padding-left:2px}
 .lgrp:first-child{margin-top:0}
-#leadseason{display:flex;gap:5px;padding:0 0 10px;margin-bottom:8px;
+/* Lives inside the 210px category column, so it stacks rather than competing
+   for width with the list below it. */
+#leadseason{display:flex;gap:5px;padding:0 0 10px;margin-bottom:10px;
   border-bottom:1px solid var(--rule);flex-wrap:wrap}
-.leadnote{font-size:11.5px;line-height:1.45;color:var(--dim)}
+#leadseason .lseason{flex:1 1 0;min-width:0}
+.leadnote{font-size:11px;line-height:1.45;color:var(--dim);flex:1 1 100%}
 .lseason{flex:1 1 0;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.09em;
   color:var(--mute)}
@@ -9540,9 +9543,10 @@ function renderLeadSeason(){
         + "before anyone can be ranked — one afternoon is not a leaderboard. "
         + "Week leaders on the Scores page cover the season so far.");
       bar.appendChild(note);
-      const panel = document.getElementById("leadwrap") || $("#lcats").parentElement;
-      if(panel && !document.getElementById("leadseason"))
-        panel.insertBefore(bar, panel.firstChild);
+      // Inside the category column. Putting it in .lsplit made it a third item
+      // in a two-column flex row, which squeezed both columns sideways.
+      if(!document.getElementById("leadseason"))
+        host.insertBefore(bar, host.firstChild);
       return;
     }
     bar.remove();
@@ -9557,9 +9561,8 @@ function renderLeadSeason(){
     };
     bar.appendChild(b);
   });
-  const panel = document.getElementById("leadwrap") || host.parentElement;
-  if(panel && !document.getElementById("leadseason"))
-    panel.insertBefore(bar, panel.firstChild);
+  if(!document.getElementById("leadseason"))
+    host.insertBefore(bar, host.firstChild);
 }
 
 function pastKeyFor(catKey){
@@ -9597,7 +9600,6 @@ function movementCell(r){
 
 function renderLeaders(){
   const cats = buildLeaders();
-  renderLeadSeason();
   const keys = Object.keys(cats);
   const groups = [];
   BUCKET_ORDER.forEach(b=>{ if(BUCKET_LABEL[b]) groups.push(BUCKET_LABEL[b]); });
@@ -9606,6 +9608,8 @@ function renderLeaders(){
   if(!leadKey || !cats[leadKey]) leadKey = keys[0];
 
   const cl = $("#lcats"); cl.innerHTML = "";
+  // After the clear, or it would be wiped immediately.
+  renderLeadSeason();
   groups.forEach(g=>{
     const mine = keys.filter(k=>cats[k].group === g);
     if(!mine.length) return;
