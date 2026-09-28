@@ -584,6 +584,28 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .newsmore:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:420px){ .newsimg{flex-basis:86px} }
 
+/* ---------- clip player ---------- */
+#clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
+  display:flex;align-items:center;justify-content:center;padding:16px}
+#clip[hidden]{display:none}
+.clipbox{width:min(960px,100%);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.cliphead{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-bottom:1px solid var(--line)}
+#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#clipframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;
+  max-height:78vh}
+#clipframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.clipdemo{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;color:var(--dim);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  font-size:12px}
+.clipdemoi{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;border:2px solid var(--team-accent);color:var(--team-accent);
+  font-size:22px;padding-left:4px}
+@media (max-width:560px){ #clip{padding:0} .clipbox{border-radius:0} }
+
 /* ---------- highlights ---------- */
 .hl{padding:8px 0;border-bottom:1px solid var(--rule)}
 .hl:last-of-type{border-bottom:0}
@@ -1260,10 +1282,6 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .swingv.away{color:var(--fall);background:color-mix(in srgb,var(--fall) 15%,transparent)}
 .swingt{flex:1 1 auto;min-width:0}
 
-/* ---------- game flow ---------- */
-svg.flowchart{width:100%;height:auto;display:block;border:1px solid var(--line);
-  border-radius:var(--r);background:var(--field)}
-
 /* ---------- demo banner ---------- */
 #demobar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:96;
   display:flex;align-items:center;gap:12px;padding:7px 14px;border-radius:20px;
@@ -1938,6 +1956,28 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .newsmore:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:420px){ .newsimg{flex-basis:86px} }
 
+/* ---------- clip player ---------- */
+#clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
+  display:flex;align-items:center;justify-content:center;padding:16px}
+#clip[hidden]{display:none}
+.clipbox{width:min(960px,100%);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.cliphead{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-bottom:1px solid var(--line)}
+#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#clipframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;
+  max-height:78vh}
+#clipframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.clipdemo{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;color:var(--dim);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  font-size:12px}
+.clipdemoi{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;border:2px solid var(--team-accent);color:var(--team-accent);
+  font-size:22px;padding-left:4px}
+@media (max-width:560px){ #clip{padding:0} .clipbox{border-radius:0} }
+
 /* ---------- highlights ---------- */
 .hlwrap{margin-bottom:14px}
 .hlcount{font-family:'Barlow Condensed',sans-serif;font-size:10px;
@@ -2482,6 +2522,17 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
     <button class="qx" id="wallclose">Close</button>
   </div>
   <div id="wallbody"></div>
+</div>
+
+<div id="clip" hidden role="dialog" aria-modal="true" aria-label="Highlight">
+  <div class="clipbox">
+    <div class="cliphead">
+      <div id="cliptitle"></div>
+      <a id="clipopen" class="pbtn" target="_blank" rel="noopener noreferrer">Open on ESPN</a>
+      <button class="qx" id="clipclose">Close</button>
+    </div>
+    <div id="clipframe"></div>
+  </div>
 </div>
 
 <div id="toasts" aria-live="polite"></div>
@@ -4470,6 +4521,7 @@ document.addEventListener("keydown", e=>{
   }
   else if(e.key === "Escape" && !$("#game").hidden) $("#game").hidden = true;
   else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
+  else if(e.key === "Escape" && !$("#clip").hidden) closeClip();
   else if(e.key === "Escape" && !$("#drive").hidden) closeDrive();
   else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
@@ -5853,8 +5905,14 @@ function readVideos(j){
       || ((v.images || [])[0] || {}).url
       || (((v.posterImages || {}).default || {}).href)
       || (((v.posterImages || {}).full || {}).href);
+    const vid = v.id != null ? String(v.id) : null;
     return {
-      id: v.id != null ? String(v.id) : null,
+      id: vid,
+      // ESPN's own embed player, the address its share button hands out. Only
+      // for a real numeric id; anything else falls back to opening ESPN's page.
+      embed: vid && /^\d+$/.test(vid)
+        ? "https://www.espn.com/core/video/iframe?id=" + vid + "&endcard=false"
+        : null,
       title: pick(v.headline, v.title, v.name),
       desc: pick(v.description, v.caption),
       thumb: typeof img === "string" ? img : null,
@@ -5866,6 +5924,51 @@ function readVideos(j){
   }).filter(v => v.title && v.href)
     // Newest first, so a live game shows its latest play at the front.
     .sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+}
+
+/* ---------------- in-app clip player ----------------
+   Clips play inside the app through ESPN's embed player, in a window over
+   whatever you were looking at. That is different from playing ESPN's raw
+   video files, which would bypass their player and is the kind of thing that
+   gets blocked; the embed is what they offer for exactly this.
+
+   Some clips may still refuse to play embedded, since rights on league footage
+   vary clip to clip, so "Open on ESPN" stays visible in the window rather than
+   hidden behind a failure. Closing removes the frame, which is the only way to
+   stop playback in a player on another site. */
+function openClip(v){
+  if(!v) return;
+  if(!v.embed && !DEMO.on){
+    window.open(v.href, "_blank", "noopener");
+    return;
+  }
+  const box = $("#clip");
+  $("#cliptitle").textContent = v.title || "Highlight";
+  const open = $("#clipopen");
+  open.href = v.href || "#";
+  const frame = $("#clipframe");
+  frame.innerHTML = "";
+  if(DEMO.on){
+    // Demo clips are not real videos, so show where one would play.
+    const ph = el("div","clipdemo");
+    ph.appendChild(el("span","clipdemoi","\u25B6"));
+    ph.appendChild(el("span", null, "A real ESPN clip plays here"));
+    frame.appendChild(ph);
+  } else {
+    const f = document.createElement("iframe");
+    f.src = v.embed;
+    f.title = v.title || "Highlight";
+    f.allowFullscreen = true;
+    f.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture");
+    f.setAttribute("frameborder", "0");
+    f.setAttribute("scrolling", "no");
+    frame.appendChild(f);
+  }
+  box.hidden = false;
+}
+function closeClip(){
+  $("#clipframe").innerHTML = "";
+  $("#clip").hidden = true;
 }
 
 function fmtDur(secs){
@@ -5912,7 +6015,7 @@ function youtubeUrl(g){
 /* ESPN lists a drive in `previous` once it ends, and the drive in progress under
    `current`. The moment a drive finishes it can appear in both, so appending one
    list to the other counts it twice -- which showed up as a touchdown listed
-   twice under Scoring, a doubled stroke in Game flow, and a repeated drive. Merge
+   twice under Scoring and a repeated drive in the drive list. Merge
    on identity, newest wins. */
 function mergeDrives(dr){
   const seen = new Map();
@@ -8352,63 +8455,6 @@ function biggestSwings(idx, limit){
   return wrap;
 }
 
-/* ---------------- game flow ----------------
-   Every drive as a stroke of field position over time. A side pinned deep all
-   afternoon, or an evening of trading punts, is a shape you can read at a
-   glance. */
-function gameFlow(g){
-  const drives = (LIVE.drives || []).slice().reverse();   // oldest first
-  const usable = drives.filter(d => (d.detail || []).some(p => p.from != null));
-  if(usable.length < 2) return null;
-  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
-  const W = 320, H = 108, PAD = 6;
-  const step = (W - PAD * 2) / usable.length;
-
-  const bits = [];
-  bits.push('<line x1="' + PAD + '" y1="' + (H/2) + '" x2="' + (W-PAD)
-    + '" y2="' + (H/2) + '" stroke="var(--chalk)" stroke-opacity=".22"'
-    + ' stroke-dasharray="3 4"/>');
-  usable.forEach((d, i)=>{
-    const pts = (d.detail || []).filter(p => p.from != null);
-    const startY = pts[0].from;
-    const endPt = pts[pts.length - 1];
-    const endY = endPt.to != null ? endPt.to : endPt.from;
-    // Yards-to-goal, so nearer the top is nearer scoring.
-    const y = v => PAD + (v / 100) * (H - PAD * 2);
-    const x0 = PAD + i * step, x1 = PAD + (i + 1) * step - 2;
-    const col = d.team === h.ab
-      ? readableAccent((DATA.teams[h.ab] || {}).c1 || "#4A7C6F")
-      : readableAccent((DATA.teams[a.ab] || {}).c1 || "#8C6A6A");
-    bits.push('<line x1="' + x0.toFixed(1) + '" y1="' + y(startY).toFixed(1)
-      + '" x2="' + x1.toFixed(1) + '" y2="' + y(endY).toFixed(1)
-      + '" stroke="' + col + '" stroke-width="2.6" stroke-linecap="round"/>');
-    if(d.scoring)
-      bits.push('<circle cx="' + x1.toFixed(1) + '" cy="' + y(endY).toFixed(1)
-        + '" r="3.4" fill="var(--brass)"/>');
-  });
-
-  const wrap = el("div");
-  const svg = el("div");
-  svg.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="flowchart"'
-    + ' role="img" aria-label="Game flow">' + bits.join("") + '</svg>';
-  wrap.appendChild(svg.firstElementChild);
-  const leg = el("div","wpleg");
-  [[a.ab, readableAccent((DATA.teams[a.ab]||{}).c1 || "#8C6A6A")],
-   [h.ab, readableAccent((DATA.teams[h.ab]||{}).c1 || "#4A7C6F")]].forEach(([ab,c])=>{
-    const sp = el("span");
-    const i = el("i"); i.style.background = c;
-    sp.appendChild(i);
-    sp.appendChild(document.createTextNode((DATA.teams[ab]||{}).nick || ab));
-    leg.appendChild(sp);
-  });
-  wrap.appendChild(leg);
-  const n = el("div","carnote");
-  n.textContent = "One stroke per drive, top of the chart being the goal line. "
-    + "Gold marks a drive that scored.";
-  wrap.appendChild(n);
-  return wrap;
-}
-
 /* ---------------- cross-game alerts ----------------
    Every game on the slate is already being polled for the switcher, so the app
    knows the moment another one changes and has until now said nothing. Scores,
@@ -8657,6 +8703,8 @@ function renderWatch(gRaw){
       if(v.secs) th.appendChild(el("span","hldur", fmtDur(v.secs)));
       card.appendChild(th);
       card.appendChild(el("div","hltitle", v.title));
+      // Plays in the app; a middle click or long press still opens ESPN.
+      card.onclick = e => { e.preventDefault(); openClip(v); };
       rail.appendChild(card);
     });
     hl.appendChild(rail);
@@ -8685,11 +8733,6 @@ function renderWatch(gRaw){
 
   // No separate Scoring list: it is the first tab of the play by play below.
 
-  const flow = gameFlow(g);
-  if(flow){
-    b.appendChild(el("div","wsub","Game flow"));
-    b.appendChild(flow);
-  }
 
   const sw = biggestSwings(idx, 4);
   if(sw){
@@ -8925,6 +8968,7 @@ function renderPlayByPlay(host, g, a, h, idx){
       v.href = clip.href; v.target = "_blank"; v.rel = "noopener noreferrer";
       v.title = clip.title;
       v.textContent = "\u25B6";
+      v.onclick = e => { e.preventDefault(); openClip(clip); };
       foot.appendChild(v);
     }
     if(foot.children.length) card.appendChild(foot);
@@ -10640,6 +10684,8 @@ $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
 $("#driveclose").onclick = closeDrive;
+$("#clipclose").onclick = closeClip;
+$("#clip").addEventListener("click", e=>{ if(e.target.id === "clip") closeClip(); });
 $("#drive").addEventListener("click", e=>{ if(e.target.id === "drive") closeDrive(); });
 $("#facesbtn").onclick = () => {
   $("#wall").hidden = false;
