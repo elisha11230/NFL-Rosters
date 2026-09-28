@@ -5004,13 +5004,37 @@ const TEAMFIX = {WSH:"WAS", LAR:"LA", JAC:"JAX"};
 const normTeam = ab => TEAMFIX[ab] || ab;
 const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
 
+/* ESPN serves the same API from two hosts. In September 2026 people reported
+   site.api.espn.com refusing requests that site.web.api.espn.com still answered,
+   so a failure on one is retried on the other, and whichever works is used first
+   from then on. Everything live in the app goes through here, so this is the
+   difference between a bad afternoon for ESPN and a blank scoreboard. */
+const ESPN_HOSTS = ["site.api.espn.com", "site.web.api.espn.com"];
+let espnHostFirst = 0;
+
+async function fetchWithHostFallback(url){
+  const order = espnHostFirst ? [1, 0] : [0, 1];
+  let lastErr = null;
+  for(const i of order){
+    const u = url.replace(/\/\/site(\.web)?\.api\.espn\.com/, "//" + ESPN_HOSTS[i]);
+    try {
+      const r = await fetch(PROXY ? PROXY + encodeURIComponent(u) : u, {cache:"no-store"});
+      if(!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      espnHostFirst = i;
+      return j;
+    } catch(e){ lastErr = e; }
+    // Only ESPN's site API has a mirror; anything else gets one attempt.
+    if(!/\/\/site(\.web)?\.api\.espn\.com/.test(url)) break;
+  }
+  throw lastErr || new Error("fetch failed");
+}
+
 async function getJSON(path){
   // Demo mode answers here rather than anywhere downstream, so every parser and
   // component runs exactly as it does against the real feed.
   if(DEMO.on) return demoFetch(path);
-  const r = await fetch(espnUrl(path), {cache:"no-store"});
-  if(!r.ok) throw new Error(r.status);
-  return r.json();
+  return fetchWithHostFallback(ESPN + path);
 }
 
 const LIVE_DEBUG = /(^|[#&?])debug/.test(location.hash + location.search);
@@ -5734,9 +5758,7 @@ const ESPN_TEAM_FALLBACK = {ARI:22, ATL:1, BAL:33, BUF:2, CAR:29, CHI:3, CIN:4,
 
 async function getAbs(url, demoPath){
   if(DEMO.on) return demoFetch(demoPath || url);
-  const r = await fetch(PROXY ? PROXY + encodeURIComponent(url) : url, {cache:"no-store"});
-  if(!r.ok) throw new Error(r.status);
-  return r.json();
+  return fetchWithHostFallback(url);
 }
 
 async function espnTeamId(ab){
@@ -5924,6 +5946,116 @@ function readVideos(j){
   }).filter(v => v.title && v.href)
     // Newest first, so a live game shows its latest play at the front.
     .sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+}
+
+/* ---------------- more clips ----------------
+   ESPN's game summary carries only five or six clips, and there is no
+   documented endpoint for all of a game's video. Two other ESPN feeds do carry
+   game clips, so they are merged in:
+
+     team news   each club's feed, the one behind Team news, fetched for both
+                 sides of the game
+     Now         ESPN's rolling stream of everything it publishes, whose items
+                 are tagged with the game they belong to
+
+   A clip is only accepted if it plainly belongs to this game: tagged with this
+   game's id, or failing that tagged with one of the two clubs and published
+   between just before kickoff and ten hours after. A club plays once a week, so
+   that window cannot catch another of its games -- but it can catch post-game
+   interviews, which are welcome here anyway.
+
+   None of these shapes could be checked from where this was written. Anything
+   unrecognised is skipped, and if a feed fails the summary's clips still show.
+   Fetched at most every three minutes per game, since the Now feed is large. */
+const XCLIPS = {};
+const XCLIP_TTL = 18e4;
+
+function itemRefs(it){
+  const out = {events: new Set(), teams: new Set()};
+  (it.categories || []).forEach(c=>{
+    const ev = c.eventId ?? (c.event || {}).id;
+    if(ev != null) out.events.add(String(ev));
+    const tm = c.teamId ?? (c.team || {}).id;
+    if(tm != null) out.teams.add(String(tm));
+  });
+  // Some items only reference the game through an API link.
+  const evLink = ((((it.links || {}).api || {}).events || {}).href) || "";
+  const m = String(evLink).match(/events\/(\d+)/);
+  if(m) out.events.add(m[1]);
+  return out;
+}
+
+/* A news item can be a video itself, or a story with videos attached. */
+function itemVideos(it){
+  const list = [];
+  if(Array.isArray(it.video)) it.video.forEach(v => list.push(v));
+  if(Array.isArray(it.videos)) it.videos.forEach(v => list.push(v));
+  const t = String(it.type || "").toLowerCase();
+  if(!list.length && (t === "media" || t === "video" || t === "clip")) list.push(it);
+  // Carry the item's date onto its videos when they have none of their own.
+  return list.map(v => Object.assign({originalPublishDate: it.published}, v));
+}
+
+function kickoffOf(fixture){
+  if(!fixture || !fixture.d) return null;
+  // Schedule times are US Eastern; an hour of daylight saving slack does not
+  // matter against a window this wide.
+  const t = Date.parse(fixture.d + "T" + (fixture.t || "13:00") + ":00-04:00");
+  return Number.isFinite(t) ? t : null;
+}
+
+async function extraClips(g, fixture){
+  const hit = XCLIPS[g.id];
+  if(hit && Date.now() - hit.at < XCLIP_TTL) return hit.items;
+  const a = (g.teams.find(t => !t.home) || {}).ab;
+  const h = (g.teams.find(t => t.home) || {}).ab;
+  const ids = {};
+  for(const ab of [a, h]) if(ab) ids[ab] = await espnTeamId(ab);
+  const teamIds = new Set(Object.values(ids).filter(Boolean).map(String));
+
+  const feeds = [];
+  for(const ab of [a, h]){
+    if(!ids[ab]) continue;
+    feeds.push(getAbs("https://site.api.espn.com/apis/site/v2/sports/football/nfl/news?team=" + ids[ab],
+                      "/news?team=" + ab).catch(() => null));
+  }
+  feeds.push(getAbs("https://now.core.api.espn.com/v1/sports/news?limit=400&sport=football",
+                    "/now").catch(() => null));
+  const results = await Promise.all(feeds);
+
+  const k = kickoffOf(fixture);
+  const lo = k ? k - 30 * 60000 : null, hi = k ? k + 10 * 3600000 : null;
+  const raw = [];
+  results.forEach(j=>{
+    if(!j) return;
+    const items = j.articles || j.feed || j.items || j.headlines || [];
+    if(!Array.isArray(items)) return;
+    items.forEach(it=>{
+      const refs = itemRefs(it);
+      let mine = refs.events.has(String(g.id));
+      if(!mine && lo != null && [...refs.teams].some(t => teamIds.has(t))){
+        const at = Date.parse(it.published || it.lastModified || "");
+        mine = Number.isFinite(at) && at >= lo && at <= hi;
+      }
+      if(mine) itemVideos(it).forEach(v => raw.push(v));
+    });
+  });
+  const items = readVideos({videos: raw});
+  XCLIPS[g.id] = {at: Date.now(), items};
+  return items;
+}
+
+/* Summary clips first, then the extras, with duplicates removed. The same clip
+   turns up in several feeds, under the same id or at least the same link. */
+function mergeClips(base, extra){
+  const seen = new Set(), out = [];
+  [...(base || []), ...(extra || [])].forEach(v=>{
+    const key = v.id || v.href;
+    if(!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(v);
+  });
+  return out.sort((x, y) => String(y.at || "").localeCompare(String(x.at || "")));
 }
 
 /* ---------------- in-app clip player ----------------
@@ -8191,6 +8323,7 @@ function demoNews(path){
       .filter(p => p && p.t100).sort((a, b) => a.t100 - b.t100)[0];
     const name = star ? star.name : (t.nick || ab) + " starter";
     return {articles: [
+      ...demoFeedClips(ab),
       {headline: (t.nick || ab) + " take control late to win at home",
        description: "A fourth quarter drive settled it after a back and forth afternoon.",
        published: ago(95), byline: "Demo reporter",
@@ -8233,8 +8366,35 @@ function demoNews(path){
   return null;
 }
 
+/* Clips as the team and Now feeds would carry them: tagged with the demo game,
+   so the extra-clips path can be seen working. One is tagged to a different
+   game on purpose, to show it being left out. */
+function demoFeedClips(ab){
+  const fx = DEMO_FIXTURES.find(f => f.a === ab || f.h === ab);
+  if(!fx) return [];
+  const castA = demoCast(fx.a, fx.h), castH = demoCast(fx.h, fx.a);
+  const side = ab === fx.a ? castA : castH;
+  const ago = m => new Date(Date.now() - m * 60000).toISOString();
+  const base = ab === fx.a ? 700 : 800;
+  const make = (n, who, what, mins) => ({
+    type: "Media", published: ago(mins),
+    categories: [{type: "event", eventId: fx.id}],
+    video: [{id: 9000000 + base + n, headline: who.name + " " + what,
+             duration: 20 + n * 6, links: {web: {href: "https://www.espn.com/nfl/?demo=x" + base + n}}}],
+  });
+  return [
+    make(1, side.WR1, "toe tap on the sideline", 12),
+    make(2, side.QB1, "escapes pressure and fires downfield", 24),
+    make(3, side.TE1, "rumbles for a first down", 37),
+    make(4, side.RB1, "breaks two tackles", 51),
+    {type: "Media", published: ago(20), categories: [{type: "event", eventId: "someother"}],
+     video: [{id: 9099999, headline: "Clip from a different game", links: {web: {href: "https://www.espn.com/"}}}]},
+  ];
+}
+
 function demoFetch(path){
   if(path === "/teams") return {sports: []};        // fall back to the fixed ids
+  if(path === "/now") return {feed: []};
   const n = demoNews(path);
   if(n) return n;
   if(path.indexOf("/summary") === 0){
@@ -8542,6 +8702,12 @@ async function refreshWatch(){
     if(g.state !== "pre"){
       await fetchGame(g.id);
       await fetchPlays(g.id);
+      // More clips than the summary carries, from the team and Now feeds.
+      const a0 = (g.teams.find(t => !t.home) || {}).ab;
+      const h0 = (g.teams.find(t => t.home) || {}).ab;
+      const fx = (DATA.slate && Object.values(DATA.slate).flat()
+        .find(x => x.a === a0 && x.h === h0)) || null;
+      try { LIVE.videos = mergeClips(LIVE.videos, await extraClips(g, fx)); } catch(e){}
     }
     // Record the real state before anything is held back, so the delay has a
     // history to replay from.
@@ -8687,7 +8853,7 @@ function renderWatch(gRaw){
 
   if(vids.length){
     const rail = el("div","hlrail");
-    vids.slice(0, 20).forEach(v=>{
+    vids.slice(0, 40).forEach(v=>{
       const card = document.createElement("a");
       card.className = "hlcard";
       card.href = v.href;
