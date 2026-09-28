@@ -6,6 +6,12 @@
 <title>NFL Depth Charts</title>
 <meta name="description" content="Every NFL roster laid out in formation, with last season's numbers and league ranks.">
 <meta name="theme-color" content="#0E1417">
+<script id="themeboot">
+/* Applied before anything is drawn, so a light-theme page does not flash dark
+   on load. */
+try { if(localStorage.getItem("theme") === "light")
+  document.documentElement.dataset.theme = "light"; } catch(e){}
+</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -28,7 +34,54 @@
   --team:#4A7C6F; --team2:#0E1417; --team-accent:#7FA99E;
   --rise:#6FD69B; --fall:#E08A8A;
   --r:3px;
+  /* Brightest text, for names and figures that should stand out. White here,
+     near black in the light theme. */
+  --hi:#fff;
+  /* The disc behind headshots and thumbnails. */
+  --well:#0B1113;
+  --hover:#243039; --hover2:#141C20;
+  /* Status text colours that must stay readable on either background. */
+  --good-t:#5FBF8A; --bad-t:#E4A4A4; --bad2-t:#C98080; --alert-t:#E05B5B;
+  --warn-t:#E0A15B; --warn2-t:#E0B48A;
 }
+
+/* ---------- light theme ----------
+   Toggled from the button at the end of the row above the field, and
+   remembered. Every surface and text colour comes from the variables above, so
+   the light theme is mostly a second set of values for them. */
+html[data-theme="light"]{
+  --ink:#EDF1EF; --panel:#FFFFFF; --line:#C3CEC9; --rule:#E0E6E3;
+  --chalk:#172024; --mute:#44534E; --dim:#5E6D68;
+  --brass:#7E5F00;
+  --rise:#15743F; --fall:#BC3F3F;
+  --hi:#0A1013;
+  --well:#E1E8E5;
+  --hover:#E3EAE6; --hover2:#E6ECE9;
+  --good-t:#15743F; --bad-t:#B23B3B; --bad2-t:#A34545; --alert-t:#C0392B;
+  --warn-t:#8F5210; --warn2-t:#955B1F;
+  color-scheme:light;
+}
+html:not([data-theme="light"]){color-scheme:dark}
+
+/* The field is green in both themes -- a light-grey field is not a football
+   field -- so everything drawn on it keeps the dark palette, including a team
+   colour lightened for a dark background rather than darkened for a light one. */
+html[data-theme="light"] :is(#field,.dplay,.mplay,.cfield,.gfield,.afield,.wfield){
+  --ink:#131C20; --panel:#1B252B; --line:#566C77; --rule:#2F414E;
+  --chalk:#EAF1ED; --mute:#A2B3AD; --dim:#819590; --brass:#D9B84A;
+  --rise:#6FD69B; --fall:#E08A8A; --hi:#fff; --well:#0B1113;
+  --hover:#243039; --hover2:#141C20;
+  --team-accent:var(--team-accent-d);
+  color:var(--chalk);
+}
+html[data-theme="light"] .pbpseg button[aria-pressed="true"]{box-shadow:0 1px 3px rgba(0,0,0,.18)}
+html[data-theme="light"] .sect{box-shadow:0 1px 2px rgba(20,30,28,.06)}
+/* Gold badges: the light theme's gold is darker, so its lettering turns white. */
+html[data-theme="light"] .t100{color:#fff}
+html[data-theme="light"] .wt100{color:#fff}
+html[data-theme="light"] .impact.huge{color:#fff}
+/* ...except on the field, where the gold stays bright and wants dark lettering. */
+html[data-theme="light"] :is(#field,.dplay,.mplay,.cfield,.gfield,.afield,.wfield) :is(.t100,.wt100,.impact.huge){color:#181200}
 /* One rule for every scrolling panel in the app. These were being styled one at
    a time, which is how the Leaders list ended up with a fat overlay bar sitting
    on top of its right-aligned ratings while other panels were fine. */
@@ -80,7 +133,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   display:flex;align-items:center;justify-content:center;
   opacity:.5;transition:opacity .15s,background .15s;
 }
-.tbtn:hover{opacity:.9;background:#141C20}
+.tbtn:hover{opacity:.9;background:var(--hover2)}
 .tbtn[aria-current="true"]{opacity:1;background:#161F24}
 .tbtn[aria-current="true"]::after{
   content:"";position:absolute;left:6px;right:6px;bottom:-1px;height:2px;
@@ -101,7 +154,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 }
 #head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--team)}
 #hl{min-width:0}
-#tname{font-size:clamp(19px,3.4vw,29px);line-height:1;color:#fff}
+#tname{font-size:clamp(19px,3.4vw,29px);line-height:1;color:var(--hi)}
 #tmeta{margin-top:6px;font-size:12.5px;color:var(--mute);font-family:'Barlow Condensed',sans-serif;
   text-transform:uppercase;letter-spacing:.11em}
 #units{display:flex;gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden;flex:0 0 auto}
@@ -151,12 +204,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 }
 .face{
   width:100%;height:100%;border-radius:50%;overflow:hidden;
-  background:#0B1113;border:2px solid var(--team);
+  background:var(--well);border:2px solid var(--team);
   transition:box-shadow .13s,border-color .13s;
 }
 .chip:hover .disc,.chip.sel .disc{transform:scale(1.08)}
 .chip:hover .face,.chip.sel .face{box-shadow:0 0 0 3px color-mix(in srgb,var(--team) 35%,transparent)}
-.chip.sel .face{border-color:#fff}
+.chip.sel .face{border-color:var(--hi)}
 .face img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
 .face .fallback{
   width:100%;height:100%;display:flex;align-items:center;justify-content:center;
@@ -210,13 +263,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .dhead{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
 .dphoto{
   flex:0 0 78px;height:78px;border-radius:var(--r);overflow:hidden;
-  background:#0B1113;border:1px solid var(--line);
+  background:var(--well);border:1px solid var(--line);
 }
 .dphoto img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .dphoto .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
   font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--dim)}
 .dnum{font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--team);margin-bottom:2px}
-.dname{font-size:20px;line-height:1.1;color:#fff;margin-bottom:5px}
+.dname{font-size:20px;line-height:1.1;color:var(--hi);margin-bottom:5px}
 .dpos{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;
   font-size:12px;color:var(--mute)}
 
@@ -289,13 +342,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .stat:last-child{border-bottom:0}
 .stat .l{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;
   letter-spacing:.08em;font-size:12.5px;color:var(--mute)}
-.stat .v{font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff;min-width:52px;text-align:right}
+.stat .v{font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi);min-width:52px;text-align:right}
 .stat .r{
   flex:0 0 62px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-size:11.5px;letter-spacing:.05em;color:var(--dim);
 }
 .stat .r b{font-weight:700}
-.r.good b{color:#5FBF8A} .r.mid b{color:var(--mute)} .r.low b{color:#8C6A6A}
+.r.good b{color:var(--good-t)} .r.mid b{color:var(--mute)} .r.low b{color:#8C6A6A}
 
 .depth{display:flex;flex-direction:column;gap:1px}
 .drow{
@@ -323,7 +376,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* ---------- team record in header ---------- */
 #trec{display:flex;align-items:center;gap:9px;margin-top:7px;flex-wrap:wrap}
-#trec .wl{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff}
+#trec .wl{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi)}
 #trec .fin{
   font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;
   letter-spacing:.1em;font-size:11.5px;color:var(--mute);
@@ -345,17 +398,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .unit-h .rk b{font-family:'Archivo Black',sans-serif;font-size:19px;line-height:1}
 .unit-h .rk span{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-.tier1 b{color:#5FBF8A} .tier2 b{color:var(--chalk)} .tier3 b{color:#C98080}
+.tier1 b{color:var(--good-t)} .tier2 b{color:var(--chalk)} .tier3 b{color:var(--bad2-t)}
 .unit-b{padding:3px 12px 8px}
 .urow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule)}
 .urow:last-child{border-bottom:0}
 .urow .l{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:12.5px;
   text-transform:uppercase;letter-spacing:.07em;color:var(--mute)}
-.urow .v{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff;
+.urow .v{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi);
   min-width:56px;text-align:right}
 .urow .r{flex:0 0 42px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-size:11.5px;letter-spacing:.05em}
-.urow .r.good{color:#5FBF8A} .urow .r.mid{color:var(--dim)} .urow .r.low{color:#8C6A6A}
+.urow .r.good{color:var(--good-t)} .urow .r.mid{color:var(--dim)} .urow .r.low{color:#8C6A6A}
 
 #back{
   display:flex;align-items:center;gap:7px;margin-bottom:14px;
@@ -372,7 +425,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   padding:12px 13px;margin-bottom:18px;
   background:linear-gradient(180deg,color-mix(in srgb,var(--team) 9%,transparent),transparent);
 }
-.coach .nm{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;line-height:1.1}
+.coach .nm{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi);line-height:1.1}
 .coach .ten{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--team-accent);margin-top:5px;
@@ -407,7 +460,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 .ctop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
   padding:2px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:4px}
-.ctop .apy{font-family:'Archivo Black',sans-serif;font-size:25px;line-height:1;color:#fff}
+.ctop .apy{font-family:'Archivo Black',sans-serif;font-size:25px;line-height:1;color:var(--hi)}
 .ctop .per{font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-top:5px}
 .ctop .pos{text-align:right;font-family:'Barlow Condensed',sans-serif;
@@ -450,14 +503,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .caprow .sw{flex:0 0 9px;height:9px;border-radius:2px}
 .caprow .g{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:12.5px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
-.caprow .m{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:#fff;min-width:56px;text-align:right}
+.caprow .m{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--hi);min-width:56px;text-align:right}
 .caprow .p{flex:0 0 44px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-size:11.5px;color:var(--dim)}
 
 /* ---------- age ---------- */
 .agebox{display:flex;align-items:flex-end;gap:14px;padding-bottom:10px;
   border-bottom:1px solid var(--rule);margin-bottom:8px}
-.agebox .big{font-family:'Archivo Black',sans-serif;font-size:25px;line-height:1;color:#fff}
+.agebox .big{font-family:'Archivo Black',sans-serif;font-size:25px;line-height:1;color:var(--hi)}
 .agebox .lab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--dim);margin-top:5px}
 .agebox .rk{margin-left:auto;text-align:right;font-family:'Barlow Condensed',sans-serif;
@@ -489,14 +542,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   border-radius:var(--r);background:color-mix(in srgb,#C25B5B 16%,transparent);
   border:1px solid color-mix(in srgb,#C25B5B 45%,transparent);
   font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;color:#E4A4A4;
+  text-transform:uppercase;color:var(--bad-t);
 }
 
 /* ---------- play by play ----------
    ESPN's layout, in this app's colours: quarter headings, one card per play,
    logo at the left, a plain title, the time, and on a score the running total. */
 .pbp{margin-top:6px}
-.pbphd{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff;
+.pbphd{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi);
   letter-spacing:.02em;padding-bottom:10px;margin-bottom:12px;
   border-bottom:1px solid var(--line);text-transform:uppercase}
 .pbpseg{display:flex;padding:3px;border-radius:22px;background:var(--rule);
@@ -504,7 +557,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pbpseg button{flex:1 1 0;padding:8px 6px;border-radius:19px;
   font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;
   letter-spacing:.03em;color:var(--mute);white-space:nowrap}
-.pbpseg button[aria-pressed="true"]{background:var(--panel);color:#fff;
+.pbpseg button[aria-pressed="true"]{background:var(--panel);color:var(--hi);
   box-shadow:0 1px 4px rgba(0,0,0,.45)}
 .pbpteams{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .pbpt{display:flex;align-items:center;gap:6px;padding:4px 11px;
@@ -512,7 +565,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.05em;
   color:var(--mute)}
 .pbpt img{width:15px;height:15px;object-fit:contain}
-.pbpt[aria-pressed="true"]{border-color:var(--team-accent);color:#fff;
+.pbpt[aria-pressed="true"]{border-color:var(--team-accent);color:var(--hi);
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 .pbpq{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--chalk);
@@ -528,14 +581,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pbplogo span{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--dim)}
 .pbpmid{flex:1 1 auto;min-width:0}
 .pbptitle{display:flex;align-items:center;gap:8px;
-  font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff;line-height:1.2}
+  font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi);line-height:1.2}
 .pbptitle .impact{margin-left:0}
 .pbpwhen{margin-top:3px;font-size:12.5px;color:var(--dim)}
 .pbpsc{display:flex;gap:14px;flex:0 0 auto}
 .pbpcol{display:flex;flex-direction:column;align-items:center;min-width:30px}
 .pbpcol b{font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--mute);
   line-height:1.1}
-.pbpcol.by b{color:#fff}
+.pbpcol.by b{color:var(--hi)}
 .pbpcol span{font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.06em;color:var(--dim);margin-top:2px}
 .pbpbody{margin:9px 0 0 50px}
@@ -564,13 +617,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .newsrow:first-child{padding-top:2px}
 .newsrow:last-of-type{border-bottom:0}
 .newsimg{flex:0 0 104px;aspect-ratio:16/10;border-radius:6px;overflow:hidden;
-  background:#0B1113;border:1px solid var(--line);position:relative}
+  background:var(--well);border:1px solid var(--line);position:relative}
 .newsimg img{width:100%;height:100%;object-fit:cover;display:block;
   transition:transform .2s}
 /* A headshot or badge standing in for a missing photo sits whole, not cropped. */
 .newsimg.fb img{object-fit:contain;padding:6px;object-position:center bottom}
 a.newsrow:hover .newsimg img{transform:scale(1.04)}
-a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
+a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
 .newstx{flex:1 1 auto;min-width:0}
 .newstitle{font-size:14px;font-weight:600;line-height:1.35;color:var(--chalk);
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -600,6 +653,9 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
+/* ---------- theme button ---------- */
+#themebtn{margin-left:auto;width:34px;padding:0;font-size:15px;line-height:1}
+
 /* ---------- clip player ---------- */
 #clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
   display:flex;align-items:center;justify-content:center;padding:16px}
@@ -608,11 +664,19 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   border-radius:10px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
 .cliphead{display:flex;align-items:center;gap:10px;padding:10px 12px;
   border-bottom:1px solid var(--line)}
-#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:#fff;
+#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:var(--hi);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #clipframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;
   max-height:78vh}
 #clipframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ytholder{position:absolute;inset:0}
+.clipblock{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
+.cbt{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
+.cbs{font-size:13px;color:var(--dim);max-width:42ch;line-height:1.45}
+.cbbtn{margin-top:6px;padding:11px 22px;border-radius:24px;background:#fff;color:#0B0B0B;
+  font-weight:700;font-size:14px;text-decoration:none}
+.cbbtn:hover{background:#e8e8e8}
 .clipdemo{position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:12px;color:var(--dim);
   font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
@@ -677,7 +741,7 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   display:flex;align-items:center;gap:10px;width:100%;text-align:left;
   padding:8px 14px;border-bottom:1px solid var(--rule);
 }
-.res:hover,.res.on{background:#243039}
+.res:hover,.res.on{background:var(--hover)}
 .res .rnum{
   flex:0 0 26px;font-family:'Archivo Black',sans-serif;font-size:11px;
   color:var(--dim);text-align:right;
@@ -698,11 +762,11 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .sit .l b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:12.5px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--mute);font-weight:600}
 .sit .l span{font-size:11px;color:var(--dim)}
-.sit .v{font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff;
+.sit .v{font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi);
   min-width:56px;text-align:right}
 .sit .r{flex:0 0 62px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-size:11.5px;color:var(--dim)}
-.sit .r.good{color:#5FBF8A} .sit .r.low{color:#8C6A6A}
+.sit .r.good{color:var(--good-t)} .sit .r.low{color:#8C6A6A}
 
 /* ---------- compare ---------- */
 #cmp{
@@ -712,7 +776,7 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 #cmp[hidden]{display:none}
 .cmphead{display:flex;align-items:center;justify-content:space-between;gap:14px;
   margin-bottom:14px;flex:0 0 auto}
-.cmphead h2{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.cmphead h2{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
 #cmpclose{
   font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
@@ -731,7 +795,7 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .cmprow .k{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:12px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
 .cmprow .val{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--chalk)}
-.cmprow .val.win{color:#5FBF8A}
+.cmprow .val.win{color:var(--good-t)}
 @media (max-width:700px){ .cmpgrid{grid-template-columns:1fr} }
 
 /* ---------- career table ---------- */
@@ -749,8 +813,8 @@ table.car .yr{text-align:left;font-family:'Archivo Black',sans-serif;font-size:1
 table.car .tm{text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.08em;color:var(--dim)}
 table.car tr.cur td{background:color-mix(in srgb,var(--team) 13%,transparent)}
-table.car tr.cur .yr{color:#fff}
-table.car td.best{color:#5FBF8A;font-weight:600}
+table.car tr.cur .yr{color:var(--hi)}
+table.car td.best{color:var(--good-t);font-weight:600}
 .carnote{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.5}
 
 /* ---------- league leaders ---------- */
@@ -759,7 +823,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 #lead[hidden]{display:none}
 .lhead{display:flex;align-items:center;justify-content:space-between;gap:14px;
   margin-bottom:12px;flex:0 0 auto}
-.lhead h2{font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff}
+.lhead h2{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi)}
 .lsplit{flex:1 1 auto;display:flex;gap:16px;min-height:0;max-width:940px;
   margin:0 auto;width:100%}
 .lcats{flex:0 0 210px;overflow-y:auto;border-right:1px solid var(--line);padding-right:10px}
@@ -775,16 +839,16 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .lseason{flex:1 1 0;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.09em;
   color:var(--mute)}
-.lseason[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.lseason[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 24%,transparent)}
 .lcat{
   display:block;width:100%;text-align:left;padding:6px 9px;border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:12.5px;letter-spacing:.06em;
   color:var(--mute);
 }
-.lcat:hover{background:#243039;color:var(--chalk)}
+.lcat:hover{background:var(--hover);color:var(--chalk)}
 .lcat[aria-pressed="true"]{background:color-mix(in srgb,var(--team) 22%,transparent);
-  color:#fff}
+  color:var(--hi)}
 /* The values in here are right-aligned, and an overlay scrollbar sits on top of
    whatever is under it -- so the ratings were partly hidden behind it. Reserve a
    gutter and make the bar thin and quiet, as elsewhere in the app. */
@@ -794,16 +858,16 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .lrows::-webkit-scrollbar-track{background:transparent}
 .lrows::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 .lrows::-webkit-scrollbar-thumb:hover{background:var(--mute)}
-.ltitle{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff;margin-bottom:3px}
+.ltitle{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi);margin-bottom:3px}
 .lsub{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--dim);margin-bottom:11px}
 .lrow{display:flex;align-items:center;gap:11px;padding:7px 0;width:100%;text-align:left;
   border-bottom:1px solid var(--rule)}
-.lrow:hover .ln{color:#fff}
+.lrow:hover .ln{color:var(--hi)}
 .lrow .lr{flex:0 0 26px;text-align:right;font-family:'Archivo Black',sans-serif;
   font-size:12px;color:var(--dim)}
 .lrow.top .lr{color:var(--brass)}
-.lrow .lf{flex:0 0 28px;height:28px;border-radius:50%;overflow:hidden;background:#0B1113;
+.lrow .lf{flex:0 0 28px;height:28px;border-radius:50%;overflow:hidden;background:var(--well);
   border:1px solid var(--line)}
 .lrow .lf img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .lrow .ln{flex:1 1 auto;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -830,13 +894,13 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;
   color:var(--mute);
 }
-.lyears button[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.lyears button[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 .lrow .lmv{
   flex:0 0 54px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-size:11px;letter-spacing:.06em;color:var(--dim);white-space:nowrap;
 }
-.lrow .lmv.up{color:#5FBF8A} .lrow .lmv.dn{color:#C98080}
+.lrow .lmv.up{color:var(--good-t)} .lrow .lmv.dn{color:var(--bad2-t)}
 .lrow .lmv.new{color:var(--brass)}
 
 /* ---------- learn: quiz ---------- */
@@ -847,7 +911,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   display:flex;flex-direction:column;justify-content:center}
 .qhead{display:flex;align-items:center;justify-content:space-between;gap:14px;
   margin-bottom:18px;max-width:520px;width:100%;margin-left:auto;margin-right:auto}
-.qhead h2{font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff}
+.qhead h2{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi)}
 .qx{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
   padding:6px 12px;border-radius:var(--r)}
@@ -859,11 +923,11 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .qbar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:20px}
 .qbar i{display:block;height:100%;background:var(--team);transition:width .25s}
 .qface{width:150px;height:150px;border-radius:50%;overflow:hidden;margin:0 auto 16px;
-  background:#0B1113;border:3px solid var(--team)}
+  background:var(--well);border:3px solid var(--team)}
 .qface img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .qlogo{width:92px;height:92px;margin:0 auto 14px;display:block;object-fit:contain}
 .qprompt{text-align:center;font-size:17px;line-height:1.4;margin-bottom:20px;color:var(--chalk)}
-.qprompt b{font-family:'Archivo Black',sans-serif;color:#fff;display:block;
+.qprompt b{font-family:'Archivo Black',sans-serif;color:var(--hi);display:block;
   font-size:21px;margin-top:5px}
 .qopts{display:flex;flex-direction:column;gap:8px}
 .qopt{
@@ -871,7 +935,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   background:var(--panel);text-align:left;font-size:14.5px;color:var(--chalk);
   transition:.12s;
 }
-.qopt:hover:not(:disabled){border-color:var(--team);background:#243039}
+.qopt:hover:not(:disabled){border-color:var(--team);background:var(--hover)}
 .qopt:disabled{cursor:default}
 .qopt.right{border-color:#5FBF8A;background:color-mix(in srgb,#5FBF8A 16%,transparent);color:#8FE0B4}
 .qopt.wrong{border-color:#C98080;background:color-mix(in srgb,#C98080 14%,transparent);color:#E0A4A4}
@@ -888,10 +952,10 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   font-family:'Barlow Condensed',sans-serif;font-size:12.5px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--mute);
 }
-.qpick button[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.qpick button[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 .qdone{text-align:center}
-.qdone .big{font-family:'Archivo Black',sans-serif;font-size:46px;color:#fff;line-height:1}
+.qdone .big{font-family:'Archivo Black',sans-serif;font-size:46px;color:var(--hi);line-height:1}
 .qdone .sub{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--dim);margin-top:6px}
 .qmiss{margin-top:20px;text-align:left}
@@ -899,20 +963,20 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   text-transform:uppercase;color:var(--dim);margin-bottom:8px}
 .qmissrow{display:flex;align-items:center;gap:10px;padding:6px 0;
   border-bottom:1px solid var(--rule);font-size:13.5px}
-.qmissrow .mf{flex:0 0 26px;height:26px;border-radius:50%;overflow:hidden;background:#0B1113}
+.qmissrow .mf{flex:0 0 26px;height:26px;border-radius:50%;overflow:hidden;background:var(--well)}
 .qmissrow .mf img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .qmissrow .mt{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 
 /* ---------- learn: catch up ---------- */
 .cuhead{display:flex;align-items:flex-end;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.cuhead .big{font-family:'Archivo Black',sans-serif;font-size:25px;color:#fff;line-height:1}
+.cuhead .big{font-family:'Archivo Black',sans-serif;font-size:25px;color:var(--hi);line-height:1}
 .cuhead .lab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--dim);margin-top:5px}
 .curow{display:flex;align-items:center;gap:10px;padding:7px 0;width:100%;text-align:left;
   border-bottom:1px solid var(--rule)}
-.curow:hover .cn{color:#fff}
-.curow .cf{flex:0 0 28px;height:28px;border-radius:50%;overflow:hidden;background:#0B1113;
+.curow:hover .cn{color:var(--hi)}
+.curow .cf{flex:0 0 28px;height:28px;border-radius:50%;overflow:hidden;background:var(--well);
   border:1px solid var(--line)}
 .curow .cf img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .curow .cn{flex:1 1 auto;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -922,7 +986,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .yrpick{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 4px}
 .yrpick button{padding:6px 11px;border:1px solid var(--line);border-radius:var(--r);
   font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;color:var(--mute)}
-.yrpick button[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.yrpick button[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 
 
@@ -944,35 +1008,35 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 #livebar{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:7px 11px;margin-bottom:9px;border-radius:var(--r);
-  background:#141C20;border:1px solid var(--line);
+  background:var(--hover2);border:1px solid var(--line);
 }
 #livebar.live{
   background:color-mix(in srgb,#C25B5B 12%,transparent);
   border-color:color-mix(in srgb,#C25B5B 35%,transparent);
 }
-#livebar.final{background:#141C20;border-color:var(--line)}
+#livebar.final{background:var(--hover2);border-color:var(--line)}
 #livebar .when{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.09em;
   text-transform:uppercase;color:var(--mute);
 }
 #livebar .vs{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--chalk)}
-#livebar.live .livelab{color:#E4A4A4}
+#livebar.live .livelab{color:var(--bad-t)}
 #livebar .livelab{color:var(--mute)}
 #livebar[hidden]{display:none}
 .livedot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:0 0 auto}
 .livedot.on{background:#E05B5B;animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.livescore{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.livescore{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi)}
 .livelab,.livegame{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.09em;
-  text-transform:uppercase;color:#E4A4A4;
+  text-transform:uppercase;color:var(--bad-t);
 }
 .livegame{color:var(--mute)}
 .chip .livestat{
   position:absolute;top:calc(100% + 19px);left:50%;transform:translateX(-50%);
   pointer-events:none;white-space:nowrap;
   font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;
-  letter-spacing:.05em;color:#E05B5B;
+  letter-spacing:.05em;color:var(--alert-t);
 }
 
 /* ---------- scores page ---------- */
@@ -990,10 +1054,10 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 }
 .wkstrip button.now{border-color:color-mix(in srgb,var(--brass) 60%,transparent);
   color:var(--brass)}
-.wkstrip button[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.wkstrip button[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 22%,transparent)}
 .wkhead{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
-.wkhead .wknum{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.wkhead .wknum{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
 .wkhead .wkmeta{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .daylab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.14em;
@@ -1017,7 +1081,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .sbname{flex:1 1 auto;min-width:0}
 .sbnick{font-size:14px;color:var(--mute);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
-.sbteam.won .sbnick{color:#fff;font-weight:600}
+.sbteam.won .sbnick{color:var(--hi);font-weight:600}
 .sbteam.lost .sbnick{color:var(--dim)}
 .sbrec{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.08em;
   color:var(--dim)}
@@ -1027,7 +1091,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .sbteam.hasball .sbposs{color:var(--brass)}
 .sbscore{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--chalk);
   min-width:30px;text-align:right}
-.sbteam.won .sbscore{color:#fff}
+.sbteam.won .sbscore{color:var(--hi)}
 .sbteam.lost .sbscore{color:var(--dim)}
 .sbfoot{display:flex;align-items:center;gap:10px;
   margin-top:8px;padding-top:8px;border-top:1px solid var(--rule);min-height:24px}
@@ -1035,10 +1099,10 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   white-space:nowrap}
 .sbtime{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.09em;
   text-transform:uppercase;color:var(--dim);white-space:nowrap}
-.sbtime.hot{color:#E4A4A4;font-weight:600}
+.sbtime.hot{color:var(--bad-t);font-weight:600}
 .sbdd{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.07em;
   text-transform:uppercase;color:var(--mute)}
-.sbdd.rz{color:#E4A4A4}
+.sbdd.rz{color:var(--bad-t)}
 .sbstream{
   margin-left:auto;flex:0 0 auto;text-decoration:none;
   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.12em;
@@ -1046,7 +1110,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   border:1px solid color-mix(in srgb,var(--team-accent) 50%,transparent);
   padding:3px 10px;border-radius:9px;white-space:nowrap;
 }
-.sbstream:hover{color:#fff;background:color-mix(in srgb,var(--team-accent) 22%,transparent)}
+.sbstream:hover{color:var(--hi);background:color-mix(in srgb,var(--team-accent) 22%,transparent)}
 @media (max-width:420px){
   .sbgrid{grid-template-columns:1fr}
   .sbnick{font-size:13px}
@@ -1104,7 +1168,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   padding:8px 10px;border-bottom:1px solid var(--rule)}
 .drow:last-child{border-bottom:0}
 .drow.on{background:color-mix(in srgb,var(--team) 20%,transparent)}
-.drow:hover{background:#243039}
+.drow:hover{background:var(--hover)}
 .dnum{flex:0 0 16px;font-family:'Archivo Black',sans-serif;font-size:10px;
   color:var(--dim);padding-top:2px}
 .dkind{flex:0 0 48px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
@@ -1135,7 +1199,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   margin:10px 0 6px;border:1px solid var(--line)}
 .mez{flex:0 0 34px;display:flex;align-items:center;justify-content:center;
   position:relative}
-.mez span{font-family:'Archivo Black',sans-serif;font-size:10px;color:#fff;
+.mez span{font-family:'Archivo Black',sans-serif;font-size:10px;color:var(--hi);
   text-shadow:0 1px 3px rgba(0,0,0,.8);letter-spacing:.04em}
 .mez.own{border-right:2px solid rgba(255,255,255,.5)}
 .mez.def{border-left:2px solid rgba(255,255,255,.5)}
@@ -1162,11 +1226,11 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   margin-bottom:2px}
 .posslogo{width:26px;height:26px;object-fit:contain;flex:0 0 auto}
 .posstxt{flex:1 1 auto;min-width:0}
-.possn{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.possn{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi)}
 .possd{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--dim);margin-top:2px}
 .possrz{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.1em;
-  text-transform:uppercase;color:#E4A4A4;border:1px solid #C25B5B;
+  text-transform:uppercase;color:var(--bad-t);border:1px solid #C25B5B;
   padding:2px 7px;border-radius:9px;white-space:nowrap}
 
 /* ---------- win probability ---------- */
@@ -1175,7 +1239,7 @@ table.car td.best{color:#5FBF8A;font-weight:600}
 .rkrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
   padding:9px 0;border-bottom:1px solid var(--rule)}
 .rkrow:last-of-type{border-bottom:0}
-.rkrow:hover .rkname{color:#fff}
+.rkrow:hover .rkname{color:var(--hi)}
 .rknum{flex:0 0 22px;text-align:right;font-family:'Archivo Black',sans-serif;
   font-size:13px;color:var(--dim)}
 .rkrow.top .rknum{color:var(--brass)}
@@ -1187,10 +1251,10 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .rkv{text-align:right;flex:0 0 auto}
 .rknum2{display:block;font-family:'Archivo Black',sans-serif;font-size:15px;
-  color:#fff;line-height:1}
+  color:var(--hi);line-height:1}
 .rkspread{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;
   letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:2px}
-.rkspread.wide{color:#E0A15B}
+.rkspread.wide{color:var(--warn-t)}
 .rkmove{flex:0 0 46px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-weight:700;font-size:11.5px;letter-spacing:.05em;color:var(--dim)}
 .rkmove.up{color:var(--rise)} .rkmove.dn{color:var(--fall)}
@@ -1204,12 +1268,12 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .wlrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
   padding:8px 0;border-bottom:1px solid var(--rule)}
 .wlrow:last-of-type{border-bottom:0}
-.wlrow:hover .wln{color:#fff}
+.wlrow:hover .wln{color:var(--hi)}
 .wlrow:disabled{cursor:default}
 .wlr{flex:0 0 18px;text-align:right;font-family:'Archivo Black',sans-serif;
   font-size:11px;color:var(--dim)}
 .wlrow.top .wlr{color:var(--brass)}
-.wlf{flex:0 0 34px;height:34px;border-radius:50%;overflow:hidden;background:#0B1113;
+.wlf{flex:0 0 34px;height:34px;border-radius:50%;overflow:hidden;background:var(--well);
   border:1px solid var(--line)}
 .wlrow.top .wlf{border-color:var(--brass)}
 .wlf img{width:100%;height:100%;object-fit:cover;object-position:top center}
@@ -1233,13 +1297,13 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.06em;
   color:var(--mute);white-space:nowrap}
 .wcat:hover{border-color:var(--team);color:var(--chalk)}
-.wcat[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.wcat[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 24%,transparent)}
-.wkmeta.livebadge{color:#E4A4A4}
+.wkmeta.livebadge{color:var(--bad-t)}
 .wkmeta.livebadge::before{content:"";display:inline-block;width:7px;height:7px;
   border-radius:50%;background:#E05B5B;margin-right:6px;
   animation:pulse 1.6s ease-in-out infinite;vertical-align:middle}
-.wlnum{display:block;font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
+.wlnum{display:block;font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi);
   line-height:1}
 .wlrow.top .wlnum{color:var(--brass)}
 .wlu{display:block;font-family:'Barlow Condensed',sans-serif;font-size:9.5px;
@@ -1267,7 +1331,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .lscrow.lschd span{font-family:'Barlow Condensed',sans-serif;font-size:10px;
   color:var(--dim)}
 .lsct{text-align:left;color:var(--team-accent)!important;font-size:11.5px!important}
-.lsctot{color:#fff!important}
+.lsctot{color:var(--hi)!important}
 
 /* ---------- scoring plays ---------- */
 .scorelist{border:1px solid var(--line);border-radius:var(--r);
@@ -1312,10 +1376,10 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   background:color-mix(in srgb,var(--brass) 12%,transparent)}
 .toast.out{opacity:0;transform:translateY(6px);transition:.35s}
 @keyframes toastin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.toastt{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.toastt{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi)}
 .toasts2{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:3px}
-.toast.strong .toasts2{color:#E0B48A}
+.toast.strong .toasts2{color:var(--warn2-t)}
 @media (max-width:520px){ #toasts{left:14px;right:14px;max-width:none} }
 
 /* ---------- broadcast delay ---------- */
@@ -1332,7 +1396,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-left:4px}
 /* Unmistakable, because a delayed score that looks live is worse than no score. */
 .dlyflag{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
-  letter-spacing:.12em;text-transform:uppercase;color:#E0B48A;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--warn2-t);
   background:color-mix(in srgb,var(--brass) 13%,transparent);
   border:1px solid color-mix(in srgb,var(--brass) 38%,transparent);
   border-radius:var(--r);padding:5px 10px;margin-bottom:12px}
@@ -1361,7 +1425,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   letter-spacing:.07em;color:var(--mute)}
 .gssc{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--dim);
   min-width:18px;text-align:right}
-.gssc.lead{color:#fff}
+.gssc.lead{color:var(--hi)}
 .gsfoot{display:flex;align-items:center;gap:5px;margin-top:4px;
   font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--dim);white-space:nowrap}
@@ -1462,10 +1526,10 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .blogo{width:15px;height:15px;object-fit:contain}
 .brow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
   padding:5px 0}
-.brow:hover .bname{color:#fff}
+.brow:hover .bname{color:var(--hi)}
 .brow:disabled{cursor:default}
 .bface{flex:0 0 30px;height:30px;border-radius:50%;overflow:hidden;
-  background:#0B1113;border:1px solid var(--line)}
+  background:var(--well);border:1px solid var(--line)}
 .bface img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .bfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
   font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
@@ -1476,7 +1540,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .bline{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.07em;color:var(--dim);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
-.bbig{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
+.bbig{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi);
   min-width:38px;text-align:right;line-height:1}
 
 /* ---------- reset the chart ---------- */
@@ -1488,7 +1552,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   padding:4px 10px;border-radius:var(--r);margin-left:10px;white-space:nowrap;
 }
 #resetchart:hover{background:color-mix(in srgb,var(--brass) 22%,transparent);
-  color:#fff}
+  color:var(--hi)}
 
 /* ---------- hold to swap ---------- */
 .chip.holding .face{transform:scale(.92);transition:transform .42s ease}
@@ -1505,14 +1569,14 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .swapn{color:var(--dim);letter-spacing:.08em}
 .swaprow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
   padding:6px;border-radius:2px}
-.swaprow:hover{background:#243039}
+.swaprow:hover{background:var(--hover)}
 .swaprow.on{background:color-mix(in srgb,var(--team) 22%,transparent)}
 .swapi{flex:0 0 16px;height:16px;border-radius:2px;background:var(--rule);
   color:var(--mute);font-family:'Barlow Condensed',sans-serif;font-weight:700;
   font-size:10px;display:flex;align-items:center;justify-content:center}
 .swaprow.on .swapi{background:var(--team);color:var(--team2)}
 .swapf{flex:0 0 26px;height:26px;border-radius:50%;overflow:hidden;
-  background:#0B1113;border:1px solid var(--line)}
+  background:var(--well);border:1px solid var(--line)}
 .swapf img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .swapnm{flex:1 1 auto;min-width:0}
 .swapname{font-size:12.5px;color:var(--chalk);white-space:nowrap;overflow:hidden;
@@ -1537,7 +1601,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   letter-spacing:.11em;text-transform:uppercase;color:var(--mute);
   border:1px solid var(--line);padding:5px 10px;border-radius:var(--r)}
 #conceptbtn:hover{color:var(--chalk);border-color:var(--team)}
-.ctitle{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;
+.ctitle{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi);
   margin-bottom:6px}
 .cblurb{font-size:13.5px;line-height:1.55;color:var(--mute);margin-bottom:12px;
   max-width:60ch}
@@ -1556,7 +1620,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   font-weight:700;font-size:9.5px;letter-spacing:.04em;z-index:3}
 /* Offence light, defence dark: the convention every coaching diagram uses. */
 .cdot.o{background:var(--chalk);color:#10171A;border:2px solid var(--chalk)}
-.cdot.d{background:transparent;color:#E08A8A;border:2px solid #E08A8A}
+.cdot.d{background:transparent;color:var(--fall);border:2px solid #E08A8A}
 .cdot.gap{background:transparent;color:var(--brass);border:1px dashed var(--brass);
   width:20px;height:20px;font-size:10px;z-index:2}
 .cdot.hi{box-shadow:0 0 0 4px color-mix(in srgb,var(--brass) 40%,transparent)}
@@ -1575,7 +1639,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 #game[hidden]{display:none}
 #gamebody{flex:1 1 auto;overflow-y:auto;max-width:760px;margin:0 auto;width:100%}
 .gbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.gteam{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff}
+.gteam{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi)}
 .gsmall{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.11em;text-transform:uppercase;color:var(--mute);
   border:1px solid var(--line);padding:5px 10px;border-radius:var(--r)}
@@ -1596,7 +1660,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   border:2px dashed color-mix(in srgb,var(--chalk) 30%,transparent);
   background:rgba(0,0,0,.25)}
 .gslot.over .gempty{border-color:var(--team-accent);background:rgba(255,255,255,.08)}
-.gdisc{width:44px;height:44px;border-radius:50%;overflow:hidden;background:#0B1113;
+.gdisc{width:44px;height:44px;border-radius:50%;overflow:hidden;background:var(--well);
   border:2px solid var(--team-accent)}
 .gdisc img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .gfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
@@ -1616,7 +1680,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .gchip:hover{border-color:var(--line)}
 .gchip.held{border-color:var(--team-accent);
   background:color-mix(in srgb,var(--team-accent) 18%,transparent)}
-.gcf{width:40px;height:40px;border-radius:50%;overflow:hidden;background:#0B1113;
+.gcf{width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--well);
   border:1px solid var(--line)}
 .gcf img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .gcn{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;color:var(--chalk);
@@ -1624,7 +1688,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .gfoot{margin-top:10px}
 .gscore{text-align:center;margin-bottom:10px}
 .gscore .gbig{display:block;font-family:'Archivo Black',sans-serif;font-size:26px;
-  color:#fff}
+  color:var(--hi)}
 .gscore .gsub{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-top:4px}
 @media (max-width:560px){
@@ -1643,7 +1707,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   gap:10px;margin-bottom:6px}
 .wcard{text-align:center;padding:0}
 .wface{position:relative;width:100%;aspect-ratio:1;border-radius:50%;
-  overflow:visible;background:#0B1113;border:2px solid var(--line);
+  overflow:visible;background:var(--well);border:2px solid var(--line);
   transition:border-color .13s,transform .13s}
 .wcard:hover .wface{border-color:var(--team-accent);transform:scale(1.06)}
 .wface img{width:100%;height:100%;object-fit:cover;object-position:top center;
@@ -1678,7 +1742,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   margin-bottom:4px;text-align:center}
 .gapcell.empty{opacity:.35}
 .gapcell.hastd{border-color:var(--brass)}
-.gapcell .gn{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.gapcell .gn{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi)}
 .gapcell .ga{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--dim)}
 
 /* ---------- visual: season strip ---------- */
@@ -1730,7 +1794,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   margin-bottom:10px;flex:0 0 auto}
 .wlive{display:flex;align-items:center;gap:7px;
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:#E4A4A4}
+  text-transform:uppercase;color:var(--bad-t)}
 .wlive i{width:8px;height:8px;border-radius:50%;background:#E05B5B;
   animation:pulse 1.6s ease-in-out infinite}
 /* No width cap here. The cap belonged on the single-column layout, but it was
@@ -1743,11 +1807,11 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .wlogo{width:34px;height:34px;object-fit:contain;flex:0 0 auto}
 .wab{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.1em;
   color:var(--mute);flex:1 1 auto}
-.wpts{font-family:'Archivo Black',sans-serif;font-size:32px;color:#fff;line-height:1}
+.wpts{font-family:'Archivo Black',sans-serif;font-size:32px;color:var(--hi);line-height:1}
 .wstat{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:12.5px;
   letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
 .wdd{text-align:center;font-family:'Archivo Black',sans-serif;font-size:24px;
-  color:#fff;margin-bottom:10px}
+  color:var(--hi);margin-bottom:10px}
 .wfield{position:relative;height:16px;border-radius:3px;background:#1B252B;
   overflow:hidden;margin-bottom:6px}
 .wfield .rz{position:absolute;right:0;top:0;bottom:0;width:20%;
@@ -1775,7 +1839,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .pname2{font-size:14.5px;line-height:1.5;color:var(--team-accent);font-weight:600;
   border-bottom:1px dotted color-mix(in srgb,var(--team-accent) 55%,transparent);
   padding:0}
-.pname2:hover{color:#fff}
+.pname2:hover{color:var(--hi)}
 #watchbtn{
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--team2);background:#D06A6A;
@@ -1805,7 +1869,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .adot{position:absolute;transform:translate(-50%,-50%);
   display:flex;flex-direction:column;align-items:center;gap:2px;
   width:34px;z-index:2}
-.aface{width:28px;height:28px;border-radius:50%;overflow:hidden;background:#0B1113;
+.aface{width:28px;height:28px;border-radius:50%;overflow:hidden;background:var(--well);
   border:2px solid var(--team-accent)}
 .aface img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .afb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
@@ -1829,12 +1893,12 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   background:color-mix(in srgb,#E0A15B 10%,transparent)}
 .wxbox.indoors{color:var(--dim)}
 .wxi{font-size:15px}
-.wxv{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.wxv{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
 .wxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.09em;
   text-transform:uppercase;color:var(--mute)}
 .wxs{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.07em;
   text-transform:uppercase;color:var(--dim)}
-.wxn{flex:1 1 100%;font-size:12px;color:#E0B48A;line-height:1.4}
+.wxn{flex:1 1 100%;font-size:12px;color:var(--warn2-t);line-height:1.4}
 .drift{display:flex;flex-direction:column;gap:3px;margin-top:8px}
 .drift span{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--team-accent)}
@@ -1847,12 +1911,12 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   border:1px solid color-mix(in srgb,var(--brass) 45%,transparent)}
 .xfl{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--brass)}
-.xfn{font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff}
+.xfn{font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi)}
 .abils{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
 .abil{padding:3px 9px;border-radius:11px;border:1px solid var(--line);
   font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.07em;
   color:var(--mute)}
-.abil:hover{border-color:var(--team-accent);color:#fff}
+.abil:hover{border-color:var(--team-accent);color:var(--hi)}
 .madarch{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.11em;text-transform:uppercase;color:var(--team-accent);
   margin:-2px 0 8px}
@@ -1875,7 +1939,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
    ESPN's layout, in this app's colours: quarter headings, one card per play,
    logo at the left, a plain title, the time, and on a score the running total. */
 .pbp{margin-top:6px}
-.pbphd{font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff;
+.pbphd{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi);
   letter-spacing:.02em;padding-bottom:10px;margin-bottom:12px;
   border-bottom:1px solid var(--line);text-transform:uppercase}
 .pbpseg{display:flex;padding:3px;border-radius:22px;background:var(--rule);
@@ -1883,7 +1947,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .pbpseg button{flex:1 1 0;padding:8px 6px;border-radius:19px;
   font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;
   letter-spacing:.03em;color:var(--mute);white-space:nowrap}
-.pbpseg button[aria-pressed="true"]{background:var(--panel);color:#fff;
+.pbpseg button[aria-pressed="true"]{background:var(--panel);color:var(--hi);
   box-shadow:0 1px 4px rgba(0,0,0,.45)}
 .pbpteams{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .pbpt{display:flex;align-items:center;gap:6px;padding:4px 11px;
@@ -1891,7 +1955,7 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
   font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.05em;
   color:var(--mute)}
 .pbpt img{width:15px;height:15px;object-fit:contain}
-.pbpt[aria-pressed="true"]{border-color:var(--team-accent);color:#fff;
+.pbpt[aria-pressed="true"]{border-color:var(--team-accent);color:var(--hi);
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 .pbpq{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--chalk);
@@ -1907,14 +1971,14 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .pbplogo span{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--dim)}
 .pbpmid{flex:1 1 auto;min-width:0}
 .pbptitle{display:flex;align-items:center;gap:8px;
-  font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff;line-height:1.2}
+  font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi);line-height:1.2}
 .pbptitle .impact{margin-left:0}
 .pbpwhen{margin-top:3px;font-size:12.5px;color:var(--dim)}
 .pbpsc{display:flex;gap:14px;flex:0 0 auto}
 .pbpcol{display:flex;flex-direction:column;align-items:center;min-width:30px}
 .pbpcol b{font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--mute);
   line-height:1.1}
-.pbpcol.by b{color:#fff}
+.pbpcol.by b{color:var(--hi)}
 .pbpcol span{font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.06em;color:var(--dim);margin-top:2px}
 .pbpbody{margin:9px 0 0 50px}
@@ -1943,13 +2007,13 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .newsrow:first-child{padding-top:2px}
 .newsrow:last-of-type{border-bottom:0}
 .newsimg{flex:0 0 104px;aspect-ratio:16/10;border-radius:6px;overflow:hidden;
-  background:#0B1113;border:1px solid var(--line);position:relative}
+  background:var(--well);border:1px solid var(--line);position:relative}
 .newsimg img{width:100%;height:100%;object-fit:cover;display:block;
   transition:transform .2s}
 /* A headshot or badge standing in for a missing photo sits whole, not cropped. */
 .newsimg.fb img{object-fit:contain;padding:6px;object-position:center bottom}
 a.newsrow:hover .newsimg img{transform:scale(1.04)}
-a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
+a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
 .newstx{flex:1 1 auto;min-width:0}
 .newstitle{font-size:14px;font-weight:600;line-height:1.35;color:var(--chalk);
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -1979,6 +2043,9 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
+/* ---------- theme button ---------- */
+#themebtn{margin-left:auto;width:34px;padding:0;font-size:15px;line-height:1}
+
 /* ---------- clip player ---------- */
 #clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
   display:flex;align-items:center;justify-content:center;padding:16px}
@@ -1987,11 +2054,19 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   border-radius:10px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
 .cliphead{display:flex;align-items:center;gap:10px;padding:10px 12px;
   border-bottom:1px solid var(--line)}
-#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:#fff;
+#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:var(--hi);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #clipframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;
   max-height:78vh}
 #clipframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ytholder{position:absolute;inset:0}
+.clipblock{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
+.cbt{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
+.cbs{font-size:13px;color:var(--dim);max-width:42ch;line-height:1.45}
+.cbbtn{margin-top:6px;padding:11px 22px;border-radius:24px;background:#fff;color:#0B0B0B;
+  font-weight:700;font-size:14px;text-decoration:none}
+.cbbtn:hover{background:#e8e8e8}
 .clipdemo{position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:12px;color:var(--dim);
   font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
@@ -2009,7 +2084,7 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   scroll-snap-type:x proximity}
 .hlcard{flex:0 0 190px;text-decoration:none;scroll-snap-align:start}
 .hlthumb{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--r);
-  overflow:hidden;background:#0B1113;border:1px solid var(--line)}
+  overflow:hidden;background:var(--well);border:1px solid var(--line)}
 .hlthumb img{width:100%;height:100%;object-fit:cover;display:block;
   transition:transform .2s}
 .hlcard:hover .hlthumb img{transform:scale(1.04)}
@@ -2018,6 +2093,12 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:12px;color:#fff;padding-left:2px;
   background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.4)}
+.hlplaytag{display:block;margin-top:4px;padding:0;text-align:left;
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--team-accent)}
+.hlplaytag:hover{color:var(--hi);text-decoration:underline}
+@keyframes playflash{0%{box-shadow:0 0 0 3px var(--brass)}100%{box-shadow:0 0 0 0 transparent}}
+.pbpc.flash{animation:playflash 1.8s ease-out}
 .hlsrc{position:absolute;left:5px;top:5px;padding:1px 6px;border-radius:2px;
   font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;
   letter-spacing:.1em;color:#fff;background:rgba(0,0,0,.7)}
@@ -2029,13 +2110,13 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .hltitle{margin-top:6px;font-size:12px;line-height:1.35;color:var(--chalk);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
   overflow:hidden}
-.hlcard:hover .hltitle{color:#fff}
+.hlcard:hover .hltitle{color:var(--hi)}
 .hllinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .hllink{flex:1 1 150px;display:flex;flex-direction:column;gap:2px;
   padding:8px 11px;border:1px solid var(--line);border-radius:var(--r);
   text-decoration:none;background:var(--panel)}
 .hllink:hover{border-color:var(--team-accent)}
-.hll{font-family:'Archivo Black',sans-serif;font-size:12px;color:#fff}
+.hll{font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--hi)}
 .hls{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.07em;
   text-transform:uppercase;color:var(--dim)}
 
@@ -2051,7 +2132,7 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;
   color:var(--mute);white-space:nowrap}
 .ffil:hover{border-color:var(--team);color:var(--chalk)}
-.ffil[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.ffil[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 24%,transparent)}
 
 /* ---------- defensive credit ---------- */
@@ -2063,11 +2144,11 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   border-color:color-mix(in srgb,#E0A15B 45%,transparent)}
 .dlab{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--dim)}
-.dtag.big .dlab{color:#E0B48A}
+.dtag.big .dlab{color:var(--warn2-t)}
 .dnm2{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;
   color:var(--chalk);padding:0;border-bottom:1px dotted color-mix(in srgb,var(--chalk) 40%,transparent)}
 .dnm2.plain{border-bottom:0;color:var(--mute)}
-.dnm2:hover{color:#fff}
+.dnm2:hover{color:var(--hi)}
 .wsub{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--dim);margin:4px 0 6px}
@@ -2075,7 +2156,7 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .dlrow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
   padding:6px 0;border-bottom:1px solid var(--rule)}
 .dlrow:last-child{border-bottom:0}
-.dlrow:hover .dln{color:#fff}
+.dlrow:hover .dln{color:var(--hi)}
 .dlt{flex:0 0 32px;font-family:'Archivo Black',sans-serif;font-size:10px;
   color:var(--team-accent)}
 .dln{flex:1 1 auto;font-size:13px;color:var(--chalk);white-space:nowrap;
@@ -2093,13 +2174,13 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   border-radius:var(--r);background:var(--panel)}
 .oddscell .ol{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
-.oddscell .ov{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.oddscell .ov{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
 .oddscell .ov.small{font-size:12px;color:var(--mute);font-family:'Barlow Condensed',sans-serif;
   letter-spacing:.06em}
 table.boxteam td.edge{color:var(--rise)}
 .h2hline{padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);
   background:var(--panel)}
-.h2hline .hn{display:block;font-family:'Archivo Black',sans-serif;font-size:13.5px;color:#fff}
+.h2hline .hn{display:block;font-family:'Archivo Black',sans-serif;font-size:13.5px;color:var(--hi)}
 .h2hline .hm{display:block;margin-top:4px;font-family:'Barlow Condensed',sans-serif;
   font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .mu{display:flex;align-items:stretch;gap:8px;margin-top:8px}
@@ -2108,7 +2189,7 @@ table.boxteam td.edge{color:var(--rise)}
   background:var(--panel);text-align:left}
 .muside.r{flex-direction:row-reverse;text-align:right}
 .muside:hover{border-color:var(--team)}
-.muf{flex:0 0 34px;height:34px;border-radius:50%;overflow:hidden;background:#0B1113;
+.muf{flex:0 0 34px;height:34px;border-radius:50%;overflow:hidden;background:var(--well);
   border:1px solid var(--line)}
 .muf img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .mut{flex:1 1 auto;min-width:0}
@@ -2118,7 +2199,7 @@ table.boxteam td.edge{color:var(--rise)}
   text-transform:uppercase;color:var(--dim);margin-top:2px}
 .mut100{font-family:'Archivo Black',sans-serif;font-size:10.5px;color:var(--brass);
   flex:0 0 auto}
-.mut100.hurt{color:#E0A15B;font-size:13px}
+.mut100.hurt{color:var(--warn-t);font-size:13px}
 .muvs{align-self:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--dim);flex:0 0 auto}
 .mucap{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
@@ -2157,7 +2238,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 .injrow{display:flex;align-items:center;gap:9px;padding:6px 0;width:100%;
   text-align:left;border-bottom:1px solid var(--rule)}
 .injrow:last-child{border-bottom:0}
-.injrow:hover .in2{color:#fff}
+.injrow:hover .in2{color:var(--hi)}
 .injrow .idot{flex:0 0 7px;height:7px;border-radius:50%;background:var(--dim)}
 .injrow.s5 .idot,.injrow.s4 .idot{background:#D06A6A}
 .injrow.s3 .idot{background:#E0A15B}
@@ -2170,7 +2251,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 .injrow .is{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--mute);
   white-space:nowrap;text-align:right}
-.injrow.s5 .is,.injrow.s4 .is{color:#E4A4A4}
+.injrow.s5 .is,.injrow.s4 .is{color:var(--bad-t)}
 .injnone{font-size:12.5px;color:var(--dim);padding:6px 0}
 
 /* ---------- box score popup ---------- */
@@ -2179,7 +2260,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 #box[hidden]{display:none}
 #boxbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
 .boxscore-line{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
-.boxscore-line .bt{font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff}
+.boxscore-line .bt{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
 .boxscore-line .bd{color:var(--dim)}
 .boxscore-line .bs{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
@@ -2193,25 +2274,25 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
   font-family:'Barlow Condensed',sans-serif;font-size:12.5px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--mute);
 }
-.boxtabs button[aria-pressed="true"]{border-color:var(--team);color:#fff;
+.boxtabs button[aria-pressed="true"]{border-color:var(--team);color:var(--hi);
   background:color-mix(in srgb,var(--team) 20%,transparent)}
 table.boxteam td.mid{text-align:center;font-family:'Barlow Condensed',sans-serif;
   font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
 table.car td.bxname{max-width:170px;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;color:var(--mute)}
 table.car td.bxname.link{color:var(--chalk);cursor:pointer}
-table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
+table.car td.bxname.link:hover{color:var(--hi);text-decoration:underline}
 /* The score is a button now, so it has to look like one. */
 .scoreclick{cursor:pointer;border-bottom:1px dotted color-mix(in srgb,#fff 35%,transparent)}
-.scoreclick:hover{color:#fff}
+.scoreclick:hover{color:var(--hi)}
 
 /* ---------- live game panel ---------- */
-#livebar .dd{font-family:'Archivo Black',sans-serif;font-size:11.5px;color:#fff;
+#livebar .dd{font-family:'Archivo Black',sans-serif;font-size:11.5px;color:var(--hi);
   padding:2px 7px;border-radius:2px;background:rgba(255,255,255,.09)}
 #livebar .wp{font-family:'Barlow Condensed',sans-serif;font-size:11px;
   letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
 .gsc{display:flex;align-items:baseline;gap:10px;margin:2px 0 10px}
-.gsc .t{font-family:'Archivo Black',sans-serif;font-size:19px;color:#fff}
+.gsc .t{font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--hi)}
 .gsc .d{color:var(--dim)}
 .ddbig{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--chalk);
   margin-bottom:8px}
@@ -2221,7 +2302,7 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
 .drv .dt{flex:0 0 34px;font-family:'Archivo Black',sans-serif;font-size:10.5px;color:var(--dim)}
 .drv .dr2{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:12px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--chalk)}
-.drv.score .dr2{color:#5FBF8A}
+.drv.score .dr2{color:var(--good-t)}
 .drv .dm{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--dim);
   white-space:nowrap}
 /* A player confirmed on the field today, as opposed to merely projected there. */
@@ -2231,10 +2312,10 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
 .vsusual:last-of-type{border-bottom:0}
 .vsusual .k{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:12px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
-.vsusual .now{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.vsusual .now{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi)}
 .vsusual .cmp2{flex:0 0 96px;text-align:right;font-family:'Barlow Condensed',sans-serif;
   font-size:11px;letter-spacing:.06em;color:var(--dim)}
-.vsusual .cmp2.up{color:#5FBF8A} .vsusual .cmp2.dn{color:#8C6A6A}
+.vsusual .cmp2.up{color:var(--good-t)} .vsusual .cmp2.dn{color:#8C6A6A}
 
 /* ---------- time scrubber ---------- */
 #timebar{
@@ -2273,9 +2354,9 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
 .comp{display:flex;align-items:center;gap:10px;padding:7px 0;width:100%;text-align:left;
   border-bottom:1px solid var(--rule)}
 .comp:last-of-type{border-bottom:0}
-.comp:hover .cn{color:#fff}
+.comp:hover .cn{color:var(--hi)}
 .comp .cf{
-  flex:0 0 30px;height:30px;border-radius:50%;overflow:hidden;background:#0B1113;
+  flex:0 0 30px;height:30px;border-radius:50%;overflow:hidden;background:var(--well);
   border:1px solid var(--line);
 }
 .comp .cf img{width:100%;height:100%;object-fit:cover;object-position:top center}
@@ -2286,7 +2367,7 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
 /* ---------- trade ---------- */
 .tradebox{max-width:760px;margin:0 auto;width:100%}
 .tradehdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.tradehdr .who{font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff}
+.tradehdr .who{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi)}
 .tradearrow{color:var(--team);font-size:16px}
 .tradegrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:700px){ .tradegrid{grid-template-columns:1fr} }
@@ -2297,7 +2378,7 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
   border-bottom:1px solid var(--line);margin-bottom:9px;
 }
 .delta{font-family:'Archivo Black',sans-serif;font-size:13px}
-.delta.pos{color:#5FBF8A} .delta.neg{color:#C98080}
+.delta.pos{color:var(--good-t)} .delta.neg{color:var(--bad2-t)}
 
 /* ---------- draft capital ---------- */
 .rdbar{display:flex;height:11px;border-radius:2px;overflow:hidden;margin:8px 0 10px;background:var(--rule)}
@@ -2319,12 +2400,12 @@ table.car td.bxname.link:hover{color:#fff;text-decoration:underline}
   font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;
   color:var(--dim);white-space:nowrap;min-width:44px;text-align:right;
 }
-.gm .h2h.up{color:#5FBF8A} .gm .h2h.dn{color:#8C6A6A}
+.gm .h2h.up{color:var(--good-t)} .gm .h2h.dn{color:#8C6A6A}
 
 /* ---------- team history ---------- */
 .hsum{display:flex;align-items:flex-end;gap:14px;padding-bottom:10px;
   border-bottom:1px solid var(--rule);margin-bottom:8px;flex-wrap:wrap}
-.hsum .big{font-family:'Archivo Black',sans-serif;font-size:23px;line-height:1;color:#fff}
+.hsum .big{font-family:'Archivo Black',sans-serif;font-size:23px;line-height:1;color:var(--hi)}
 .hsum .lab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--dim);margin-top:5px}
 .hsum .rk{margin-left:auto;text-align:right;font-family:'Barlow Condensed',sans-serif;
@@ -2346,14 +2427,14 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
 /* ---------- position battles ---------- */
 .bat{border:1px solid var(--line);border-radius:var(--r);padding:10px 11px;margin-bottom:9px}
 .bat .bh{display:flex;align-items:baseline;gap:9px;margin-bottom:8px}
-.bat .bp{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:#fff}
+.bat .bp{font-family:'Archivo Black',sans-serif;font-size:12.5px;color:var(--hi)}
 .bat .bm{
   margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
   letter-spacing:.09em;text-transform:uppercase;color:var(--dim);
 }
 .bat .bm.hot{color:#E0B04A}
 .batman{display:flex;align-items:center;gap:9px;padding:4px 0;width:100%;text-align:left}
-.batman:hover .bn{color:#fff}
+.batman:hover .bn{color:var(--hi)}
 .batman .bi{
   flex:0 0 18px;height:18px;border-radius:2px;background:var(--rule);
   font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;
@@ -2413,7 +2494,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
 .snap{display:flex;align-items:center;gap:10px;padding:6px 0}
 .snap .l{flex:1 1 auto;font-family:'Barlow Condensed',sans-serif;font-size:12.5px;
   text-transform:uppercase;letter-spacing:.07em;color:var(--mute)}
-.snap .v{font-family:'Archivo Black',sans-serif;font-size:13px;color:#fff}
+.snap .v{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--hi)}
 .bar{height:4px;border-radius:2px;background:var(--rule);overflow:hidden;margin-top:5px}
 .bar i{display:block;height:100%;background:var(--team);border-radius:2px}
 
@@ -2488,6 +2569,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
         <button id="gamebtn">Lineup</button>
         <button id="facesbtn">Faces</button>
         <button id="leadbtn">Leaders</button>
+        <button id="themebtn" aria-label="Switch theme" title="Switch theme"></button>
       </div>
       <div id="field">
         <svg id="turf" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"></svg>
@@ -2812,6 +2894,8 @@ function renderHead(){
   // Seattle's navy manages 1.08:1, which is invisible. Lighten until the accent
   // actually carries, and use that wherever the colour has to mean something.
   document.documentElement.style.setProperty("--team-accent", readableAccent(t.c1));
+  // The field is dark in both themes, so it keeps the dark-page accent.
+  document.documentElement.style.setProperty("--team-accent-d", readableAccent(t.c1, false));
 
   $("#tname").textContent = t.name;
   const n = (DATA.depth[team]||[]).filter((r,i,a)=>a.findIndex(x=>x.pid===r.pid)===i).length;
@@ -2967,20 +3051,28 @@ function paintSel(){
 }
 /* Lighten a colour toward white until it clears roughly 4:1 on the page. The
    hue is preserved, so a team still looks like itself. */
-function readableAccent(hex){
+const isLight = () => document.documentElement.dataset.theme === "light";
+
+/* A team colour that can be read against the page. Many clubs wear colours far
+   too dark for a dark page (Seattle's navy manages 1.08:1), and a few too pale
+   for a light one, so the colour is moved towards white or black until it
+   carries. Which way depends on the theme, unless a side is asked for: the
+   field stays dark in both themes, so it always wants the dark-page version. */
+function readableAccent(hex, onLight = isLight()){
   const srgb = c => { c /= 255; return c <= 0.03928 ? c/12.92 : ((c+0.055)/1.055)**2.4; };
   const lumOf = ([r,g,b]) => 0.2126*srgb(r) + 0.7152*srgb(g) + 0.0722*srgb(b);
-  const BG = lumOf([0x13,0x1C,0x20]);
+  const BG = onLight ? lumOf([0xFF,0xFF,0xFF]) : lumOf([0x13,0x1C,0x20]);
   const ratio = rgb => { const L = lumOf(rgb);
     return (Math.max(L,BG)+0.05)/(Math.min(L,BG)+0.05); };
-  let rgb = (hex.match(/\w\w/g) || ["4A","7C","6F"]).map(h=>parseInt(h,16));
-  if(ratio(rgb) >= 4) return hex;
-  for(let a = 0.05; a <= 0.85; a += 0.05){
-    const lit = rgb.map(c => Math.min(255, Math.round(c + (255-c)*a)));
-    if(ratio(lit) >= 4)
-      return "#" + lit.map(c=>c.toString(16).padStart(2,"0")).join("");
+  const rgb = (String(hex).match(/\w\w/g) || ["4A","7C","6F"]).map(h=>parseInt(h,16));
+  if(ratio(rgb) >= (onLight ? 4.5 : 4)) return hex;
+  const target = onLight ? 0 : 255;
+  for(let a = 0.05; a <= 0.9; a += 0.05){
+    const mix = rgb.map(c => Math.round(c + (target - c) * a));
+    if(ratio(mix) >= (onLight ? 4.5 : 4))
+      return "#" + mix.map(c => c.toString(16).padStart(2, "0")).join("");
   }
-  return "#9DB3AD";
+  return onLight ? "#1A2226" : "#EAF1ED";
 }
 
 const shortName = n => { const p=n.split(" "); return p.length<2?n:p[0][0]+". "+p.slice(1).join(" "); };
@@ -6073,7 +6165,12 @@ async function extraClips(g, fixture){
     items.forEach(it=>{
       const refs = itemRefs(it);
       let mine = refs.events.has(String(g.id));
-      if(!mine && lo != null && [...refs.teams].some(t => teamIds.has(t))){
+      // Tagged with a game, but a different one: never this game's.
+      const otherGame = refs.events.size > 0 && !mine;
+      // Tagged with clubs outside this game: a league roundup, not this game.
+      const outside = [...refs.teams].some(t => !teamIds.has(t));
+      if(!mine && !otherGame && !outside && lo != null
+         && [...refs.teams].some(t => teamIds.has(t))){
         const at = Date.parse(it.published || it.lastModified || "");
         mine = Number.isFinite(at) && at >= lo && at <= hi;
       }
@@ -6083,6 +6180,35 @@ async function extraClips(g, fixture){
   const items = readVideos({videos: raw});
   XCLIPS[g.id] = {at: Date.now(), items};
   return items;
+}
+
+/* Whole-word club detection. Plain substring matching found "Rams" inside
+   "programs" and "Lions" inside "millions", which is how clips from other games
+   were getting in. */
+let CLUB_RES = null;
+function clubsNamed(text){
+  if(!CLUB_RES){
+    CLUB_RES = Object.entries(DATA.teams).map(([ab, t]) => {
+      const n = String(t.nick || "").toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return n ? [ab, new RegExp("(^|[^a-z0-9])" + n + "([^a-z0-9]|$)")] : null;
+    }).filter(Boolean);
+  }
+  const t = String(text || "").toLowerCase(), out = new Set();
+  CLUB_RES.forEach(([ab, re]) => { if(re.test(t)) out.add(ab); });
+  return out;
+}
+
+/* The last word on whether a clip belongs to a game, applied to every source:
+   anything naming a club that is not in this game is dropped. A clip from
+   another game names its own clubs, and league-wide roundups name several, so
+   this catches both. The cost is the odd genuine clip that mentions an old club
+   in passing ("the former Giants back"), which is a fair trade for not showing
+   the wrong game. ESPN clips are judged on their titles; NFL clips on titles and
+   descriptions, since the NFL puts the clubs in the description. */
+function clipBelongs(v, a, h){
+  const text = v.src === "NFL" ? (v.title + " " + (v.desc || "")) : v.title;
+  for(const ab of clubsNamed(text)) if(ab !== a && ab !== h) return false;
+  return true;
 }
 
 /* Summary clips first, then the extras, with duplicates removed. The same clip
@@ -6181,23 +6307,33 @@ function nflClipsFor(g, fixture, uploads){
   const k = kickoffOf(fixture);
   if(!k) return [];
   const lo = k - 30 * 60000, hi = k + 10 * 3600e3;
-  const words = [];
-  [a, h].forEach(ab=>{
-    const t = DATA.teams[ab] || {};
-    if(t.nick) words.push(t.nick.toLowerCase());
-    if(t.name) words.push(t.name.toLowerCase());
-  });
-  const names = new Set();
+  /* Positive evidence: one of the two clubs named as a whole word, or a player
+     from the top of either depth chart named in full. Starters only, because
+     backups share names across clubs -- Justin Jefferson is on both the Browns'
+     and the Vikings' charts -- and a backup is rarely the subject of a clip. */
+  const stars = new Set();
   [a, h].forEach(ab => (DATA.depth[ab] || []).forEach(r=>{
     const p = DATA.players[r.pid];
-    if(p && p.name && p.name.split(" ").length > 1) names.add(p.name.toLowerCase());
+    if(r.rank === 1 && p && p.name && p.name.split(" ").length > 1)
+      stars.add(p.name.toLowerCase());
   }));
+  // A name shared with anyone on another chart proves nothing either way.
+  const elsewhere = new Set();
+  Object.entries(DATA.depth).forEach(([ab, rows]) => {
+    if(ab === a || ab === h) return;
+    rows.forEach(r => { const p = DATA.players[r.pid]; if(p) elsewhere.add(String(p.name).toLowerCase()); });
+  });
+  const wordIn = (t, w) => new RegExp("(^|[^a-z0-9])"
+    + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "([^a-z0-9]|$)").test(t);
+
   return (uploads || []).filter(v=>{
     const at = Date.parse(v.at || "");
     if(!Number.isFinite(at) || at < lo || at > hi) return false;
+    if(!clipBelongs(v, a, h)) return false;
     const text = (v.title + " " + (v.desc || "")).toLowerCase();
-    if(words.some(w => text.includes(w))) return true;
-    for(const n of names) if(text.includes(n)) return true;
+    const named = clubsNamed(text);
+    if(named.has(a) || named.has(h)) return true;
+    for(const n of stars) if(!elsewhere.has(n) && wordIn(text, n)) return true;
     return false;
   });
 }
@@ -6212,12 +6348,96 @@ function nflClipsFor(g, fixture, uploads){
    vary clip to clip, so "Open on ESPN" stays visible in the window rather than
    hidden behind a failure. Closing removes the frame, which is the only way to
    stop playback in a player on another site. */
+/* NFL clips on YouTube: the NFL restricts its footage from playing on sites
+   other than YouTube, and YouTube shows a "Video unavailable" screen when one is
+   embedded anyway. That restriction is the rights holder's decision and is not
+   worked around here. Instead the official player API is used, which reports it
+   as error 101 or 150, so the app can:
+
+     - replace YouTube's error screen with a clean Watch on YouTube button, and
+     - from then on send NFL clips straight to YouTube (the app, on a phone)
+       instead of opening a player that will only refuse.
+
+   One refusal is enough to switch, because the message says the block applies
+   to "this website" as a whole, not to one clip. If an NFL clip ever does play
+   here, the switch is not made. ESPN clips are unaffected and play in the app. */
+let clipNow = null, ytApiP = null;
+
+function ytBlockedHere(){
+  return store.ok && (PROG.ytBlocked || 0) >= 1 && !(PROG.ytPlayed > 0);
+}
+function noteYt(kind){
+  if(!store.ok) return;
+  if(kind === "blocked") PROG.ytBlocked = (PROG.ytBlocked || 0) + 1;
+  if(kind === "played") PROG.ytPlayed = (PROG.ytPlayed || 0) + 1;
+  store.save(PROG);
+}
+
+function loadYtApi(){
+  if(ytApiP) return ytApiP;
+  ytApiP = new Promise((resolve, reject)=>{
+    if(window.YT && window.YT.Player) return resolve(window.YT);
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { if(prev) prev(); resolve(window.YT); };
+    const sc = document.createElement("script");
+    sc.src = "https://www.youtube.com/iframe_api";
+    sc.onerror = () => reject(new Error("YouTube player did not load"));
+    document.head.appendChild(sc);
+    setTimeout(() => reject(new Error("YouTube player timed out")), 9000);
+  });
+  // A failed load should be retried next time, not remembered forever.
+  ytApiP.catch(() => { ytApiP = null; });
+  return ytApiP;
+}
+
+/* The nearest thing to in-app that respects the NFL's restriction: YouTube's own
+   page in a small window over the app, rather than a full new tab. Reusing one
+   window name means a second clip replaces the first instead of stacking. On a
+   phone a sized window is not a thing, so it opens normally -- which there means
+   the YouTube app. */
+function popYouTube(url){
+  if(window.innerWidth < 760){ window.open(url, "_blank", "noopener"); return; }
+  const w = Math.min(1000, Math.round(window.innerWidth * 0.7));
+  const h = Math.round(w * 9 / 16) + 90;
+  const left = Math.round((window.screenX || 0) + (window.outerWidth - w) / 2);
+  const top = Math.round((window.screenY || 0) + Math.max(40, (window.outerHeight - h) / 3));
+  const win = window.open(url, "nflclip",
+    "popup,width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+  if(win) win.focus();
+  else window.open(url, "_blank", "noopener");    // pop outs blocked: plain tab
+}
+
+function showYtBlocked(v){
+  const frame = $("#clipframe");
+  frame.innerHTML = "";
+  const p = el("div","clipblock");
+  p.appendChild(el("div","cbt", "The NFL only lets this clip play on YouTube"));
+  p.appendChild(el("div","cbs",
+    "From now on NFL clips open in a small YouTube window over the app "
+    + "(the YouTube app on a phone). ESPN clips still play here."));
+  const a = document.createElement("a");
+  a.className = "cbbtn";
+  a.href = v.href; a.target = "_blank"; a.rel = "noopener noreferrer";
+  a.textContent = "\u25B6  Watch on YouTube";
+  a.onclick = e => { e.preventDefault(); closeClip(); popYouTube(v.href); };
+  p.appendChild(a);
+  frame.appendChild(p);
+}
+
 function openClip(v){
   if(!v) return;
+  const isYt = v.src === "NFL" && /^yt:/.test(v.id || "");
+  // Already known to be refused here: go to YouTube directly. This runs inside
+  // the tap, so the browser allows the new tab.
+  if(isYt && !DEMO.on && ytBlockedHere()){
+    popYouTube(v.href);
+    return;
+  }
   if(!v.embed && !DEMO.on){
     window.open(v.href, "_blank", "noopener");
     return;
   }
+  clipNow = v;
   const box = $("#clip");
   $("#cliptitle").textContent = v.title || "Highlight";
   const open = $("#clipopen");
@@ -6229,21 +6449,52 @@ function openClip(v){
     // Demo clips are not real videos, so show where one would play.
     const ph = el("div","clipdemo");
     ph.appendChild(el("span","clipdemoi","\u25B6"));
-    ph.appendChild(el("span", null, "A real ESPN clip plays here"));
+    ph.appendChild(el("span", null, "A real clip plays here"));
     frame.appendChild(ph);
+  } else if(isYt){
+    // Through the official player, which reports an embedding refusal instead
+    // of only drawing one.
+    const holder = el("div","ytholder");
+    frame.appendChild(holder);
+    const plain = () => {
+      if(clipNow !== v) return;
+      frame.innerHTML = "";
+      frame.appendChild(clipIframe(v));
+    };
+    loadYtApi().then(YT=>{
+      if(clipNow !== v || $("#clip").hidden) return;
+      new YT.Player(holder, {
+        width: "100%", height: "100%", videoId: v.id.slice(3),
+        playerVars: {autoplay: 1, rel: 0, playsinline: 1, origin: location.origin},
+        events: {
+          onError: e => {
+            if(e.data === 101 || e.data === 150){
+              noteYt("blocked");
+              if(clipNow === v) showYtBlocked(v);
+            }
+          },
+          onStateChange: e => { if(e.data === 1) noteYt("played"); },
+        },
+      });
+    }).catch(plain);
   } else {
-    const f = document.createElement("iframe");
-    f.src = v.embed;
-    f.title = v.title || "Highlight";
-    f.allowFullscreen = true;
-    f.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture");
-    f.setAttribute("frameborder", "0");
-    f.setAttribute("scrolling", "no");
-    frame.appendChild(f);
+    frame.appendChild(clipIframe(v));
   }
   box.hidden = false;
 }
+
+function clipIframe(v){
+  const f = document.createElement("iframe");
+  f.src = v.embed;
+  f.title = v.title || "Highlight";
+  f.allowFullscreen = true;
+  f.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture");
+  f.setAttribute("frameborder", "0");
+  f.setAttribute("scrolling", "no");
+  return f;
+}
 function closeClip(){
+  clipNow = null;
   $("#clipframe").innerHTML = "";
   $("#clip").hidden = true;
 }
@@ -6354,6 +6605,12 @@ function extractPlays(j){
         down: p.start ? p.start.downDistanceText : null,
         // Which drive produced it, so a scoring card can say "6 plays, 60 yards".
         drive: d.id != null ? String(d.id) : null,
+        // When it actually happened, which is the best clue for which clip shows
+        // it: clips go up a few minutes after the play.
+        wall: p.wallclock || null,
+        // ESPN's own one-liner uses full names ("Saquon Barkley 65 Yd Run"),
+        // which match clip titles far better than "S.Barkley".
+        short: typeof p.shortText === "string" ? p.shortText : null,
       });
     });
   });
@@ -8859,6 +9116,8 @@ async function refreshWatch(){
       try { LIVE.videos = mergeClips(LIVE.videos, await extraClips(g, fx)); } catch(e){}
       // And the NFL's own clips, which during a game are the quickest of all.
       try { LIVE.videos = mergeClips(LIVE.videos, nflClipsFor(g, fx, await fetchNflUploads())); } catch(e){}
+      // Whatever the source, a clip naming a club outside this game is dropped.
+      LIVE.videos = (LIVE.videos || []).filter(v => clipBelongs(v, a0, h0));
     }
     // Record the real state before anything is held back, so the delay has a
     // history to replay from.
@@ -8993,6 +9252,9 @@ function renderWatch(gRaw){
   renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
 
   const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
+  // Which clip shows which play, worked out once and used by both the strip and
+  // the play by play, so they always agree.
+  const clipMatches = matchClipsToPlays(LIVE.plays || [], LIVE.videos || [], idx);
 
   // Highlights: ESPN's clips, then the two outside sources as links.
   const fixture = (DATA.slate && Object.values(DATA.slate).flat()
@@ -9018,10 +9280,20 @@ function renderWatch(gRaw){
         th.appendChild(im);
       }
       th.appendChild(el("span","hlplay","\u25B6"));
-      if(v.src) th.appendChild(el("span","hlsrc " + v.src.toLowerCase(), v.src));
+      if(v.src) th.appendChild(el("span","hlsrc " + v.src.toLowerCase(),
+        v.src + (v.src === "NFL" && ytBlockedHere() ? " ↗" : "")));
       if(v.secs) th.appendChild(el("span","hldur", fmtDur(v.secs)));
       card.appendChild(th);
       card.appendChild(el("div","hltitle", v.title));
+      const played = clipMatches.byClip.get(v);
+      if(played){
+        const tag = el("button","hlplaytag",
+          (played.period ? QSHORT(played.period) + " " : "") + (played.clock || "")
+          + "  \u00b7  " + playTitle(played) + "  \u2193");
+        tag.title = "Go to this play";
+        tag.onclick = e => { e.preventDefault(); e.stopPropagation(); jumpToPlay(played); };
+        card.appendChild(tag);
+      }
       // Plays in the app; a middle click or long press still opens ESPN.
       card.onclick = e => { e.preventDefault(); openClip(v); };
       rail.appendChild(card);
@@ -9069,7 +9341,7 @@ function renderWatch(gRaw){
   }
 
   // the feed
-  renderPlayByPlay(b, g, a, h, idx);
+  renderPlayByPlay(b, g, a, h, idx, clipMatches);
 }
 
 /* ---------------- play by play ----------------
@@ -9120,31 +9392,149 @@ function isKeyPlay(p){
   return !!(im && im.pct >= 6);
 }
 
-/* Match a clip to a scoring play. ESPN's clips are not linked to plays in the
-   data, so this pairs them by the player named first in the play and, where the
-   play gives one, the yardage -- "Henry 4 yard rush" to a clip titled "Derrick
-   Henry 4-yard TD". Each clip is used at most once, and a play with no confident
-   match simply gets no button rather than the wrong video. */
-function clipFor(p, used){
-  const vids = LIVE.videos || [];
-  if(!vids.length) return null;
-  const names = (p.text.match(NAME_RE) || [])
-    .map(n => n.split(".").pop().toLowerCase().replace(/[^a-z]/g, ""));
-  if(!names.length) return null;
-  const who = names[0];
-  const yd = (p.text.match(/(\d+)\s*(?:yd|yard)/i) || [])[1];
-  // Tracked by the clip itself, not its link: two clips sharing a URL would
-  // otherwise block each other, and only the first play would get a button.
-  const pool = vids.filter(v => !used.has(v)
-    && v.title.toLowerCase().replace(/[^a-z0-9 ]/g, " ").includes(who));
-  if(!pool.length) return null;
-  const withYards = yd ? pool.filter(v => new RegExp("\\b" + yd + "\\b").test(v.title)) : [];
-  const pick = withYards[0] || (pool.length === 1 ? pool[0] : null);
-  if(pick) used.add(pick);
-  return pick;
+/* ---------------- clips to plays ----------------
+   Clips are not linked to plays in any feed, so they are paired here by weighing
+   four clues together, every clip against every play:
+
+     people   players in the play, found in the clip's title    +4 the ball
+              carrier or passer, +3 anyone else, +2 surname only
+     yards    a yardage in the play that appears in the title        +3
+     kind     touchdown, sack, interception, fumble, field goal agree +2,
+              a clip calling it a touchdown when it was not          -3
+     time     published after the play (ESPN stamps each play with
+              the moment it happened): within the hour +2; before
+              the play is impossible, so the pair is ruled out
+
+   A pair needs 5 or more, which in practice means a name plus one other clue.
+   Then the strongest pairs are taken first and each clip and each play used
+   once, so two touchdowns by the same back get their own clips rather than both
+   getting the first. A clip that names nobody in any play -- a full game recap,
+   say -- stays in the strip and is simply not attached. */
+const CLIP_MIN = 5;
+const playKey = p => p.id || [p.period, p.clock, String(p.text || "").slice(0, 40)].join("|");
+
+/* From a clip to its play: open All Plays so the card is certainly shown, then
+   scroll it into view and flash it. */
+function jumpToPlay(p){
+  if(pbpTab !== "all" || (pbpTeam && pbpTeam !== p.team)){
+    pbpTab = "all"; pbpTeam = null;
+    renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
+  }
+  const key = playKey(p);
+  const card = [...document.querySelectorAll(".pbpc")].find(c => c.dataset.play === key);
+  if(!card) return;
+  card.scrollIntoView({behavior: "smooth", block: "center"});
+  card.classList.remove("flash");
+  void card.offsetWidth;                         // restart the animation
+  card.classList.add("flash");
 }
 
-function renderPlayByPlay(host, g, a, h, idx){
+function playPeople(p, idx){
+  const toks = String(p.text || "").match(NAME_RE) || [];
+  const out = [];
+  toks.forEach((t, i)=>{
+    const key = t.toLowerCase().replace(/^([a-z])\.[a-z]\./, "$1.");
+    const hit = idx[key] || idx[t.toLowerCase()];
+    const full = hit && DATA.players[hit.pid] ? DATA.players[hit.pid].name : null;
+    const sur = t.split(".").pop();
+    out.push({full: full ? full.toLowerCase() : null,
+              sur: sur.toLowerCase().replace(/[^a-z]/g, ""), lead: i === 0});
+  });
+  return out;
+}
+
+function playKind(p){
+  const t = String(p.text || "").toLowerCase();
+  if(p.scoring && /touchdown/.test(t)) return "td";
+  if(/intercepted/.test(t)) return "int";
+  if(/sacked/.test(t)) return "sack";
+  if(/fumbles/.test(t)) return "fum";
+  if(/field goal/.test(t)) return "fg";
+  return null;
+}
+function clipKind(title){
+  const t = title.toLowerCase();
+  if(/touchdown|\btd\b/.test(t)) return "td";
+  if(/intercept|\bpick(s|ed)?\b/.test(t)) return "int";
+  if(/\bsack/.test(t)) return "sack";
+  if(/fumble|strip/.test(t)) return "fum";
+  if(/field goal|\bfg\b/.test(t)) return "fg";
+  return null;
+}
+
+function pairScore(p, people, v){
+  const title = (v.title + " " + (v.src === "NFL" ? (v.desc || "") : "")).toLowerCase()
+    .replace(/(\d)\s*-\s*(yard|yd)/g, "$1 $2");
+  const wall = Date.parse(p.wall || ""), at = Date.parse(v.at || "");
+  if(Number.isFinite(wall) && Number.isFinite(at) && at < wall - 120000) return -1;
+
+  let score = 0, named = false;
+  const has = w => new RegExp("(^|[^a-z])" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    + "([^a-z]|$)").test(title);
+  people.forEach(pp=>{
+    if(pp.full && has(pp.full)){ score += pp.lead ? 4 : 3; named = true; }
+    else if(pp.sur.length > 3 && has(pp.sur)){ score += 2; named = true; }
+  });
+  if(!named) return -1;                          // a name is required
+
+  const yards = (String(p.text).match(/(-?\d+)\s*(?:yards?|yd)/gi) || [])
+    .map(x => Math.abs(parseInt(x, 10))).filter(n => n >= 2);
+  const nums = (title.match(/\d+/g) || []).map(Number);
+  if(yards.some(y => nums.includes(y))) score += 3;
+  // A clip that states a yardage the play does not have is a different play:
+  // "65-yard TD" is not the 4-yard touchdown later in the game.
+  const clipYards = (title.match(/(\d+)\s*(?:yards?|yd)/g) || []).map(x => parseInt(x, 10));
+  if(clipYards.length && yards.length && !clipYards.some(y => yards.includes(y))) score -= 4;
+
+  const pk = playKind(p), ck = clipKind(title);
+  if(pk && ck && pk === ck) score += 2;
+  if(ck === "td" && pk !== "td") score -= 3;
+
+  if(Number.isFinite(wall) && Number.isFinite(at) && at - wall < 3600000) score += 2;
+  return score;
+}
+
+/* Returns {byPlay, byClip}: which clip shows which play, and the reverse. */
+function matchClipsToPlays(plays, clips, idx){
+  const byPlay = new Map(), byClip = new Map();
+  if(!(plays || []).length || !(clips || []).length) return {byPlay, byClip};
+  const pairs = [];
+  // Chronological order, so equal scores pair early plays with early clips.
+  const chrono = plays.slice().sort((x, y) =>
+    ((x.period || 0) - (y.period || 0)) || (Date.parse(x.wall || 0) - Date.parse(y.wall || 0)));
+  chrono.forEach((p, pi)=>{
+    const people = playPeople(p, idx);
+    if(!people.length) return;
+    clips.forEach(v=>{
+      const sc = pairScore(p, people, v);
+      if(sc >= CLIP_MIN) pairs.push({p, v, sc, pi, at: Date.parse(v.at || "") || 0});
+    });
+  });
+  pairs.sort((x, y) => (y.sc - x.sc) || (x.pi - y.pi) || (x.at - y.at));
+  pairs.forEach(({p, v, sc})=>{
+    if(byPlay.has(p) || byClip.has(v)) return;
+    byPlay.set(p, v); byClip.set(v, p);
+  });
+
+  /* Second pass: a clip still unplaced can join a play that already has one --
+     another angle of the same touchdown, say -- but only when there is no doubt
+     which play it is, meaning its best play clearly beats its next best. The
+     play button keeps the first clip; the strip shows where every clip belongs. */
+  const byClipBest = new Map();
+  pairs.forEach(({p, v, sc})=>{
+    if(byClip.has(v)) return;
+    const cur = byClipBest.get(v) || [];
+    cur.push({p, sc});
+    byClipBest.set(v, cur);
+  });
+  byClipBest.forEach((list, v)=>{
+    list.sort((x, y) => y.sc - x.sc);
+    if(list.length === 1 || list[0].sc > list[1].sc) byClip.set(v, list[0].p);
+  });
+  return {byPlay, byClip};
+}
+
+function renderPlayByPlay(host, g, a, h, idx, matches){
   const plays = LIVE.plays || [];
   if(pbpGame !== g.id){
     // A new game: open on what suits its state.
@@ -9200,11 +9590,8 @@ function renderPlayByPlay(host, g, a, h, idx){
     return;
   }
 
-  // Match clips in game order, so a player's first score gets his first clip.
-  const clipOf = new Map(), used = new Set();
-  shown.slice().sort((x, y) => (x.period || 0) - (y.period || 0))
-    .filter(p => p.scoring || isKeyPlay(p))
-    .forEach(p => { const c = clipFor(p, used); if(c) clipOf.set(p, c); });
+  // Clips were paired with plays once for the whole view; see matchClipsToPlays.
+  const clipOf = (matches || {}).byPlay || new Map();
 
   const driveOf = id => (LIVE.drives || []).find(d => d.id === id);
   let lastQ = null;
@@ -9215,6 +9602,7 @@ function renderPlayByPlay(host, g, a, h, idx){
     }
     const card = el("div","pbpc" + (p.scoring ? " score" : "")
       + (isTurnover(p) ? " to" : ""));
+    card.dataset.play = playKey(p);
 
     const top = el("div","pbptop");
     const lg = el("div","pbplogo");
@@ -11013,6 +11401,33 @@ $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
 $("#driveclose").onclick = closeDrive;
 $("#clipclose").onclick = closeClip;
+
+/* ---------------- theme ---------------- */
+function applyTheme(light){
+  const root = document.documentElement;
+  if(light) root.dataset.theme = "light"; else delete root.dataset.theme;
+  try { localStorage.setItem("theme", light ? "light" : "dark"); } catch(e){}
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.content = light ? "#EDF1EF" : "#0E1417";
+  const b = $("#themebtn");
+  // Shows where a tap will take you, as most theme switches do.
+  b.textContent = light ? "\u263E" : "\u2600";
+  b.setAttribute("aria-pressed", String(light));
+  b.title = light ? "Switch to dark" : "Switch to light";
+  // Colours worked out in script (team accents, chart bands) need redrawing.
+  renderAll();
+  if(watchOn && watchGame)
+    renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
+}
+$("#themebtn").onclick = () => applyTheme(!isLight());
+{
+  const b = $("#themebtn");
+  b.textContent = isLight() ? "\u263E" : "\u2600";
+  b.setAttribute("aria-pressed", String(isLight()));
+  b.title = isLight() ? "Switch to dark" : "Switch to light";
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta && isLight()) meta.content = "#EDF1EF";
+}
 $("#clip").addEventListener("click", e=>{ if(e.target.id === "clip") closeClip(); });
 $("#drive").addEventListener("click", e=>{ if(e.target.id === "drive") closeDrive(); });
 $("#facesbtn").onclick = () => {
