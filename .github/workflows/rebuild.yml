@@ -50,13 +50,23 @@ jobs:
       # rebuilt from scratch, which is how a broken one gets repaired.
       - name: Refuse sources with merge conflict markers
         run: |
-          bad=$(grep -rlE '^(<{7}|>{7}) |^={7}$' pipeline .github || true)
+          bad=$(grep -rlE --exclude-dir=.srccache --exclude-dir=node_modules '^(<{7}|>{7}) |^={7}$' pipeline .github || true)
           if [ -n "$bad" ]; then
             echo "Merge conflict markers found in:"
             echo "$bad"
             echo "Resolve these files (keep one version) and push again."
             exit 1
           fi
+
+      # The last good set of downloaded sources, carried between runs. If a source
+      # fails to download even after five minutes of retries, fetch_sources.sh
+      # uses this copy (with a warning on the run) instead of failing the build.
+      - name: Restore the last good sources
+        uses: actions/cache/restore@v4
+        with:
+          path: pipeline/.srccache
+          key: nfl-sources-${{ github.run_id }}
+          restore-keys: nfl-sources-
 
       - name: Download data sources
         working-directory: pipeline
@@ -121,6 +131,15 @@ jobs:
           assert 1200 <= n <= 4000, f"player count looks wrong: {n}"
           print(f"ok: {n} players, chart dated {d['snapshot'][:10]}")
           PY
+
+      # Only after a build that passed every check, so a bad set of files is never
+      # kept as the fallback.
+      - name: Keep these sources for next time
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: pipeline/.srccache
+          key: nfl-sources-${{ github.run_id }}
 
       - name: Commit if anything changed
         run: |

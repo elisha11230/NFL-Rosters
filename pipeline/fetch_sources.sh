@@ -10,9 +10,57 @@ set -euo pipefail
 B=https://github.com/nflverse/nflverse-data/releases/download
 NFLDATA=https://raw.githubusercontent.com/nflverse/nfldata/master/data
 
+# Every successful download is also copied into .srccache, which the GitHub
+# workflow carries from one run to the next. So when a source fails to download
+# -- in September 2026 the depth chart file answered with server errors for a
+# few minutes, presumably while nflverse was replacing it -- the build can fall
+# back to the last good copy instead of failing outright.
+CACHE=.srccache
+mkdir -p "$CACHE/career"
+LAST_CODE=""
+# Adjustable only so the failure paths can be tested without waiting minutes.
+RETRIES=${FETCH_RETRIES:-6}
+DELAY=${FETCH_DELAY:-20}
+
+# fetch <destination> <url>
+# Returns 0 on success, 4 when the file does not exist (404), 1 on anything
+# else. Retries transient trouble (timeouts, 408/429/5xx, refused connections)
+# for up to about five minutes, but not a 404: a file that is not there yet will
+# still not be there in twenty seconds. Downloads to a temporary name first, so
+# a failed attempt can never leave a half-written file in place.
+fetch() {
+  local tmp="$1.part" code
+  code=$(curl -sL --connect-timeout 20 --max-time 900 \
+              --retry "$RETRIES" --retry-delay "$DELAY" --retry-max-time 300 --retry-connrefused \
+              -o "$tmp" -w '%{http_code}' "$2" 2>/dev/null) || true
+  if [ "$code" = "200" ] && [ -s "$tmp" ]; then
+    mv "$tmp" "$1"
+    cp "$1" "$CACHE/$1"
+    return 0
+  fi
+  rm -f "$tmp"
+  LAST_CODE="${code:-no response}"
+  [ "$code" = "404" ] && return 4
+  return 1
+}
+
+size() { du -h "$1" | cut -f1; }
+
+# A source the build cannot do without.
 get() {  # get <destination> <url>
-  curl -sSL --retry 3 --retry-delay 2 --fail -o "$1" "$2"
-  printf '  %-28s %s\n' "$1" "$(du -h "$1" | cut -f1)"
+  if fetch "$1" "$2"; then
+    printf '  %-28s %s\n' "$1" "$(size "$1")"
+    return 0
+  fi
+  if [ -s "$CACHE/$1" ]; then
+    cp "$CACHE/$1" "$1"
+    printf '  %-28s download failed (%s), using the copy from the last good build\n' "$1" "$LAST_CODE"
+    echo "::warning::$1 could not be downloaded (HTTP $LAST_CODE); this build used the last good copy"
+    return 0
+  fi
+  printf '  %-28s download failed (%s) and there is no earlier copy\n' "$1" "$LAST_CODE"
+  echo "::error::$1 could not be downloaded (HTTP $LAST_CODE) from $2"
+  exit 1
 }
 
 echo "current season data"
@@ -46,12 +94,23 @@ get pbp2025.parquet       "$B/pbp/play_by_play_2025.parquet"
 # Current season. These 404 until the first Tuesday of the season, which is a
 # normal state, not a failure -- so this block must not abort the script.
 echo "current season (optional until week 1 is played)"
-optional() {
-  if curl -sSL --fail -o "$1" "$2" 2>/dev/null; then
-    printf '  %-28s %s\n' "$1" "$(du -h "$1" | cut -f1)"
-  else
+# A source that may legitimately not exist yet. Only a 404 means "not published":
+# this used to treat every failure that way, so a server hiccup would quietly
+# drop the current season's stats from the site instead of being noticed.
+optional() {  # optional <destination> <url>
+  if fetch "$1" "$2"; then
+    printf '  %-28s %s\n' "$1" "$(size "$1")"
+  elif [ "$LAST_CODE" = "404" ]; then
     rm -f "$1"
     printf '  %-28s not published yet\n' "$1"
+  elif [ -s "$CACHE/$1" ]; then
+    cp "$CACHE/$1" "$1"
+    printf '  %-28s download failed (%s), using the copy from the last good build\n' "$1" "$LAST_CODE"
+    echo "::warning::$1 could not be downloaded (HTTP $LAST_CODE); this build used the last good copy"
+  else
+    rm -f "$1"
+    printf '  %-28s download failed (%s), carrying on without it\n' "$1" "$LAST_CODE"
+    echo "::warning::$1 could not be downloaded (HTTP $LAST_CODE); the build carried on without it"
   fi
 }
 optional stats_2026.csv       "$B/stats_player/stats_player_reg_2026.csv"
