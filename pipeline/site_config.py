@@ -25,6 +25,8 @@ EMBED_BASE = "https://embedindia.st"
 # blocked; leave empty to call ESPN directly, which currently works.
 PROXY = ""
 
+YOUTUBE_API_KEY = "AIzaSyDM5docGByVi8xVuH76cHuMMj8b0WDAX1o"
+
 
 def as_js():
     """Emitted into the page as one object, so the template reads settings from a
