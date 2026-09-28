@@ -584,6 +584,22 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .newsmore:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:420px){ .newsimg{flex-basis:86px} }
 
+/* ---------- win probability ---------- */
+.wpc{display:flex;gap:8px;height:84px;margin:4px 0 12px;color:var(--chalk)}
+.wpcgut{flex:0 0 26px;display:flex;flex-direction:column;justify-content:space-between}
+.wpcbadge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Archivo Black',sans-serif;font-size:8px}
+.wpcbadge img{width:19px;height:19px;object-fit:contain}
+.wpcplot{position:relative;flex:1 1 auto;min-width:0;border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden}
+.wpcplot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wpcdot{position:absolute;right:4px;width:8px;height:8px;border-radius:50%;
+  background:var(--chalk);transform:translateY(-50%)}
+.wpcnow{position:absolute;right:16px;font-family:'Archivo Black',sans-serif;
+  font-size:12.5px;letter-spacing:.02em;white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.7)}
+@media (max-width:520px){ .wpc{height:72px} }
+
 /* ---------- clip player ---------- */
 #clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
   display:flex;align-items:center;justify-content:center;padding:16px}
@@ -1154,15 +1170,6 @@ table.car td.best{color:#5FBF8A;font-weight:600}
   padding:2px 7px;border-radius:9px;white-space:nowrap}
 
 /* ---------- win probability ---------- */
-.wpwrap{margin:4px 0 12px}
-svg.wpchart{width:100%;height:auto;display:block;border-radius:var(--r);
-  border:1px solid var(--line)}
-.wpleg{display:flex;justify-content:space-between;margin-top:6px}
-.wpleg span{display:flex;align-items:center;gap:6px;
-  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--mute)}
-.wpleg i{width:9px;height:9px;border-radius:2px;display:block}
-.wplogo{width:17px;height:17px;object-fit:contain;display:block}
 
 /* ---------- power ratings ---------- */
 .rkrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
@@ -1956,6 +1963,22 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
 .newsmore:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:420px){ .newsimg{flex-basis:86px} }
 
+/* ---------- win probability ---------- */
+.wpc{display:flex;gap:8px;height:84px;margin:4px 0 12px;color:var(--chalk)}
+.wpcgut{flex:0 0 26px;display:flex;flex-direction:column;justify-content:space-between}
+.wpcbadge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:'Archivo Black',sans-serif;font-size:8px}
+.wpcbadge img{width:19px;height:19px;object-fit:contain}
+.wpcplot{position:relative;flex:1 1 auto;min-width:0;border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden}
+.wpcplot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wpcdot{position:absolute;right:4px;width:8px;height:8px;border-radius:50%;
+  background:var(--chalk);transform:translateY(-50%)}
+.wpcnow{position:absolute;right:16px;font-family:'Archivo Black',sans-serif;
+  font-size:12.5px;letter-spacing:.02em;white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.7)}
+@media (max-width:520px){ .wpc{height:72px} }
+
 /* ---------- clip player ---------- */
 #clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
   display:flex;align-items:center;justify-content:center;padding:16px}
@@ -1995,6 +2018,11 @@ a.newsrow:hover .newstitle{color:#fff;text-decoration:underline}
   width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:12px;color:#fff;padding-left:2px;
   background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.4)}
+.hlsrc{position:absolute;left:5px;top:5px;padding:1px 6px;border-radius:2px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;
+  letter-spacing:.1em;color:#fff;background:rgba(0,0,0,.7)}
+.hlsrc.nfl{background:#013369}
+.hlsrc.espn{background:#C8102E}
 .hldur{position:absolute;right:5px;bottom:5px;padding:1px 5px;border-radius:2px;
   background:rgba(0,0,0,.7);color:#fff;font-family:'Barlow Condensed',sans-serif;
   font-size:10px;letter-spacing:.04em}
@@ -2146,7 +2174,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 .injnone{font-size:12.5px;color:var(--dim);padding:6px 0}
 
 /* ---------- box score popup ---------- */
-#box{position:fixed;inset:0;z-index:75;background:rgba(8,12,14,.97);
+#box{position:fixed;inset:0;z-index:84;background:rgba(8,12,14,.97);
   display:flex;flex-direction:column;padding:16px 18px}
 #box[hidden]{display:none}
 #boxbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
@@ -5496,19 +5524,29 @@ function sectionGame(d){
    and a finished one, and between preseason and regular season. */
 let boxTeam = null;
 
+/* Opened from watch mode, the box score is about the game being watched, which
+   need not involve the team on the main page. It used to assume it did. */
+function boxGame(){
+  if(watchOn && watchShown) return watchShown;
+  return LIVE.byTeam[team] || LIVE.games.find(x => x.id === LIVE.gameId);
+}
+
 function openBox(){
   if(!LIVE.box || !LIVE.box.length) return;
   $("#box").hidden = false;
-  const g = LIVE.byTeam[team];
-  // Default to the team being viewed if it is playing, else the first side.
-  if(!boxTeam || !LIVE.box.some(b => b.team === boxTeam))
-    boxTeam = LIVE.box.some(b => b.team === team) ? team : LIVE.box[0].team;
+  const g = boxGame();
+  const inGame = ab => LIVE.box.some(b => b.team === ab);
+  // The team on the main page if it is in this game, else the away side.
+  if(!boxTeam || !inGame(boxTeam)){
+    const away = g && (g.teams.find(t => !t.home) || {}).ab;
+    boxTeam = inGame(team) ? team : (inGame(away) ? away : LIVE.box[0].team);
+  }
   renderBox();
 }
 function closeBox(){ $("#box").hidden = true; }
 
 function renderBox(){
-  const g = LIVE.byTeam[team] || LIVE.games.find(x => x.id === LIVE.gameId);
+  const g = boxGame();
   const head = $("#boxhead"), body = $("#boxbody");
   head.innerHTML = ""; body.innerHTML = "";
 
@@ -5929,7 +5967,7 @@ function readVideos(j){
       || (((v.posterImages || {}).full || {}).href);
     const vid = v.id != null ? String(v.id) : null;
     return {
-      id: vid,
+      id: vid, src: "ESPN",
       // ESPN's own embed player, the address its share button hands out. Only
       // for a real numeric id; anything else falls back to opening ESPN's page.
       embed: vid && /^\d+$/.test(vid)
@@ -5997,6 +6035,8 @@ function itemVideos(it){
 }
 
 function kickoffOf(fixture){
+  // The demo game is simulated as under way now, whatever its real date.
+  if(DEMO.on) return Date.now() - 90 * 60000;
   if(!fixture || !fixture.d) return null;
   // Schedule times are US Eastern; an hour of daylight saving slack does not
   // matter against a window this wide.
@@ -6058,6 +6098,110 @@ function mergeClips(base, extra){
   return out.sort((x, y) => String(y.at || "").localeCompare(String(x.at || "")));
 }
 
+/* ---------------- NFL clips from YouTube ----------------
+   The NFL posts play clips to its official YouTube channel while games are
+   still going on -- "immediate in-game highlights", in its own words -- which
+   is faster and fuller than anything ESPN's feeds carry.
+
+   NFL.com has the same clips sooner still, but no public feed: reaching it means
+   lifting the login tokens out of their site, which is not something to build
+   on. YouTube has a proper API and a player made for embedding.
+
+   Reading a channel's uploads costs 1 unit of YouTube's free 10,000 a day, so
+   polling every ninety seconds through a whole Sunday uses a few hundred. It
+   needs an API key, set as YOUTUBE_API_KEY in site_config.py; without one this
+   section simply does nothing. One fetch serves every game, since the channel's
+   uploads are shared, and each game then keeps only the clips that are its own. */
+const YT_KEY = CONFIG.youtubeKey || "";
+const NFL_UPLOADS = "UUDVYQ4Zhbm3S2dlz7P1GBDg";   // the official NFL channel's uploads
+const YT = {at: 0, items: [], err: null, busy: null};
+
+async function fetchNflUploads(){
+  if(!YT_KEY && !DEMO.on) return [];
+  if(Date.now() - YT.at < 9e4) return YT.items;
+  if(YT.busy) return YT.busy;
+  YT.busy = (async () => {
+    const out = [];
+    let page = "";
+    try {
+      // Up to three pages of fifty. A busy Sunday can post a hundred clips in a
+      // couple of hours; paging stops once it is past anything recent.
+      for(let i = 0; i < 3; i++){
+        const url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet"
+          + "&maxResults=50&playlistId=" + NFL_UPLOADS + "&key=" + encodeURIComponent(YT_KEY)
+          + (page ? "&pageToken=" + page : "");
+        const j = DEMO.on ? demoFetch("/youtube") : await (async () => {
+          const r = await fetch(url, {cache: "no-store"});
+          const body = await r.json().catch(() => ({}));
+          if(!r.ok) throw new Error(((body.error || {}).message) || ("YouTube " + r.status));
+          return body;
+        })();
+        (j.items || []).forEach(it => out.push(it));
+        const last = (j.items || []).slice(-1)[0];
+        const lastAt = Date.parse(((last || {}).snippet || {}).publishedAt || "");
+        page = j.nextPageToken || "";
+        if(!page || DEMO.on || (Number.isFinite(lastAt) && Date.now() - lastAt > 12 * 3600e3)) break;
+      }
+      YT.err = null;
+    } catch(e){
+      // Most likely a missing, mistyped or restricted key. Worth saying, since
+      // it is the one part of this a person sets up by hand.
+      YT.err = e.message || String(e);
+    }
+    YT.items = out.map(it=>{
+      const sn = it.snippet || {};
+      const vid = (sn.resourceId || {}).videoId;
+      if(!vid) return null;
+      const th = sn.thumbnails || {};
+      return {
+        id: "yt:" + vid, src: "NFL",
+        title: sn.title || "", desc: sn.description || "",
+        thumb: ((th.medium || th.high || th.default || {}).url) || null,
+        href: "https://www.youtube.com/watch?v=" + vid,
+        embed: "https://www.youtube.com/embed/" + vid + "?autoplay=1&rel=0&playsinline=1",
+        at: sn.publishedAt || null, secs: null,
+      };
+    }).filter(Boolean);
+    YT.at = Date.now();
+    YT.busy = null;
+    return YT.items;
+  })();
+  return YT.busy;
+}
+
+/* Which of the channel's clips belong to this game: published between just
+   before kickoff and ten hours after, and naming one of the two clubs or a player
+   on either depth chart. A club plays once a week, so its name inside that window
+   can only mean this game. Titles and descriptions both count, since the NFL often
+   puts "Philadelphia Eagles running back ..." in the description and only the
+   player in the title. */
+function nflClipsFor(g, fixture, uploads){
+  const a = (g.teams.find(t => !t.home) || {}).ab;
+  const h = (g.teams.find(t => t.home) || {}).ab;
+  const k = kickoffOf(fixture);
+  if(!k) return [];
+  const lo = k - 30 * 60000, hi = k + 10 * 3600e3;
+  const words = [];
+  [a, h].forEach(ab=>{
+    const t = DATA.teams[ab] || {};
+    if(t.nick) words.push(t.nick.toLowerCase());
+    if(t.name) words.push(t.name.toLowerCase());
+  });
+  const names = new Set();
+  [a, h].forEach(ab => (DATA.depth[ab] || []).forEach(r=>{
+    const p = DATA.players[r.pid];
+    if(p && p.name && p.name.split(" ").length > 1) names.add(p.name.toLowerCase());
+  }));
+  return (uploads || []).filter(v=>{
+    const at = Date.parse(v.at || "");
+    if(!Number.isFinite(at) || at < lo || at > hi) return false;
+    const text = (v.title + " " + (v.desc || "")).toLowerCase();
+    if(words.some(w => text.includes(w))) return true;
+    for(const n of names) if(text.includes(n)) return true;
+    return false;
+  });
+}
+
 /* ---------------- in-app clip player ----------------
    Clips play inside the app through ESPN's embed player, in a window over
    whatever you were looking at. That is different from playing ESPN's raw
@@ -6078,6 +6222,7 @@ function openClip(v){
   $("#cliptitle").textContent = v.title || "Highlight";
   const open = $("#clipopen");
   open.href = v.href || "#";
+  open.textContent = v.src === "NFL" ? "Open on YouTube" : "Open on ESPN";
   const frame = $("#clipframe");
   frame.innerHTML = "";
   if(DEMO.on){
@@ -6686,78 +6831,57 @@ function possessionChip(offAb, sit, pos){
    middle repeatedly is a game worth watching. */
 function winChart(homeAb, awayAb, series, homeNow){
   if(!series || series.length < 3) return null;
-  const W = 340, H = 132, PAD = 4, GUT = 34;   // GUT: a column for the badges
+  /* Drawn at a fixed height. It used to scale with its width, which in watch
+     mode's wide left column made it over 350px tall for what is one line. The
+     line now stretches to whatever width it is given, while the badges, the dot
+     and the percentage are drawn on top in HTML so they never distort. */
   const home = DATA.teams[homeAb] || {}, away = DATA.teams[awayAb] || {};
   const hc = readableAccent(home.c1 || "#4A7C6F");
   const ac = readableAccent(away.c1 || "#8C6A6A");
-  const x = i => GUT + i / (series.length - 1) * (W - GUT - PAD);
-  const y = v => PAD + (1 - v) * (H - PAD * 2);
 
-  const pts = series.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
-  const bits = [];
-  // Above the midline the home side is ahead, below it the away side.
-  bits.push('<rect x="' + GUT + '" y="0" width="' + (W - GUT) + '" height="' + (H/2)
-    + '" fill="' + hc + '" opacity=".13"/>');
-  bits.push('<rect x="' + GUT + '" y="' + (H/2) + '" width="' + (W - GUT)
-    + '" height="' + (H/2) + '" fill="' + ac + '" opacity=".13"/>');
-  bits.push('<line x1="' + GUT + '" y1="' + (H/2) + '" x2="' + W + '" y2="' + (H/2)
-    + '" stroke="var(--chalk)" stroke-opacity=".3" stroke-dasharray="4 4"/>');
-
-  /* Badges in the gutter rather than a colour key underneath. Which half of the
-     chart belongs to whom has to be readable at a glance, and two tinted bands
-     plus a legend was asking people to hold a mapping in their head. */
-  const badge = (t, cy, col) => {
-    const logo = (DATA.teams[t] || {}).logo;
-    const out = [];
-    out.push('<circle cx="' + (GUT/2) + '" cy="' + cy + '" r="13" fill="'
-      + col + '" opacity=".18"/>');
-    if(logo)
-      out.push('<image href="' + logo + '" x="' + (GUT/2 - 11) + '" y="'
-        + (cy - 11) + '" width="22" height="22" preserveAspectRatio="xMidYMid meet"/>');
-    else
-      out.push('<text x="' + (GUT/2) + '" y="' + (cy + 4)
-        + '" text-anchor="middle" font-family="Archivo Black" font-size="9" fill="'
-        + col + '">' + t + '</text>');
-    return out.join("");
+  const wrap = el("div","wpc");
+  const gut = el("div","wpcgut");
+  const badge = (t, ab, col) => {
+    const b = el("div","wpcbadge");
+    b.style.background = "color-mix(in srgb," + col + " 22%, transparent)";
+    if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ab; b.appendChild(im); }
+    else b.appendChild(el("span", null, ab));
+    return b;
   };
-  bits.push(badge(homeAb, H * 0.25, hc));
-  bits.push(badge(awayAb, H * 0.75, ac));
+  // Home above the middle line, away below it -- the same halves as the line.
+  gut.appendChild(badge(home, homeAb, hc));
+  gut.appendChild(badge(away, awayAb, ac));
+  wrap.appendChild(gut);
 
-  bits.push('<polyline points="' + pts + '" fill="none" stroke="var(--chalk)"'
-    + ' stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>');
+  const plot = el("div","wpcplot");
+  const pts = series.map((v, i) =>
+    (i / (series.length - 1) * 1000).toFixed(1) + "," + ((1 - v) * 100).toFixed(2)).join(" ");
+  plot.innerHTML = '<svg viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">'
+    + '<rect x="0" y="0" width="1000" height="50" fill="' + hc + '" opacity=".13"/>'
+    + '<rect x="0" y="50" width="1000" height="50" fill="' + ac + '" opacity=".13"/>'
+    + '<line x1="0" y1="50" x2="1000" y2="50" stroke="currentColor" stroke-opacity=".3"'
+    + ' stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>'
+    + '<polyline points="' + pts + '" fill="none" stroke="currentColor" stroke-width="2.2"'
+    + ' stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>';
+
   const last = series[series.length - 1];
-  bits.push('<circle cx="' + x(series.length - 1).toFixed(1) + '" cy="'
-    + y(last).toFixed(1) + '" r="4.5" fill="var(--chalk)"/>');
+  const y = (1 - last) * 100;
+  const dot = el("i","wpcdot");
+  dot.style.top = y + "%";
+  plot.appendChild(dot);
 
-  // The live figure, parked next to the dot on whichever side is ahead.
-  const lead = homeNow >= 50 ? homeNow : 100 - homeNow;
-  const leadCol = homeNow >= 50 ? hc : ac;
-  const ly = homeNow >= 50 ? Math.max(16, y(last) - 14) : Math.min(H - 8, y(last) + 20);
-  bits.push('<text x="' + (W - 6) + '" y="' + ly + '" text-anchor="end"'
-    + ' font-family="Archivo Black" font-size="15" fill="' + leadCol + '">'
-    + lead + '%</text>');
-
-  const wrap = el("div","wpwrap");
-  const svg = el("div");
-  svg.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="wpchart"'
-    + ' role="img" aria-label="Win probability">' + bits.join("") + '</svg>';
-  wrap.appendChild(svg.firstElementChild);
-
-  const legend = el("div","wpleg");
-  const side = (ab, pct) => {
-    const sp = el("span");
-    const t = DATA.teams[ab] || {};
-    if(t.logo){
-      const im = new Image();
-      im.src = t.logo; im.alt = ""; im.className = "wplogo";
-      sp.appendChild(im);
-    }
-    sp.appendChild(document.createTextNode((t.nick || ab) + "  " + pct + "%"));
-    return sp;
-  };
-  legend.appendChild(side(awayAb, 100 - homeNow));
-  legend.appendChild(side(homeAb, homeNow));
-  wrap.appendChild(legend);
+  // The leader and their chance, beside the current point on the roomier side.
+  const homeLeads = homeNow >= 50;
+  const lab = el("span","wpcnow",
+    (homeLeads ? homeAb : awayAb) + " " + (homeLeads ? homeNow : 100 - homeNow) + "%");
+  lab.style.color = homeLeads ? hc : ac;
+  lab.style.top = y + "%";
+  lab.style.transform = y < 50 ? "translateY(35%)" : "translateY(-135%)";
+  plot.appendChild(lab);
+  wrap.appendChild(plot);
+  wrap.setAttribute("role", "img");
+  wrap.setAttribute("aria-label", "Win probability: " + (homeLeads ? homeAb : awayAb)
+    + " " + (homeLeads ? homeNow : 100 - homeNow) + " percent");
   return wrap;
 }
 
@@ -8392,8 +8516,30 @@ function demoFeedClips(ab){
   ];
 }
 
+/* The NFL channel's uploads as YouTube returns them. Most belong to the demo
+   game; one is from another game and one is from last week, to show both being
+   filtered out. */
+function demoYouTube(){
+  const fx = DEMO_FIXTURES[0];
+  const A = demoCast(fx.a, fx.h), H = demoCast(fx.h, fx.a);
+  const tA = DATA.teams[fx.a] || {}, tH = DATA.teams[fx.h] || {};
+  const ago = m => new Date(Date.now() - m * 60000).toISOString();
+  const up = (n, title, desc, mins) => ({snippet: {
+    title, description: desc, publishedAt: ago(mins),
+    resourceId: {videoId: "demo" + n}, thumbnails: {}}});
+  return {items: [
+    up(1, A.WR1.name + " makes a leaping 38-yard catch", tA.name + " wide receiver " + A.WR1.name + "...", 3),
+    up(2, H.RB1.name + "'s 4-yard TD run", tH.name + " running back...", 9),
+    up(3, "Can't-Miss Play: " + A.QB1.name + " threads the needle", "", 15),
+    up(4, tH.nick + " defense forces a fumble", "", 22),
+    up(5, "Unbelievable one-handed grab in Kansas City", "Chiefs vs. Bills", 11),
+    up(6, "Top 10 plays of last week", tA.name + " feature", 60 * 24 * 6),
+  ]};
+}
+
 function demoFetch(path){
   if(path === "/teams") return {sports: []};        // fall back to the fixed ids
+  if(path === "/youtube") return demoYouTube();
   if(path === "/now") return {feed: []};
   const n = demoNews(path);
   if(n) return n;
@@ -8660,6 +8806,9 @@ function toast(title, sub, gameId, strong){
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
 let watchOn = false, watchPoll = null, watchGame = null;
+// The game exactly as watch mode last drew it, broadcast delay included. The box
+// score reads this, so its score line cannot run ahead of a delayed view.
+let watchShown = null;
 
 function openWatch(gameId){
   watchGame = gameId || (LIVE.byTeam[team] || {}).id || LIVE.gameId;
@@ -8708,6 +8857,8 @@ async function refreshWatch(){
       const fx = (DATA.slate && Object.values(DATA.slate).flat()
         .find(x => x.a === a0 && x.h === h0)) || null;
       try { LIVE.videos = mergeClips(LIVE.videos, await extraClips(g, fx)); } catch(e){}
+      // And the NFL's own clips, which during a game are the quickest of all.
+      try { LIVE.videos = mergeClips(LIVE.videos, nflClipsFor(g, fx, await fetchNflUploads())); } catch(e){}
     }
     // Record the real state before anything is held back, so the delay has a
     // history to replay from.
@@ -8742,6 +8893,7 @@ function renderWatch(gRaw){
   }
   // Everything below this line sees the delayed state as though it were now.
   const g = (liveDelay && gRaw.state === "in") ? applyDelay(gRaw) : gRaw;
+  watchShown = g;
   // Two columns where there is room, stacked where there is not. The box score
   // is the thing you glance at between plays, so it wants to be beside the feed
   // rather than behind a tap.
@@ -8866,6 +9018,7 @@ function renderWatch(gRaw){
         th.appendChild(im);
       }
       th.appendChild(el("span","hlplay","\u25B6"));
+      if(v.src) th.appendChild(el("span","hlsrc " + v.src.toLowerCase(), v.src));
       if(v.secs) th.appendChild(el("span","hldur", fmtDur(v.secs)));
       card.appendChild(th);
       card.appendChild(el("div","hltitle", v.title));
@@ -8880,6 +9033,15 @@ function renderWatch(gRaw){
                         : "No clips from ESPN yet \u2014 they usually follow a "
                           + "play by a few minutes."));
   }
+
+  // The NFL's own in-game clips need a key; say so once rather than silently
+  // offering fewer clips than are available.
+  if(!YT_KEY && !DEMO.on && g.state !== "pre")
+    hl.appendChild(el("div","carnote",
+      "The NFL posts its own clips during games. Add a free YouTube key as "
+      + "YOUTUBE_API_KEY in site_config.py to include them here."));
+  else if(YT.err && !DEMO.on)
+    hl.appendChild(el("div","carnote","NFL clips unavailable: " + YT.err));
 
   const links = el("div","hllinks");
   const addLink = (label, href, sub) => {

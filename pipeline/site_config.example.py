@@ -27,10 +27,30 @@ STREAM_BASE = ""
 #   /embed/nfl/2026-09-13/nyj-ten
 EMBED_BASE = ""
 
+# Optional, but it is what brings the NFL's own in-game clips into Highlights.
+# The NFL posts play clips to YouTube while games are still going on, faster and
+# more of them than ESPN's feeds carry. Reading them needs a free API key:
+#
+#   1. console.cloud.google.com, create a project (any name)
+#   2. APIs & Services > Library > "YouTube Data API v3" > Enable
+#   3. APIs & Services > Credentials > Create credentials > API key
+#   4. Edit the key and restrict it, because it will be visible in your page:
+#        Application restrictions: Websites, add  https://elisha11230.github.io/*
+#        API restrictions: Restrict key, tick YouTube Data API v3 only
+#   5. Paste it below
+#
+# Cost: 1 unit per check of the NFL's uploads, against a free 10,000 a day. The
+# app checks every ninety seconds, and only while a live game is open.
+YOUTUBE_API_KEY = ""
+
 # Optional. A Cloudflare Worker (or similar) that fetches an ESPN URL and returns
 # it with CORS headers. Only needed if direct browser access to ESPN is ever
 # blocked; leave empty to call ESPN directly, which currently works.
 PROXY = ""
+
+
+# (Older copies of this file had an as_js() function here. It is no longer used:
+# the build reads each setting itself, so a new setting is just one new line.)
 
 
 def as_js():

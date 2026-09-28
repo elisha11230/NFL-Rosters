@@ -18,14 +18,28 @@ from embed_icons import build_head
 try:
     import site_config
 except ImportError:
-    class site_config:                      # noqa: N801 - stands in for the module
-        STREAM_BASE = EMBED_BASE = PROXY = ""
+    site_config = None
+    print("note: no site_config.py found, using defaults")
 
-        @staticmethod
-        def as_js():
-            return '{"streamBase":"","embedBase":"","proxy":""}'
 
-    print("note: no site_config.py found, using relative links")
+def setting(name, default=""):
+    """Read one setting, tolerating an older site_config.py that predates it.
+
+    The page config used to be produced by a function inside site_config.py
+    itself, which meant a new setting needed a new copy of your file. Reading
+    each value here instead means a new setting is one added line, and a file
+    without that line still builds."""
+    return getattr(site_config, name, default) if site_config else default
+
+
+def config_js():
+    import json
+    return json.dumps({
+        "streamBase": str(setting("STREAM_BASE")).rstrip("/"),
+        "embedBase": str(setting("EMBED_BASE")).rstrip("/"),
+        "proxy": setting("PROXY"),
+        "youtubeKey": str(setting("YOUTUBE_API_KEY")).strip(),
+    }, indent=2)
 
 TPL = "app_template.html"
 DATA = "nfl_data.json"
@@ -40,12 +54,13 @@ html = tpl.replace("<!--ICONS-->", build_head())
 html = html.replace("/*__DATA__*/", open(DATA).read())
 # Settings come from site_config.py, which is never overwritten by a template
 # update. Before this they lived in the template and were lost on every change.
-html = html.replace("/*__CONFIG__*/", site_config.as_js())
+html = html.replace("/*__CONFIG__*/", config_js())
 open(OUT, "w").write(html)
 
 kb = os.path.getsize(OUT) / 1024
 print(f"wrote {OUT}  ({kb/1024:.2f} MB)")
-for label, val in (("stream", site_config.STREAM_BASE),
-                   ("embed", site_config.EMBED_BASE),
-                   ("proxy", site_config.PROXY)):
-    print(f"  {label:<7}{val or '(relative / unset)'}")
+for label, val in (("stream", setting("STREAM_BASE")),
+                   ("embed", setting("EMBED_BASE")),
+                   ("proxy", setting("PROXY")),
+                   ("youtube", "set" if setting("YOUTUBE_API_KEY") else "")):
+    print(f"  {label:<8}{val or '(relative / unset)'}")

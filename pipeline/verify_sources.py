@@ -161,9 +161,11 @@ def check_settings():
     except Exception as e:
         return False, f"site_config.py will not import: {e}"
     bits = []
-    for label, val in (("stream", cfg.STREAM_BASE), ("embed", cfg.EMBED_BASE),
-                       ("proxy", cfg.PROXY)):
-        bits.append(f"{label}={val or 'unset'}")
+    for label, name in (("stream", "STREAM_BASE"), ("embed", "EMBED_BASE"),
+                        ("proxy", "PROXY")):
+        bits.append(f"{label}={getattr(cfg, name, '') or 'unset'}")
+    # The key itself is not printed; logs are visible to anyone with repo access.
+    bits.append("youtube=" + ("set" if getattr(cfg, "YOUTUBE_API_KEY", "") else "unset"))
     return True, "  ".join(bits)
 
 
