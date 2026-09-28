@@ -17,6 +17,11 @@ on:
       # "pipeline/**", and the site silently stays on the old build until
       # somebody presses Run workflow by hand.
       - ".github/workflows/rebuild.yml"
+      # A hand-pushed index.html -- stale, or stitched together by a merge --
+      # triggers a rebuild that replaces it. The robot's own commits do not
+      # trigger anything (GitHub never starts a run from its own token), so this
+      # cannot loop.
+      - "index.html"
   workflow_dispatch:
 
 # Needed so the job can commit the rebuilt page back to the repository.
@@ -39,6 +44,19 @@ jobs:
 
       - name: Install libraries
         run: pip install --quiet pandas pyarrow Pillow
+
+      # Conflict markers in a source file would be baked into the page. Stop here
+      # and name the file instead. index.html is not checked: it is about to be
+      # rebuilt from scratch, which is how a broken one gets repaired.
+      - name: Refuse sources with merge conflict markers
+        run: |
+          bad=$(grep -rlE '^(<{7}|>{7}) |^={7}$' pipeline .github || true)
+          if [ -n "$bad" ]; then
+            echo "Merge conflict markers found in:"
+            echo "$bad"
+            echo "Resolve these files (keep one version) and push again."
+            exit 1
+          fi
 
       - name: Download data sources
         working-directory: pipeline
@@ -76,6 +94,15 @@ jobs:
       - name: Load the page in a stub browser
         working-directory: pipeline
         run: node smoke_test.js index.html
+
+      # The stub test cannot tell a missing element from a present one, so it
+      # once passed a page that rendered nothing. jsdom is a real DOM: this loads
+      # the page, runs it, and fails if it throws or draws no players.
+      - name: Load the page in a real DOM
+        working-directory: pipeline
+        run: |
+          npm install --no-save --silent jsdom@24
+          node dom_test.js index.html
 
       - name: Confirm the page is valid before publishing
         run: |

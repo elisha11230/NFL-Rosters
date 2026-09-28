@@ -9,6 +9,10 @@
 const fs = require("fs");
 const path = process.argv[2] || "index.html";
 const html = fs.readFileSync(path, "utf8");
+if(/^(<{7}|>{7}) /m.test(html)){
+  console.error("SMOKE TEST FAILED: git conflict markers in " + path);
+  process.exit(1);
+}
 const js = html.split("<script>")[1].split("</script>")[0];
 
 const node = () => ({
