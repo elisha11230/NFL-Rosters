@@ -536,6 +536,10 @@ print("madden     " + (f"{mad_meta['players']} rated across {mad_meta['positions
                        + (f", {mad_meta['moved']} moved" if mad_meta.get("hasMovement") else "")
                        if mad_meta["live"] else mad_meta.get("note", "unavailable")))
 
+import build_draft_board
+draft_board, draft_board_meta = build_draft_board.build(players)
+print(f"draft      {draft_board_meta['picks']} picks, {draft_board_meta['first']}-{draft_board_meta['last']}")
+
 import build_qbr
 _espn_ids = {p["eid"]: pid for pid, p in players.items() if p.get("eid")}
 qbr, qbr_meta = build_qbr.build(_espn_ids)
@@ -627,6 +631,8 @@ payload = {
     "rankings": rankings,
     "rankMeta": rank_meta,
     "qbrMeta": qbr_meta,
+    "draftBoard": draft_board,
+    "draftMeta": draft_board_meta,
     "madMeta": mad_meta,
     "leadersPast": leaders_past,
     "draft": draft_teams,

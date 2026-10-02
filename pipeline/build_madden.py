@@ -133,6 +133,24 @@ def fetch_all():
     return None
 
 
+# Madden positions that a player listed at one of our positions cannot be.
+# Matching on name alone once gave a nickel back the rating of a defensive
+# tackle with the same name, a lineman a linebacker's, and a receiver a
+# quarterback's. Only the impossible pairings are refused: genuine position
+# changes (a tackle moved to fullback, a two-way receiver and corner) keep
+# their ratings.
+def compatible(our_pos, mpos):
+    our = str(our_pos or "").upper()
+    m = POS_MAP.get(mpos, mpos)
+    if (m == "QB") != (our == "QB"):
+        return False
+    if our == "DB" and m in ("DT", "EDGE", "T", "G", "C"):
+        return False
+    if our in ("OL", "C") and m not in ("T", "G", "C", "TE", "DT"):
+        return False
+    return True
+
+
 def build(players, team_names):
     """players: {pid: {name, pos, team}}; team_names unused, kept for the caller"""
     import pandas as pd
@@ -158,13 +176,16 @@ def build(players, team_names):
     found = {}
     taken = set()
     for _, r in df.iterrows():
-        cands = by_name.get(norm(r.get("full_name")))
+        mpos_raw = str(r.get("position") or "").strip()
+        cands = [c for c in (by_name.get(norm(r.get("full_name"))) or [])
+                 if compatible(players[c].get("pos"), mpos_raw)]
         if not cands:
             # Second pass: surname within the same club. Only accept it when
             # exactly one player fits, so a club with two Smiths is left alone.
             ab = nick_to_ab.get(str(r.get("team_short") or "").strip())
             k = surname_key(r.get("full_name"), ab)
-            alt = [c for c in (by_surname.get(k) or []) if c not in taken] if k else []
+            alt = [c for c in (by_surname.get(k) or [])
+                   if c not in taken and compatible(players[c].get("pos"), mpos_raw)] if k else []
             if len(alt) != 1:
                 continue
             cands = alt

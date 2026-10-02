@@ -2635,6 +2635,56 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   .sect .gc.static .gcname{font-size:20px}
 }
 
+/* ---------- draft ---------- */
+#draft{position:fixed;inset:0;z-index:66;background:var(--sheet);display:flex;flex-direction:column;padding:0}
+#draft[hidden]{display:none}
+#drnav{flex:0 0 auto;max-width:1180px;width:100%;margin:0 auto;padding:0 18px}
+#drbody{flex:1 1 auto;overflow-y:auto;padding:4px 18px 40px}
+#drbody > *{max-width:1180px;margin-left:auto;margin-right:auto}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.dpk{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px 11px 18px;box-shadow:0 2px 6px rgba(0,0,0,.18);overflow:hidden}
+.dpk.tap{cursor:pointer}
+.dpk.tap:hover{border-color:var(--team-accent);transform:translateY(-1px)}
+.dpk .gcstripe{top:0;bottom:0}
+.dpk.steal{border-color:color-mix(in srgb,var(--good-t) 55%,var(--line))}
+.dpk.bust{border-color:color-mix(in srgb,var(--bad-t) 50%,var(--line))}
+.dtop{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.dno{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:22px;color:var(--hi);line-height:1}
+.dslot{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim)}
+.dtag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;padding:2px 8px;border-radius:10px;color:#fff}
+.dtag.steal{background:#2E9E5B} .dtag.bust{background:#C24848} .dtag.hof{background:var(--brass);color:#181200}
+.dteam{width:30px;height:30px;object-fit:contain;margin-left:auto}
+.dwho{display:flex;align-items:center;gap:11px}
+.dph{flex:0 0 58px;width:58px;height:58px}
+.dname{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dout{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.dchip{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.05em;
+  padding:2px 9px;border-radius:10px;border:1px solid var(--line);color:var(--mute)}
+.dchip.gold{border-color:var(--brass);color:var(--brass);font-weight:700}
+.dchip.pb{border-color:color-mix(in srgb,var(--team-accent) 60%,var(--line));color:var(--hi)}
+.dnow{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;color:var(--dim)}
+.dnow img{width:16px;height:16px;object-fit:contain}
+.mkno{flex:0 0 26px;text-align:center;font-family:'Archivo Black',sans-serif;font-style:italic;
+  font-size:17px;color:var(--hi)}
+.mkneeds{display:flex;gap:5px;margin:3px 0 2px}
+.mkneed{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;
+  padding:1px 8px;border-radius:9px;border:1px solid var(--line);color:var(--mute)}
+.mkneed.first{background:var(--team);border-color:var(--team);color:var(--team2)}
+.gclist.mock .gcli{align-items:flex-start;padding-top:11px;padding-bottom:11px}
+.gclist.mock .gcli .gclogo,.gclist.mock .gcwl,.gclist.mock .mkno{margin-top:4px}
+.gclist.mock .gcsub{white-space:normal}
+@media (max-width:560px){
+  #drnav{padding:0 14px} #drbody{padding:4px 14px 40px}
+  .dgrid{grid-template-columns:1fr}
+}
+@media (max-width:440px){
+  #menu > button,#menu .menuwrap > button{font-size:11.5px;letter-spacing:.03em}
+}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -2667,9 +2717,10 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
     <button id="scoresbtn"><span aria-hidden="true">&#9679;</span>Scores</button>
     <button id="standbtn"><span aria-hidden="true">&#9632;</span>Standings</button>
     <button id="leadbtn"><span aria-hidden="true">&#9650;</span>Leaders</button>
+    <button id="draftbtn"><span aria-hidden="true">&#9670;</span>Draft</button>
     <div class="menuwrap">
       <button id="explorebtn" aria-haspopup="true" aria-expanded="false"
-              aria-controls="exploremenu"><span aria-hidden="true">&#9670;</span>Explore<i aria-hidden="true">&#9662;</i></button>
+              aria-controls="exploremenu"><span aria-hidden="true">&#10022;</span>Explore<i aria-hidden="true">&#9662;</i></button>
       <div id="exploremenu" role="menu" hidden>
         <button id="conceptbtn" role="menuitem"><b>How it works</b><small>Routes, coverages and run plays, animated</small></button>
         <button id="facesbtn" role="menuitem"><b>Faces</b><small>This roster, face by face</small></button>
@@ -2722,6 +2773,15 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   </div>
   <div id="ldnav"></div>
   <div id="ldbody"></div>
+</div>
+
+<div id="draft" hidden role="dialog" aria-modal="true" aria-label="Draft">
+  <div class="ldhead">
+    <h2 class="blk">Draft</h2>
+    <button class="qx" id="draftclose">Close</button>
+  </div>
+  <div id="drnav"></div>
+  <div id="drbody"></div>
 </div>
 
 <div id="scores" hidden role="dialog" aria-modal="true" aria-label="Scores and schedule">
@@ -11565,6 +11625,284 @@ function movementCell(r){
   return d > 0 ? {cls:"up", txt:"\u25B2 " + d} : {cls:"dn", txt:"\u25BC " + Math.abs(d)};
 }
 
+
+/* ---------------- draft ----------------
+   Two views behind the Draft menu item:
+
+   Past drafts, 2017 to 2026: every pick with how the career went (All-Pro and
+   Pro Bowl selections, seasons starting, where he is now), and steal and bust
+   tags at the extremes for classes old enough to judge. Built from nflverse's
+   draft picks by build_draft_board.py.
+
+   A 2027 mock: the first round in the order it would run if the season ended
+   today, with each team's biggest needs worked out from its own roster. It does
+   not name college players. There is no free, honest source of ranked 2027
+   prospects this early: outlets' big boards are their own published work, and
+   official prospect lists only appear after players declare in the spring. */
+let draftYear = null, draftRound = 1, draftMine = false;
+
+/* Position groups a team drafts for, and which depth-chart slots fill them.
+   3-4 and 4-3 defences use the same slot names for different jobs: a 3-4 end
+   plays inside, and a 3-4 outside linebacker is the edge rusher. */
+const NEED_SLOTS = {
+  off: {QB:["QB"], RB:["RB"], WR:["WR"], TE:["TE"], OT:["LT","RT"], IOL:["LG","C","RG"]},
+  "Base 4-3 D": {EDGE:["LDE","RDE"], DT:["LDT","RDT"], LB:["SLB","MLB","WLB"],
+                 CB:["LCB","RCB","NB"], S:["FS","SS"]},
+  "Base 3-4 D": {DT:["LDE","RDE","NT"], EDGE:["SLB","WLB"], LB:["LILB","RILB"],
+                 CB:["LCB","RCB","NB"], S:["FS","SS"]},
+};
+// How much a need at each position is worth, roughly as teams draft.
+const NEED_WEIGHT = {QB:1.3, EDGE:1.08, OT:1.08, CB:1.06, WR:1.05, DT:1.0, S:0.9,
+                     IOL:0.9, LB:0.85, TE:0.85, RB:0.75};
+const NEED_LABEL = {QB:"Quarterback", RB:"Running back", WR:"Receiver", TE:"Tight end",
+  OT:"Tackle", IOL:"Interior line", EDGE:"Edge rusher", DT:"Interior D-line",
+  LB:"Linebacker", CB:"Cornerback", S:"Safety"};
+
+const NEED_PLURAL = {QB:"quarterbacks", RB:"running backs", FB:"fullbacks", WR:"receivers",
+  TE:"tight ends", T:"tackles", G:"guards", C:"centres", EDGE:"edge rushers",
+  DT:"interior linemen", LB:"linebackers", CB:"cornerbacks", S:"safeties"};
+
+/* A team's needs: for each position, the weakest starter decides, scored on his
+   Madden rank within his position, a contract about to run out, and age (taken
+   from seasons in the league, which every player has). */
+function rawNeeds(ab){
+  const rows = DATA.depth[ab] || [];
+  const defGrp = activeDefGrp(ab);
+  const plans = [["3WR 1TE", NEED_SLOTS.off], [defGrp, NEED_SLOTS[defGrp] || {}]];
+  const out = [];
+  plans.forEach(([grp, groups])=>{
+    Object.entries(groups).forEach(([need, abbs])=>{
+      const starters = rows.filter(r => r.grp === grp && r.rank === 1 && abbs.includes(r.abb))
+        .map(r => DATA.players[r.pid]).filter(Boolean);
+      if(!starters.length){ out.push({need, score: 1.6, why: ["No clear starter"]}); return; }
+      let worst = null, total = 0;
+      starters.forEach(p=>{
+        const why = [];
+        let sc = 0, madTxt = null;
+        if(p.mad && p.mad.rank && p.mad.n){
+          const pct = p.mad.rank / p.mad.n;
+          sc += pct;
+          madTxt = shortName(p.name) + " rates " + ord(p.mad.rank) + " of " + p.mad.n + " "
+            + (NEED_PLURAL[p.mad.pos] || p.mad.pos + "s") + " in Madden";
+          if(pct > 0.55) why.push(shortName(p.name) + " rates " + ord(p.mad.rank) + " of "
+            + p.mad.n + " " + (NEED_PLURAL[p.mad.pos] || p.mad.pos + "s") + " in Madden");
+        } else sc += 0.6;
+        const end = p.ct && p.ct.signed && p.ct.yrs ? p.ct.signed + p.ct.yrs - 1 : null;
+        if(end != null && end <= 2026){ sc += 0.35; why.push(shortName(p.name) + "'s deal ends after this season"); }
+        else if(end === 2027){ sc += 0.12; }
+        const old = need === "RB" ? 6 : need === "QB" ? 14 : 11;
+        if(p.exp >= old){ sc += 0.3; why.push(shortName(p.name) + " is in his " + ord(p.exp + 1) + " season"); }
+        total += sc;
+        // Always have a reason to show, even when nothing is a red flag.
+        if(!why.length && madTxt) why.push(madTxt);
+        if(!worst || sc > worst.sc) worst = {sc, why};
+      });
+      // The weakest starter matters most, but the rest of the room counts too.
+      // Scoring on the weakest alone favoured positions with more starters:
+      // with two or three to choose from, one is always poor.
+      const blended = 0.6 * worst.sc + 0.4 * (total / starters.length);
+      out.push({need, score: blended, why: worst.why});
+    });
+  });
+  return out;
+}
+
+/* Each position judged against the league: how much worse is this team's room
+   than a typical team's? Comparing raw scores across positions favoured edge
+   rushers for one in three teams, an artefact of how the scores fall rather
+   than a real league-wide shortage. Positional value is then a small nudge. */
+let NEED_STATS = null;
+function needStats(){
+  if(NEED_STATS) return NEED_STATS;
+  const by = {};
+  Object.keys(DATA.teams).forEach(ab => rawNeeds(ab).forEach(n => (by[n.need] ||= []).push(n.score)));
+  NEED_STATS = {};
+  Object.entries(by).forEach(([k, v])=>{
+    const m = v.reduce((a, b) => a + b, 0) / v.length;
+    const sd = Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / v.length) || 1;
+    NEED_STATS[k] = {m, sd};
+  });
+  return NEED_STATS;
+}
+function teamNeeds(ab){
+  const st = needStats();
+  return rawNeeds(ab).map(n => Object.assign({}, n, {
+    score: (n.score - st[n.need].m) / st[n.need].sd + (NEED_WEIGHT[n.need] - 1) * 1.2,
+  })).sort((a, b) => b.score - a.score);
+}
+
+/* First-round order if the season ended today: worst record first, ties broken
+   by points difference. The real order also slots playoff teams by how far they
+   go, which nobody knows in October. */
+function mockOrder(){
+  const S = (DATA.standings || {}).teams || {};
+  const teams = Object.keys(DATA.teams);
+  const key = ab => {
+    const v = S[ab];
+    if(v) return [v.pct ?? 0, v.diff ?? 0];
+    const s = (DATA.season || {})[ab] || {};
+    return [(s.w || 0) / 17, 0];
+  };
+  return teams.sort((a, b) => { const x = key(a), y = key(b); return (x[0] - y[0]) || (x[1] - y[1]); });
+}
+
+function openDraft(){
+  $("#draft").hidden = false;
+  renderDraft();
+}
+
+function renderDraft(){
+  const board = DATA.draftBoard || {};
+  const years = Object.keys(board).map(Number).sort((a, b) => b - a);
+  if(draftYear == null) draftYear = "mock";
+
+  const nav = $("#drnav"); nav.innerHTML = "";
+  const yr = el("div","ldgroups");
+  [["mock", "2027 mock"], ...years.map(y => [y, String(y)])].forEach(([k, lab])=>{
+    const b = el("button", k === "mock" ? "alt" : null, lab);
+    b.setAttribute("aria-pressed", k === draftYear);
+    b.onclick = () => { draftYear = k; renderDraft(); };
+    yr.appendChild(b);
+  });
+  nav.appendChild(yr);
+
+  const body = $("#drbody"); body.innerHTML = "";
+  if(draftYear === "mock"){ renderMock(nav, body); body.scrollTop = 0; return; }
+
+  // ---- a past draft
+  const sub = el("div","ldseasons");
+  sub.appendChild(el("span","ldlab","Round"));
+  [1,2,3,4,5,6,7].forEach(r=>{
+    const b = el("button", null, String(r));
+    b.setAttribute("aria-pressed", !draftMine && r === draftRound);
+    b.onclick = () => { draftRound = r; draftMine = false; renderDraft(); };
+    sub.appendChild(b);
+  });
+  const t = DATA.teams[team] || {};
+  const mine = el("button", null, (t.nick || team) + " picks");
+  mine.setAttribute("aria-pressed", draftMine);
+  mine.onclick = () => { draftMine = !draftMine; renderDraft(); };
+  sub.appendChild(mine);
+  nav.appendChild(sub);
+
+  const picks = (board[String(draftYear)] || [])
+    .filter(r => draftMine ? r.t === team : r.r === draftRound);
+  const meta = DATA.draftMeta || {};
+  body.appendChild(el("div","gcsec", draftYear + " draft \u00b7 "
+    + (draftMine ? (t.name || team) : "Round " + draftRound)));
+  if(!picks.length){ body.appendChild(el("div","carnote","No picks.")); return; }
+
+  const grid = el("div","dgrid");
+  picks.forEach(r => grid.appendChild(pickCard(r, Number(draftYear))));
+  body.appendChild(grid);
+  body.appendChild(el("div","carnote",
+    "Career figures from Pro Football Reference via nflverse. Steal marks a career "
+    + "in the top 32 of its class from the third round or later; bust, a first-rounder "
+    + "outside the top half of his class who has started two seasons or fewer. Only "
+    + "classes from " + (meta.judged_through || 2023) + " or earlier are judged."));
+  body.scrollTop = 0;
+}
+
+function pickCard(r, year){
+  const card = el("div","dpk" + (r.tag ? " " + r.tag : ""));
+  const t = DATA.teams[r.t] || {};
+  const stripe = el("i","gcstripe"); stripe.style.background = stripeColor(t);
+  card.appendChild(stripe);
+
+  const top = el("div","dtop");
+  top.appendChild(el("span","dno", "#" + r.p));
+  top.appendChild(el("span","dslot", "Round " + r.r));
+  if(r.tag) top.appendChild(el("span","dtag " + r.tag, r.tag === "steal" ? "Steal" : "Bust"));
+  if(r.hof) top.appendChild(el("span","dtag hof","Hall of Fame"));
+  const lg = el("img","dteam");
+  if(t.logo){ lg.src = t.logo; lg.alt = r.t; lg.loading = "lazy"; }
+  top.appendChild(lg);
+  card.appendChild(top);
+
+  const who = el("div","dwho");
+  const p = r.id ? DATA.players[r.id] : null;
+  const ph = el("div","ldph big dph");
+  const im = p ? faceImg(p, 160, {lazy: true}) : null;
+  if(im) ph.appendChild(im);
+  else ph.appendChild(el("span","ldinit", (r.n || "?").split(" ").map(x => x[0]).join("").slice(0, 2)));
+  who.appendChild(ph);
+  const tx = el("div","ldtx");
+  tx.appendChild(el("div","dname", r.n));
+  tx.appendChild(el("div","ldmeta", [r.pos, r.c].filter(Boolean).join("  \u00b7  ")));
+  who.appendChild(tx);
+  card.appendChild(who);
+
+  // How it went
+  const out = el("div","dout");
+  const chip = (txt, cls) => out.appendChild(el("span","dchip" + (cls ? " " + cls : ""), txt));
+  if(r.ap) chip("All-Pro \u00d7" + r.ap, "gold");
+  if(r.pb) chip("Pro Bowl \u00d7" + r.pb, "pb");
+  if(r.st) chip(r.st + (r.st === 1 ? " season" : " seasons") + " starting");
+  if(!r.ap && !r.pb && !r.st) chip(year >= 2026 ? "Rookie" : (r.g ? r.g + " games" : "No games"));
+  card.appendChild(out);
+
+  // Where he is now
+  const loc = r.id ? LOCATE[r.id] : null;
+  const now = el("div","dnow");
+  if(loc && loc.team){
+    const nt = DATA.teams[loc.team] || {};
+    if(loc.team === r.t) now.textContent = "Still with the " + (nt.nick || loc.team);
+    else {
+      const li = el("img"); if(nt.logo){ li.src = nt.logo; li.alt = ""; li.loading = "lazy"; }
+      now.appendChild(document.createTextNode("Now "));
+      now.appendChild(li);
+      now.appendChild(document.createTextNode(nt.nick || loc.team));
+    }
+  } else if(r.to && r.to < 2026) now.textContent = "Last played " + r.to;
+  else if(year < 2026) now.textContent = "Not on a depth chart";
+  card.appendChild(now);
+
+  if(p){
+    card.classList.add("tap");
+    card.onclick = () => { $("#draft").hidden = true; goPlayer(p.id); };
+  }
+  return card;
+}
+
+function renderMock(nav, body){
+  const meta = DATA.standMeta || {};
+  nav.appendChild(el("div","ldseasons", ""));
+  nav.lastChild.appendChild(el("span","ldnote",
+    "First round if the season ended today" + (meta.week ? ", after week " + meta.week : "")));
+  body.appendChild(el("div","gcsec","2027 mock draft"));
+
+  const list = el("div","gclist mock");
+  mockOrder().forEach((ab, i)=>{
+    const t = DATA.teams[ab] || {};
+    const st = ((DATA.standings || {}).teams || {})[ab] || {};
+    const row = teamRow(ab, ab === team ? "cur" : "", el("span","mkno", String(i + 1)));
+    const mid = el("div","gcmid");
+    const nm = el("div","gcname");
+    nm.appendChild(el("span","nk", t.nick || ab));
+    nm.appendChild(el("span","ab", ab));
+    mid.appendChild(nm);
+    const needs = teamNeeds(ab).slice(0, 3);
+    const chips = el("div","mkneeds");
+    needs.forEach((n, j) => chips.appendChild(el("span","mkneed" + (j === 0 ? " first" : ""), n.need)));
+    mid.appendChild(chips);
+    const why = (needs[0] && needs[0].why[0]) || "";
+    if(why) mid.appendChild(el("div","gcsub", (NEED_LABEL[needs[0].need] || needs[0].need) + ": " + why));
+    row.appendChild(mid);
+    row.appendChild(el("span","gcwl", st.rec || ""));
+    row.onclick = () => { $("#draft").hidden = true; goTeam(ab); };
+    list.appendChild(row);
+  });
+  body.appendChild(list);
+  body.appendChild(el("div","carnote",
+    "Needs are worked out from each roster: for every position, the weakest starter, "
+    + "scored on his Madden rank at his position, a contract that runs out after this "
+    + "season, and years in the league, then weighted by how teams value each position. "
+    + "The first chip is the biggest need. Picks are shown with their original team; "
+    + "trades of 2027 picks are not tracked. No college players are named: there is no "
+    + "free, honest ranking of 2027 prospects yet, and outlets' big boards are their own "
+    + "work. Prospect lists appear once players declare in the spring."));
+}
+
 /* ---------------- league leaders ----------------
    Rebuilt as an overview first: pick a position group and a season, and every
    leaderboard for that group appears as a card with the leader large (photo,
@@ -11861,6 +12199,8 @@ function renderLeadList(box, bd){
 
 $("#leadbtn").onclick = () => { $("#lead").hidden = false; renderLeaders(); };
 $("#leadclose").onclick = () => { $("#lead").hidden = true; };
+$("#draftbtn").onclick = openDraft;
+$("#draftclose").onclick = () => { $("#draft").hidden = true; };
 $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
