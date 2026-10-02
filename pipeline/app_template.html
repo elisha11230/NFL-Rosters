@@ -658,6 +658,23 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
+/* ---------- the field on a phone ----------
+   Fits the screen width with no sideways scrolling; tall enough that rows of
+   compact chips never touch. */
+@media (max-width:740px){
+  #fieldwrap{overflow-x:visible}
+  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
+  .chip{width:46px;gap:3px}
+  .disc{width:38px;height:38px}
+  .face .fallback{font-size:13px}
+  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
+  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
+  .slotlab{font-size:9px;line-height:1.1}
+  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+
 /* ---------- scores: game cards ----------
    After the NFL app: live games large, upcoming and finished games in a
    two-column grid grouped by day. */
@@ -1002,6 +1019,23 @@ table.car tr.cur td{background:color-mix(in srgb,var(--team) 13%,transparent)}
 table.car tr.cur .yr{color:var(--hi)}
 table.car td.best{color:var(--good-t);font-weight:600}
 .carnote{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.5}
+
+/* ---------- the field on a phone ----------
+   Fits the screen width with no sideways scrolling; tall enough that rows of
+   compact chips never touch. */
+@media (max-width:740px){
+  #fieldwrap{overflow-x:visible}
+  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
+  .chip{width:46px;gap:3px}
+  .disc{width:38px;height:38px}
+  .face .fallback{font-size:13px}
+  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
+  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
+  .slotlab{font-size:9px;line-height:1.1}
+  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 
 /* ---------- scores: game cards ----------
    After the NFL app: live games large, upcoming and finished games in a
@@ -2290,6 +2324,23 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
+/* ---------- the field on a phone ----------
+   Fits the screen width with no sideways scrolling; tall enough that rows of
+   compact chips never touch. */
+@media (max-width:740px){
+  #fieldwrap{overflow-x:visible}
+  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
+  .chip{width:46px;gap:3px}
+  .disc{width:38px;height:38px}
+  .face .fallback{font-size:13px}
+  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
+  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
+  .slotlab{font-size:9px;line-height:1.1}
+  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+
 /* ---------- scores: game cards ----------
    After the NFL app: live games large, upcoming and finished games in a
    two-column grid grouped by day. */
@@ -3417,6 +3468,42 @@ function renderTimebar(){
   document.body.classList.toggle("past", isPast());
 }
 
+/* ---------------- phone layouts ----------------
+   On a phone the field used to keep a 700px minimum width, so you scrolled it
+   sideways. The minimum was there because formation positions are percentages:
+   squeezed to 390px, the five offensive linemen sat on top of each other.
+
+   So narrow screens get their own positions where they need them. The defence
+   already fits (its tightest neighbours are 13 to 14 percent apart, about 50px
+   on a phone); the offence does not, because eight players share one line. On
+   a phone the far receiver drops just off the line, as a flanker often lines
+   up anyway, and the rest of the line spaces out evenly around the centre.
+   check_layout.py tests these at a 360px phone as well as the desktop size. */
+const FORMS_NARROW = {
+  "3WR 1TE": { coords:{
+    1:[7,26],   2:[17,44],  3:[24,26], 4:[37,26], 5:[50,26], 6:[63,26],
+    7:[76,26],  8:[93,44],  9:[50,50], 10:[89,26], 11:[38,72], 12:[62,72] }},
+};
+const NARROW_MAX = 740;
+const isNarrowField = () => window.innerWidth <= NARROW_MAX;
+function formCoords(grp, form){
+  return (isNarrowField() && FORMS_NARROW[grp]) ? FORMS_NARROW[grp].coords : form.coords;
+}
+// Turning a phone, or resizing a window across the line, swaps the layout.
+{
+  let wasNarrow = isNarrowField(), t = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      const now = isNarrowField();
+      if(now === wasNarrow) return;
+      wasNarrow = now;
+      renderField();
+      if(!$("#game").hidden && GAME.team) renderGame();
+    }, 150);
+  });
+}
+
 function renderField(){
   closeSwap();
   preloadTeam(team, 112);
@@ -3429,7 +3516,7 @@ function renderField(){
   drawTurf();
 
   const box = $("#chips"); box.innerHTML="";
-  Object.entries(form.coords).forEach(([slot,[x,y]])=>{
+  Object.entries(formCoords(grp, form)).forEach(([slot,[x,y]])=>{
     const stackArr = by[slot]; if(!stackArr || !stackArr.length) return;
     const key = grp+"|"+slot;
     const idx = Math.min(sub[key]||0, stackArr.length-1);
@@ -8333,7 +8420,7 @@ function gameSlots(){
   (DATA.depth[GAME.team] || []).filter(r => r.grp === grp).forEach(r=>{
     if(!by[r.slot] || r.rank < by[r.slot].rank) by[r.slot] = r;
   });
-  return Object.entries(form.coords)
+  return Object.entries(formCoords(grp, form))
     .filter(([slot]) => by[slot] && DATA.players[by[slot].pid])
     .map(([slot, xy]) => ({
       slot: +slot, x: xy[0], y: xy[1],
