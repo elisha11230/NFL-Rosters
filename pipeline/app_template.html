@@ -42,7 +42,7 @@ try { if(localStorage.getItem("theme") === "light")
   --hover:#243039; --hover2:#141C20;
   --bar1:#0A0F11; --bar2:#0C1215;
   /* Backdrop of the full-screen pages: Scores, Leaders, Faces and the rest. */
-  --sheet:rgba(8,12,14,.97);
+  --sheet:#0B1013;   /* solid: a see-through backdrop let the page behind show */
   /* Status text colours that must stay readable on either background. */
   --good-t:#5FBF8A; --bad-t:#E4A4A4; --bad2-t:#C98080; --alert-t:#E05B5B;
   --warn-t:#E0A15B; --warn2-t:#E0B48A;
@@ -2537,6 +2537,104 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
 
 .sect .coach{border:0;padding:0;margin:0;background:none}
 
+/* ---------- the Scores card style, everywhere ----------
+   Rounded cards, team colour stripes, heavy italic names and pill controls,
+   carried from the Scores page to its other tabs, watch mode, the box score
+   and the team page. */
+.boxtabs{display:flex;gap:6px;margin:12px 0 10px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+.boxtabs::-webkit-scrollbar{display:none}
+.boxtabs button{flex:0 0 auto;padding:8px 15px;border-radius:20px;border:1px solid var(--line);
+  background:var(--panel);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.boxtabs button:hover{color:var(--hi);border-color:var(--team-accent)}
+.boxtabs button[aria-pressed="true"]{background:var(--team);border-color:var(--team);color:var(--team2)}
+.wkstrip{gap:6px;border-bottom:0;padding:2px 0 10px;margin-bottom:6px;scrollbar-width:none}
+.wkstrip::-webkit-scrollbar{display:none}
+.wkstrip button{flex:0 0 38px;width:38px;min-width:38px;height:38px;padding:0;border-radius:50%;
+  border:1px solid var(--line);background:var(--panel);font-family:'Archivo Black',sans-serif;
+  font-size:13px;color:var(--mute)}
+.wkstrip button.now{border-color:var(--brass);color:var(--brass)}
+.wkstrip button[aria-pressed="true"]{background:var(--team);border-color:var(--team);color:var(--team2)}
+.wcat{border-radius:16px;padding:6px 12px;background:var(--panel)}
+.wcat[aria-pressed="true"]{background:var(--team);border-color:var(--team);color:var(--team2)}
+
+/* the rounded list card and its rows */
+.gclist{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);margin-bottom:8px}
+.gcli{position:relative;display:flex;align-items:center;gap:10px;padding:9px 12px 9px 18px;
+  border-top:1px solid var(--rule);cursor:pointer;min-height:56px}
+.gcli:first-child{border-top:0}
+.gcli:hover{background:var(--hover)}
+.gcli .gcstripe,.gclist .rkrow .gcstripe,.gclist .wlrow .gcstripe,.gsside .gcstripe{top:0;bottom:0}
+.gcli .gclogo{width:30px;height:30px}
+.gcpos{flex:0 0 16px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
+.gcmid{flex:1 1 auto;min-width:0}
+.gcli .gcname{display:block;font-size:18px}
+.gcname .ab{display:none}
+.gcsub{font-size:12px;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcwl{flex:0 0 auto;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:19px;
+  color:var(--hi);min-width:44px;text-align:right}
+.gcdiff{flex:0 0 auto;font-weight:700;font-size:13px;color:var(--mute);min-width:32px;text-align:right}
+.gcdiff.up{color:var(--good-t)} .gcdiff.dn{color:var(--bad-t)}
+.gcform{display:flex;gap:3px;flex:0 0 auto}
+.gcform i{width:16px;height:16px;border-radius:50%;font-style:normal;font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;color:#fff;background:var(--line)}
+.gcform i.fW{background:#2E9E5B} .gcform i.fL{background:#C24848}
+.gcli.cur{background:color-mix(in srgb,var(--team) 14%,transparent)}
+.gcli.cut{border-top:2px solid var(--brass)}
+.gcwk{flex:0 0 36px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim)}
+.gcha{font-family:'Barlow Condensed',sans-serif;font-style:normal;font-size:13px;color:var(--dim);
+  margin-right:6px;text-transform:none;letter-spacing:.04em}
+.gcres{flex:0 0 auto;font-weight:700;font-size:14px;color:var(--hi);white-space:nowrap}
+.gcres b{display:inline-flex;width:20px;height:20px;border-radius:5px;align-items:center;
+  justify-content:center;font-size:11px;color:#fff;background:#2E9E5B;margin-right:5px;vertical-align:-4px}
+.gcres.l b{background:#C24848} .gcres.t b{background:var(--line)}
+.gch2h{flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;color:var(--dim);
+  border:1px solid var(--line);border-radius:10px;padding:1px 7px}
+.gch2h.up{color:var(--good-t)} .gch2h.dn{color:var(--bad-t)}
+.gcli.bye{cursor:default;min-height:40px;opacity:.75}
+.gcli.bye:hover{background:none}
+.gcbye{font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  font-size:13px;color:var(--dim)}
+
+/* power ratings and week leaders rows inside list cards */
+.gclist .rkrow,.gclist .wlrow{position:relative;padding:10px 12px 10px 18px;border-bottom:0;
+  border-top:1px solid var(--rule)}
+.gclist .rkrow:first-child,.gclist .wlrow:first-child{border-top:0}
+.gclist .rkrow:hover,.gclist .wlrow:hover{background:var(--hover)}
+.rklist .rkname{font-family:'Archivo Black',sans-serif;font-style:italic;text-transform:uppercase;
+  font-size:17px;color:var(--hi)}
+.wllist .wlrow.top{background:linear-gradient(90deg,color-mix(in srgb,var(--team) 16%,transparent),transparent)}
+
+/* watch mode's game strip */
+.gstile{position:relative;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  overflow:hidden;padding:8px 0 0}
+.gstile.on{border-color:var(--team-accent);box-shadow:0 0 0 1px var(--team-accent)}
+.gsside{position:relative;padding:3px 10px 3px 14px}
+.gsside .gcstripe{width:4px}
+.gsab{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:15px}
+.gssc{font-family:'Archivo Black',sans-serif;font-style:italic}
+.gsfoot{border-top:1px solid var(--rule);margin-top:6px;padding:5px 8px;font-size:11px;justify-content:center}
+.gsfoot.hot{color:#E0453A;font-weight:700}
+html[data-theme="light"] .gsfoot.hot{color:#C22B20}
+
+/* the live card used as a scoreboard */
+.gc.static{cursor:default}
+.gc.static:hover{transform:none;border-color:var(--line)}
+.wcardhost{margin-bottom:12px}
+.sect .gc.static{margin-bottom:12px}
+.sect .gc.static .gcname{font-size:22px}
+#boxhead .gc{max-width:860px;margin:0 auto 8px}
+
+@media (max-width:560px){
+  .gcli .gcname .nk{display:none}
+  .gcli .gcname .ab{display:inline}
+  .gcform i:nth-last-child(n+4){display:none}
+  .gcli{gap:8px;padding:9px 10px 9px 16px}
+  .sect .gc.static .gcname{font-size:20px}
+}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -4052,33 +4150,56 @@ function sectionSchedule(d){
     const rows = sc.games.slice();
     if(sc.bye) rows.push({wk:sc.bye, bye:true});
     rows.sort((a,b)=>a.wk-b.wk);
+    const card = el("div","gclist sched");
     rows.forEach(g=>{
-      const row = el("div","gm"+(g.bye?" bye":""));
-      row.appendChild(el("span","wk","wk "+g.wk));
       if(g.bye){
-        row.appendChild(el("span","ha",""));
-        row.appendChild(el("span","op","Bye"));
-      } else {
-        row.appendChild(el("span","ha", g.home?"vs":"at"));
-        const t = DATA.teams[g.opp];
-        row.appendChild(el("span","op", t ? t.nick : g.opp));
-        if(g.rec) row.appendChild(el("span","rc", g.rec));
-        const hh = ((DATA.h2h||{})[team]||{})[g.opp];
-        if(hh){
-          const cls = hh.pct > 55 ? " up" : hh.pct < 45 ? " dn" : "";
-          const sp = el("span","h2h"+cls, hh.rec);
-          sp.title = "Since 1999: " + hh.rec + " in " + hh.n + " meetings"
-            + (hh.post ? ", " + hh.post + " in the playoffs" : "")
-            + (hh.last ? ". Last: " + hh.last : "");
-          row.appendChild(sp);
-        }
+        const row = el("div","gcli bye");
+        row.appendChild(el("span","gcwk","Wk " + g.wk));
+        row.appendChild(el("span","gcbye","Bye week"));
+        card.appendChild(row);
+        return;
       }
-      body.appendChild(row);
+      const row = teamRow(g.opp, "", el("span","gcwk","Wk " + g.wk));
+      const mid = el("div","gcmid");
+      const nm = el("div","gcname");
+      nm.appendChild(el("span","gcha", g.home ? "vs" : "@"));
+      const t = DATA.teams[g.opp] || {};
+      nm.appendChild(el("span","nk", t.nick || g.opp));
+      nm.appendChild(el("span","ab", g.opp));
+      mid.appendChild(nm);
+      // Kickoff from the league slate, for games still to come.
+      const fx = ((DATA.slate || {})[g.wk] || []).find(x => x.a === team || x.h === team);
+      const bits = [];
+      if(!g.res && fx && fx.d) bits.push(new Date(fx.d + "T12:00:00Z")
+        .toLocaleDateString(undefined, {weekday:"short", month:"short", day:"numeric"})
+        + "  " + fmtKick(fx));
+      if(g.rec) bits.push("Last year " + g.rec);
+      mid.appendChild(el("div","gcsub", bits.join("  \u00b7  ")));
+      row.appendChild(mid);
+      const hh = ((DATA.h2h||{})[team]||{})[g.opp];
+      if(hh){
+        const cls = hh.pct > 55 ? " up" : hh.pct < 45 ? " dn" : "";
+        const sp = el("span","gch2h"+cls, hh.rec);
+        sp.title = "Since 1999: " + hh.rec + " in " + hh.n + " meetings"
+          + (hh.post ? ", " + hh.post + " in the playoffs" : "")
+          + (hh.last ? ". Last: " + hh.last : "");
+        row.appendChild(sp);
+      }
+      if(g.res){
+        const r = el("span","gcres " + g.res.toLowerCase());
+        r.appendChild(el("b", null, g.res));
+        r.appendChild(document.createTextNode(" " + g.pf + "\u2013" + g.pa + (g.ot ? " OT" : "")));
+        row.appendChild(r);
+      }
+      // A played or live game opens on the Scores page for its week.
+      row.onclick = () => { scoreWeek = g.wk; scoreMode = "games"; openScores(); };
+      card.appendChild(row);
     });
+    body.appendChild(card);
     const n = el("div");
     n.style.cssText="margin-top:10px;font-size:12px;color:var(--dim);line-height:1.5";
-    n.textContent = "First record is the opponent's last season. Second is this "
-      + "team's record against them since 1999 \u2014 hover for the detail. "
+    n.textContent = "Results so far, then what is to come. The small record on the "
+      + "right is this team's record against them since 1999 \u2014 hover for the detail. "
       + "Before anyone has played, last year is the only honest measure of how "
       + "hard a slate looks.";
     body.appendChild(n);
@@ -5566,21 +5687,6 @@ function sectionGame(d){
   hh.appendChild(el("span", null, g.detail || ""));
   sec.appendChild(hh);
 
-  // Score line
-  const sc = el("div","gsc");
-  sc.appendChild(el("span","t", a.ab + " " + (a.score ?? 0)));
-  sc.appendChild(el("span","d", "\u2013"));
-  sc.appendChild(el("span","t", h.ab + " " + (h.score ?? 0)));
-  if(LIVE.box && LIVE.box.length){
-    const bx = el("button", null, "Box score");
-    bx.style.cssText = "margin-left:auto;font-family:'Barlow Condensed',sans-serif;"
-      + "font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--mute);"
-      + "border:1px solid var(--line);padding:5px 10px;border-radius:3px";
-    bx.onclick = openBox;
-    sc.appendChild(bx);
-  }
-  sec.appendChild(sc);
-
   // Field position on its own diagram rather than on the formation, because the
   // formation is a picture of personnel and not a scale map of the field.
   const st = LIVE.situation;
@@ -5588,9 +5694,14 @@ function sectionGame(d){
     ? (g.teams.find(t => String(t.id) === String(st.possession)) || {}).ab : null;
   const defAb2 = offAb2 ? (offAb2 === h.ab ? a.ab : h.ab) : null;
   const pos2 = fieldPosition(st, offAb2);
+  // The score as the Scores page's live card, with the box score in its footer.
+  let bx = null;
+  if(LIVE.box && LIVE.box.length){
+    bx = el("button","boxfull","Box score");
+    bx.onclick = openBox;
+  }
+  sec.appendChild(scoreCard(g, {poss: offAb2, sit: st, pos: pos2, extra: bx}));
   if(st){
-    const dd = st.downDistanceText || st.shortDownDistanceText;
-    if(dd) sec.appendChild(el("div","ddbig", dd));
     if(offAb2) sec.appendChild(possessionChip(offAb2, st, pos2));
     sec.appendChild(miniField(offAb2 || a.ab, defAb2 || h.ab, pos2));
     if(st.lastPlay && st.lastPlay.text)
@@ -5682,13 +5793,7 @@ function renderBox(){
   head.innerHTML = ""; body.innerHTML = "";
 
   if(g){
-    const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
-    const sc = el("div","boxscore-line");
-    sc.appendChild(el("span","bt", a.ab + " " + (a.score ?? 0)));
-    sc.appendChild(el("span","bd","\u2013"));
-    sc.appendChild(el("span","bt", h.ab + " " + (h.score ?? 0)));
-    sc.appendChild(el("span","bs", g.detail || ""));
-    head.appendChild(sc);
+    head.appendChild(scoreCard(g));
   }
 
   // Team totals side by side, when the feed carries them.
@@ -8358,10 +8463,15 @@ function renderRankings(host){
     return ra - rb;
   });
 
+  let rkCard = null;
   order.forEach((tm, i)=>{
     const v = R[tm];
     const t = DATA.teams[tm] || {};
+    if(!rkCard){ rkCard = el("div","gclist rklist"); host.appendChild(rkCard); }
     const row = el("button","rkrow" + (i < 3 ? " top" : ""));
+    const rkStripe = el("i","gcstripe");
+    rkStripe.style.background = stripeColor(DATA.teams[tm] || {});
+    row.appendChild(rkStripe);
     row.appendChild(el("span","rknum", String(i + 1)));
     const lg = el("img","rklogo");
     if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
@@ -8403,7 +8513,7 @@ function renderRankings(host){
       row.appendChild(sp);
     }
     row.onclick = () => { $("#scores").hidden = true; goTeam(tm); };
-    host.appendChild(row);
+    rkCard.appendChild(row);
   });
 
   const n = el("div","carnote");
@@ -8896,6 +9006,8 @@ function renderGameStrip(){
     const side = (t, opp) => {
       const row = el("div","gsside");
       const tm = DATA.teams[t.ab] || {};
+      const stripe = el("i","gcstripe"); stripe.style.background = stripeColor(tm);
+      row.appendChild(stripe);
       const lg = el("img","gslogo");
       if(tm.logo){ lg.src = tm.logo; lg.alt = ""; lg.loading = "lazy"; }
       row.appendChild(lg);
@@ -8911,10 +9023,10 @@ function renderGameStrip(){
     tile.appendChild(side(a, h));
     tile.appendChild(side(h, a));
 
-    const foot = el("div","gsfoot");
+    const foot = el("div","gsfoot" + (g.state === "in" ? " hot" : ""));
     if(g.state === "in") foot.appendChild(el("span","gsdot"));
     foot.appendChild(el("span", null, g.state === "pre"
-      ? (g.detail || "").replace(/^.*?-\s*/, "") : (g.detail || "")));
+      ? (g.detail || "").replace(/^.*?-\s*/, "") : clockFromDetail(g)));
     tile.appendChild(foot);
 
     tile.onclick = () => switchGame(g.id);
@@ -9210,21 +9322,10 @@ function renderWatch(gRaw){
   if(gRaw.state === "in") b.appendChild(delayControl());
 
   // score
-  const sc = el("div","wsc");
-  [[a, false], [h, true]].forEach(([t, home])=>{
-    const side = el("div","wside");
-    const tm = DATA.teams[t.ab] || {};
-    const lg = el("img","wlogo");
-    if(tm.logo){ lg.src = tm.logo; lg.alt = ""; }
-    side.appendChild(lg);
-    side.appendChild(el("div","wab", t.ab));
-    side.appendChild(el("div","wpts", String(t.score ?? 0)));
-    sc.appendChild(side);
-  });
-  b.appendChild(sc);
-
-  const st = el("div","wstat", g.detail || "");
-  b.appendChild(st);
+  // The scoreboard, as the Scores page's live card; filled in once possession
+  // and the down are known below.
+  const cardHost = el("div","wcardhost");
+  b.appendChild(cardHost);
   const ls = lineScore(g);
   if(ls && g.state !== "pre") b.appendChild(ls);
 
@@ -9240,9 +9341,8 @@ function renderWatch(gRaw){
   const defAb = offAb ? (offAb === h.ab ? a.ab : h.ab) : null;
   const pos = fieldPosition(sit, offAb);
 
+  cardHost.appendChild(scoreCard(g, {poss: offAb, sit, pos}));
   if(sit){
-    const dd = sit.downDistanceText || sit.shortDownDistanceText;
-    if(dd) b.appendChild(el("div","wdd", dd));
     if(offAb) b.appendChild(possessionChip(offAb, sit, pos));
     b.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
     if(sit.lastPlay && sit.lastPlay.text)
@@ -10089,6 +10189,68 @@ function gameCard(g, s, big){
   return card;
 }
 
+/* "2:00 - 2nd" as the NFL app writes it: "Q2 2:00". */
+function clockFromDetail(g){
+  const d = g.detail || "";
+  if(g.state === "post") return /OT/i.test(d) ? "Final/OT" : "Final";
+  if(/half/i.test(d)) return "Halftime";
+  const m = d.match(/(\d{1,2}:\d{2})\s*-\s*(\d)(?:st|nd|rd|th)/i);
+  if(m) return "Q" + m[2] + " " + m[1];
+  if(/OT/i.test(d)){ const t = (d.match(/\d{1,2}:\d{2}/) || [""])[0]; return ("OT " + t).trim(); }
+  return d;
+}
+
+/* The live card from the Scores page, not tappable, for watch mode, the box
+   score and the team page: stripes, logos, names, score, possession dot, and a
+   footer with the clock and down and distance. */
+function scoreCard(g, opts){
+  opts = opts || {};
+  const a = g.teams.find(t => !t.home) || {}, h = g.teams.find(t => t.home) || {};
+  const card = el("div","gc gcbig static gc-" + (g.state || "pre"));
+  const aw = num(a.score), hw = num(h.score);
+  const won = g.state === "post" && aw != null && hw != null && aw !== hw ? (aw > hw ? a.ab : h.ab) : null;
+  [a, h].forEach(t=>{
+    const tm = DATA.teams[t.ab] || {};
+    const row = el("div","gcrow" + (won ? (won === t.ab ? " won" : " lost") : ""));
+    const stripe = el("i","gcstripe"); stripe.style.background = stripeColor(tm);
+    row.appendChild(stripe);
+    const lg = el("img","gclogo");
+    if(tm.logo){ lg.src = tm.logo; lg.alt = ""; }
+    row.appendChild(lg);
+    row.appendChild(el("span","gcname", tm.nick || t.ab || ""));
+    const right = el("span","gcright");
+    if(g.state === "in" && opts.poss === t.ab) right.appendChild(el("i","gcposs"));
+    right.appendChild(el("span","gcscore", g.state === "pre" ? "" : String(t.score ?? 0)));
+    row.appendChild(right);
+    card.appendChild(row);
+  });
+  const foot = el("div","gcfoot");
+  foot.appendChild(el("span","gccell" + (g.state === "in" ? " hot" : g.state === "post" ? " fin" : ""),
+    clockFromDetail(g)));
+  const dd = opts.sit && g.state === "in"
+    ? (opts.sit.downDistanceText || opts.sit.shortDownDistanceText || "") : "";
+  foot.appendChild(el("span","gccell" + (opts.pos && opts.pos.redZone ? " rz" : ""), dd));
+  const icons = el("span","gccell gcicons");
+  if(opts.extra) icons.appendChild(opts.extra);
+  foot.appendChild(icons);
+  card.appendChild(foot);
+  return card;
+}
+
+/* A row in a rounded list card: team colour stripe, logo, heavy italic name.
+   Shared by standings, power ratings and the team schedule. */
+function teamRow(ab, cls, lead){
+  const t = DATA.teams[ab] || {};
+  const row = el("div","gcli" + (cls ? " " + cls : ""));
+  const stripe = el("i","gcstripe"); stripe.style.background = stripeColor(t);
+  row.appendChild(stripe);
+  if(lead) row.appendChild(lead);       // a position or week label before the logo
+  const lg = el("img","gclogo");
+  if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
+  row.appendChild(lg);
+  return row;
+}
+
 function dayLabel(d){
   const dt = d ? new Date(d + "T12:00:00Z") : null;
   return dt ? dt.toLocaleDateString(undefined, {weekday: "long", month: "long", day: "numeric"}) : "";
@@ -10599,6 +10761,72 @@ let weekCat = null;
    defaults to the newest week with real data. */
 let weekLeadWeek = null;
 
+/* ---------------- live week leaders ----------------
+   (Restored October 2026: an overlapping edit in mid September deleted this
+   block along with the drive chart; the drive chart was put back but this was
+   missed, so Week leaders could not update during games.)
+   The pipeline builds a settled set of weekly leaders from nflverse, which is
+   correct but arrives a day after the games. The scoreboard we already fetch for
+   the fixture list carries each game's leaders, so the same question can be
+   answered while the games are still being played, for no extra requests.
+
+   Two sources with different strengths, so both are kept: live for the week in
+   progress, settled for weeks gone by. The settled set also covers defence,
+   which the scoreboard leaders do not include. */
+const LIVE_LEADER_CATS = [
+  {match:/passingYards/i,   name:"Passing",   label:"Pass yds"},
+  {match:/rushingYards/i,   name:"Rushing",   label:"Rush yds"},
+  {match:/receivingYards/i, name:"Receiving", label:"Rec yds"},
+];
+
+function liveWeekLeaders(week){
+  const cache = scoreCache[week];
+  if(!cache) return null;
+  const games = Object.values(cache).filter(g => g.state && g.state !== "pre");
+  if(!games.length) return null;
+
+  const out = [];
+  LIVE_LEADER_CATS.forEach(spec=>{
+    const pool = [];
+    games.forEach(g=>{
+      (g.leaders || []).forEach(cat=>{
+        if(!spec.match.test(cat.key)) return;
+        cat.rows.forEach(r=>{
+          if(r.value == null) return;
+          // The same man can lead more than one game's category only if the feed
+          // repeats him; keep his best line either way.
+          const prev = pool.find(x => x.name === r.name && x.team === r.team);
+          if(!prev || r.value > prev.value) {
+            if(prev) Object.assign(prev, r);
+            else pool.push({...r});
+          }
+        });
+      });
+    });
+    if(!pool.length) return;
+    pool.sort((a, b) => b.value - a.value);
+    out.push({
+      g: "Offence", name: spec.name, label: spec.label,
+      rows: pool.slice(0, 5).map(r=>({
+        pid: (Object.values(DATA.players).find(p => p.eid === r.eid) || {}).id || null,
+        n: r.name, t: r.team, o: null,
+        v: r.value,
+        // ESPN's display string already reads "268 YDS, 2 TD", which is a better
+        // supporting line than anything reassembled from the number alone.
+        x: r.display.replace(/^\s*[\d.]+\s*(YDS|YD)?,?\s*/i, "").trim(),
+      })),
+    });
+  });
+  return out.length ? out : null;
+}
+
+/* Is the week being viewed still going on? */
+function weekInProgress(week){
+  const cache = scoreCache[week];
+  if(!cache) return false;
+  return Object.values(cache).some(g => g.state === "in");
+}
+
 async function renderWeekLeaders(host){
   const settled = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
   const weeks = [...new Set([...settled, scoreWeek])].sort((a,b)=>a-b);
@@ -10654,8 +10882,14 @@ async function renderWeekLeaders(host){
     });
 
     const cat = cats.find(c => c.name === weekCat) || cats[0];
+    const wlCard = el("div","gclist wllist");
+    list.appendChild(wlCard);
     cat.rows.forEach((r, i)=>{
       const row = el("button","wlrow" + (i === 0 ? " top" : ""));
+      if(r.t && DATA.teams[r.t]){
+        const st = el("i","gcstripe"); st.style.background = stripeColor(DATA.teams[r.t]);
+        row.appendChild(st);
+      }
       row.appendChild(el("span","wlr", String(i + 1)));
       const p = r.pid ? DATA.players[r.pid] : null;
       const f = el("div","wlf");
@@ -10678,7 +10912,7 @@ async function renderWeekLeaders(host){
       row.appendChild(v);
       if(p) row.onclick = () => { $("#scores").hidden = true; goPlayer(p.id); };
       else row.disabled = true;
-      list.appendChild(row);
+      wlCard.appendChild(row);
     });
 
     const n = el("div","carnote");
@@ -10718,54 +10952,35 @@ function renderStandings(host){
 
   const groups = standView === "div" ? S.tables.divisions : S.tables.conferences;
   Object.entries(groups).forEach(([name, members])=>{
-    host.appendChild(el("div","advsub", name));
-    const w = el("div","carwrap");
-    const t = document.createElement("table");
-    t.className = "car";
-    const thead = document.createElement("thead");
-    const hr = document.createElement("tr");
-    const cols = standView === "div"
-      ? ["", "Team", "W-L", "Div", "PF", "PA", "Diff", "Form"]
-      : ["", "Team", "W-L", "Conf", "PF", "PA", "Diff", "Form"];
-    cols.forEach((c,i)=>{
-      const th = document.createElement("th");
-      th.textContent = c;
-      if(i <= 1 || i === 7) th.style.textAlign = "left";
-      hr.appendChild(th);
-    });
-    thead.appendChild(hr); t.appendChild(thead);
-    const tb = document.createElement("tbody");
-    members.forEach(tm=>{
+    host.appendChild(el("div","gcday", name));
+    const card = el("div","gclist");
+    members.forEach((tm, i)=>{
       const v = S.teams[tm];
       if(!v) return;
-      const tr = document.createElement("tr");
-      if(tm === team) tr.className = "cur";
-      const add = (txt, cls) => {
-        const td = document.createElement("td");
-        if(cls) td.className = cls;
-        td.textContent = txt;
-        tr.appendChild(td);
-      };
-      // A seed number is the useful thing here, not a raw position.
-      add(standView === "conf" ? (v.seed || "") : (v.dpos || ""), "yr");
-      add((DATA.teams[tm] || {}).nick || tm, "tm");
-      add(v.rec);
-      add(standView === "div" ? v.div : v.conf);
-      add(v.pf); add(v.pa);
-      add((v.diff > 0 ? "+" : "") + v.diff, v.diff > 0 ? "best" : null);
-      const f = document.createElement("td");
-      f.className = "form";
-      (v.form || []).forEach(r=>{
-        const i = el("i", "f" + r);
-        i.textContent = r;
-        f.appendChild(i);
-      });
-      tr.appendChild(f);
-      tr.onclick = () => { $("#scores").hidden = true; goTeam(tm); };
-      tr.style.cursor = "pointer";
-      tb.appendChild(tr);
+      // In the conference view the top seven make the postseason; a line marks it.
+      const row = teamRow(tm, (tm === team ? "cur" : "")
+        + (standView === "conf" && i === 7 ? " cut" : ""),
+        el("span","gcpos", String(standView === "conf" ? (v.seed || "") : (v.dpos || ""))));
+      const mid = el("div","gcmid");
+      const t = DATA.teams[tm] || {};
+      const nm = el("div","gcname");
+      nm.appendChild(el("span","nk", t.nick || tm));
+      nm.appendChild(el("span","ab", tm));
+      mid.appendChild(nm);
+      mid.appendChild(el("div","gcsub",
+        (standView === "div" ? "Div " + v.div : "Conf " + v.conf)
+        + "  \u00b7  PF " + v.pf + "  PA " + v.pa));
+      row.appendChild(mid);
+      const form = el("span","gcform");
+      (v.form || []).slice(-5).forEach(r => form.appendChild(el("i","f" + r, r)));
+      row.appendChild(form);
+      row.appendChild(el("span","gcdiff" + (v.diff > 0 ? " up" : v.diff < 0 ? " dn" : ""),
+        (v.diff > 0 ? "+" : "") + v.diff));
+      row.appendChild(el("span","gcwl", v.rec));
+      row.onclick = () => { $("#scores").hidden = true; goTeam(tm); };
+      card.appendChild(row);
     });
-    t.appendChild(tb); w.appendChild(t); host.appendChild(w);
+    host.appendChild(card);
   });
 
   const n = el("div","carnote");

@@ -33,13 +33,23 @@ def build(teams, last_season_records):
             home = g.home_team == team
             opp = g.away_team if home else g.home_team
             rec = last_season_records.get(opp, {})
-            games.append({
+            game = {
                 "wk": int(g.week),
                 "opp": opp,
                 "home": bool(home),
                 "rec": rec.get("record"),
                 "w": rec.get("w"),
-            })
+            }
+            # Games already played carry their score, so the team page can show
+            # results as well as fixtures.
+            if pd.notna(g.get("home_score")) and pd.notna(g.get("away_score")):
+                mine_pts = int(g.home_score if home else g.away_score)
+                their_pts = int(g.away_score if home else g.home_score)
+                game["pf"], game["pa"] = mine_pts, their_pts
+                game["res"] = "W" if mine_pts > their_pts else "L" if mine_pts < their_pts else "T"
+                if str(g.get("overtime", "")) in ("1", "1.0", "True"):
+                    game["ot"] = True
+            games.append(game)
             weeks_played.add(int(g.week))
 
         # The bye is the week inside the season that has no game on the slate.
