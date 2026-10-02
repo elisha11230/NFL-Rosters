@@ -550,345 +550,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   text-transform:uppercase;color:var(--bad-t);
 }
 
-/* ---------- play by play ----------
-   ESPN's layout, in this app's colours: quarter headings, one card per play,
-   logo at the left, a plain title, the time, and on a score the running total. */
-.pbp{margin-top:6px}
-.pbphd{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi);
-  letter-spacing:.02em;padding-bottom:10px;margin-bottom:12px;
-  border-bottom:1px solid var(--line);text-transform:uppercase}
-.pbpseg{display:flex;padding:3px;border-radius:22px;background:var(--rule);
-  margin-bottom:10px}
-.pbpseg button{flex:1 1 0;padding:8px 6px;border-radius:19px;
-  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;
-  letter-spacing:.03em;color:var(--mute);white-space:nowrap}
-.pbpseg button[aria-pressed="true"]{background:var(--panel);color:var(--hi);
-  box-shadow:0 1px 4px rgba(0,0,0,.45)}
-.pbpteams{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-.pbpt{display:flex;align-items:center;gap:6px;padding:4px 11px;
-  border:1px solid var(--line);border-radius:14px;
-  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.05em;
-  color:var(--mute)}
-.pbpt img{width:15px;height:15px;object-fit:contain}
-.pbpt[aria-pressed="true"]{border-color:var(--team-accent);color:var(--hi);
-  background:color-mix(in srgb,var(--team) 20%,transparent)}
-.pbpq{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--chalk);
-  margin:18px 0 9px}
-.pbpc{padding:13px 14px 12px;margin-bottom:10px;border-radius:10px;
-  background:var(--panel);border:1px solid var(--line)}
-.pbpc.score{border-color:color-mix(in srgb,var(--brass) 38%,var(--line))}
-.pbpc.to{border-color:color-mix(in srgb,var(--fall) 40%,var(--line))}
-.pbptop{display:flex;align-items:flex-start;gap:12px}
-.pbplogo{flex:0 0 38px;height:38px;display:flex;align-items:center;
-  justify-content:center}
-.pbplogo img{width:38px;height:38px;object-fit:contain}
-.pbplogo span{font-family:'Archivo Black',sans-serif;font-size:11px;color:var(--dim)}
-.pbpmid{flex:1 1 auto;min-width:0}
-.pbptitle{display:flex;align-items:center;gap:8px;
-  font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi);line-height:1.2}
-.pbptitle .impact{margin-left:0}
-.pbpwhen{margin-top:3px;font-size:12.5px;color:var(--dim)}
-.pbpsc{display:flex;gap:14px;flex:0 0 auto}
-.pbpcol{display:flex;flex-direction:column;align-items:center;min-width:30px}
-.pbpcol b{font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--mute);
-  line-height:1.1}
-.pbpcol.by b{color:var(--hi)}
-.pbpcol span{font-family:'Barlow Condensed',sans-serif;font-size:11px;
-  letter-spacing:.06em;color:var(--dim);margin-top:2px}
-.pbpbody{margin:9px 0 0 50px}
-.pbpbody .ptext,.pbpbody .pname2{font-size:13.5px;line-height:1.5}
-.pbpbody .ptext{color:var(--mute)}
-.pbpfoot{display:flex;align-items:center;gap:10px;margin:8px 0 0 50px}
-.pbpfoot .dcred{margin-top:0;flex:1 1 auto}
-.pbpdrive{flex:1 1 auto;text-align:left;font-size:12.5px;color:var(--dim);padding:0}
-.pbpdrive:hover{color:var(--chalk);text-decoration:underline}
-/* The play button, ESPN's circle, linking to the matched clip. */
-.pbpplay{flex:0 0 auto;margin-left:auto;width:38px;height:38px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;text-decoration:none;
-  border:2px solid var(--team-accent);color:var(--team-accent);font-size:14px;
-  padding-left:3px}
-.pbpplay:hover{background:var(--team-accent);color:var(--ink)}
-@media (max-width:520px){
-  .pbpbody,.pbpfoot{margin-left:0}
-  .pbptitle{font-size:15px}
-  .pbpseg button{font-size:12px}
-}
-
-/* ---------- news ---------- */
-.newslist{display:flex;flex-direction:column}
-.newsrow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);
-  text-decoration:none;color:inherit}
-.newsrow:first-child{padding-top:2px}
-.newsrow:last-of-type{border-bottom:0}
-.newsimg{flex:0 0 104px;aspect-ratio:16/10;border-radius:6px;overflow:hidden;
-  background:var(--well);border:1px solid var(--line);position:relative}
-.newsimg img{width:100%;height:100%;object-fit:cover;display:block;
-  transition:transform .2s}
-/* A headshot or badge standing in for a missing photo sits whole, not cropped. */
-.newsimg.fb img{object-fit:contain;padding:6px;object-position:center bottom}
-a.newsrow:hover .newsimg img{transform:scale(1.04)}
-a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
-.newstx{flex:1 1 auto;min-width:0}
-.newstitle{font-size:14px;font-weight:600;line-height:1.35;color:var(--chalk);
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.newsdesc{margin-top:4px;font-size:12.5px;line-height:1.45;color:var(--dim);
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.newsmeta{margin-top:5px;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;
-  letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-.newsmore{margin-top:8px;align-self:flex-start;font-family:'Barlow Condensed',sans-serif;
-  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
-  border:1px solid var(--line);padding:4px 11px;border-radius:12px}
-.newsmore:hover{color:var(--chalk);border-color:var(--team)}
-@media (max-width:420px){ .newsimg{flex-basis:86px} }
-
-/* ---------- win probability ---------- */
-.wpc{display:flex;gap:8px;height:84px;margin:4px 0 12px;color:var(--chalk)}
-.wpcgut{flex:0 0 26px;display:flex;flex-direction:column;justify-content:space-between}
-.wpcbadge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-family:'Archivo Black',sans-serif;font-size:8px}
-.wpcbadge img{width:19px;height:19px;object-fit:contain}
-.wpcplot{position:relative;flex:1 1 auto;min-width:0;border:1px solid var(--line);
-  border-radius:var(--r);overflow:hidden}
-.wpcplot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.wpcdot{position:absolute;right:4px;width:8px;height:8px;border-radius:50%;
-  background:var(--chalk);transform:translateY(-50%)}
-.wpcnow{position:absolute;right:16px;font-family:'Archivo Black',sans-serif;
-  font-size:12.5px;letter-spacing:.02em;white-space:nowrap;
-  text-shadow:0 1px 3px rgba(0,0,0,.7)}
-@media (max-width:520px){ .wpc{height:72px} }
-
-/* ---------- the field on a phone ----------
-   Fits the screen width with no sideways scrolling; tall enough that rows of
-   compact chips never touch. */
-@media (max-width:740px){
-  #fieldwrap{overflow-x:visible}
-  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
-  .chip{width:46px;gap:3px}
-  .disc{width:38px;height:38px}
-  .face .fallback{font-size:13px}
-  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
-  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
-  .slotlab{font-size:9px;line-height:1.1}
-  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-}
-
-/* ---------- scores: game cards ----------
-   After the NFL app: live games large, upcoming and finished games in a
-   two-column grid grouped by day. */
-.gcsec{display:flex;align-items:center;gap:9px;margin:18px 0 10px;
-  font-family:'Archivo Black',sans-serif;font-size:21px;color:var(--hi)}
-.gclive{width:9px;height:9px;border-radius:50%;background:#E0453A;
-  box-shadow:0 0 0 0 rgba(224,69,58,.6);animation:gclivepulse 1.6s infinite}
-@keyframes gclivepulse{70%{box-shadow:0 0 0 8px rgba(224,69,58,0)}100%{box-shadow:0 0 0 0 rgba(224,69,58,0)}}
-.gcday{font-weight:700;font-size:16px;color:var(--hi);margin:14px 0 9px}
-.gcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
-.gcgrid.big{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
-.gc{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  padding:10px 0 0;cursor:pointer;overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .12s,border-color .12s}
-.gc:hover{border-color:var(--team-accent);transform:translateY(-1px)}
-.gc:focus-visible{outline:2px solid var(--team-accent);outline-offset:2px}
-.gcrow{position:relative;display:flex;align-items:center;gap:10px;padding:5px 14px 5px 18px}
-.gcstripe{position:absolute;left:0;top:0;bottom:0;width:6px}
-.gcrow:first-child .gcstripe{top:-10px}
-.gclogo{width:32px;height:32px;object-fit:contain;flex:0 0 auto}
-.gcname{flex:1 1 auto;min-width:0;font-family:'Archivo Black',sans-serif;font-style:italic;
-  font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--hi);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gcright{display:flex;align-items:center;gap:9px;flex:0 0 auto}
-.gcrec{font-weight:600;font-size:14px;color:var(--mute)}
-.gcscore{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:22px;color:var(--hi);
-  min-width:26px;text-align:right}
-.gcposs{width:8px;height:8px;border-radius:50%;background:var(--brass)}
-.gcrow.lost .gcname,.gcrow.lost .gcscore{color:var(--dim)}
-.gcrow.lost .gclogo{opacity:.6}
-.gcbig .gclogo{width:40px;height:40px}
-.gcbig .gcname{font-size:26px}
-.gcbig .gcscore{font-size:30px}
-.gcbig .gcrow{padding:6px 16px 6px 20px}
-.gcfoot{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;margin-top:8px;
-  border-top:1px solid var(--rule);padding:9px 6px 10px}
-.gccell{text-align:center;font-size:13px;color:var(--mute);padding:0 6px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.gccell + .gccell{border-left:1px solid var(--line)}
-.gccell.net{font-family:'Archivo Black',sans-serif;font-size:12px;letter-spacing:.02em;color:var(--hi)}
-.gccell.hot{font-weight:700;color:#E0453A}
-html[data-theme="light"] .gccell.hot{color:#C22B20}
-.gccell.fin{font-weight:700;color:var(--hi);text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
-.gccell.rz{color:var(--alert-t);font-weight:700}
-.gcicons{display:flex;align-items:center;justify-content:center;gap:12px;min-width:44px}
-.gcicon{display:inline-flex;width:18px;height:18px;color:var(--team-accent)}
-.gcicon svg{width:100%;height:100%}
-a.gcicon:hover{color:var(--hi)}
-@media (max-width:560px){
-  .gcgrid{grid-template-columns:1fr 1fr;gap:9px}
-  .gcgrid.big{grid-template-columns:1fr}
-  .gcrow{gap:8px;padding:5px 10px 5px 15px}
-  .gclogo{width:28px;height:28px}
-  .gcname{font-size:18px}
-  .gcrec{font-size:13px}
-  .gcscore{font-size:20px}
-  .gcfoot{padding:8px 2px 9px}
-  .gccell{font-size:12px;padding:0 4px}
-  .gccell.net{font-size:11px}
-  .gcbig .gcname{font-size:24px}
-}
-
-/* ---------- league leaders ----------
-   Overview of leader cards, then a full list per board. */
-.ldhead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:14px 18px 10px;max-width:1180px;width:100%;margin:0 auto}
-.ldhead h2{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--hi)}
-#ldnav{flex:0 0 auto;max-width:1180px;width:100%;margin:0 auto;padding:0 18px}
-.ldgroups{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
-.ldgroups::-webkit-scrollbar{display:none}
-.ldgroups button{flex:0 0 auto;padding:8px 15px;border-radius:20px;border:1px solid var(--line);
-  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--mute);background:var(--panel);white-space:nowrap}
-.ldgroups button.alt{border-style:dashed}
-.ldgroups button:hover{color:var(--hi);border-color:var(--team-accent)}
-.ldgroups button[aria-pressed="true"]{background:var(--team);border-color:var(--team);
-  color:var(--team2);border-style:solid}
-.ldseasons{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:2px 0 12px;
-  border-bottom:1px solid var(--line)}
-.ldlab{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--dim);margin-right:4px}
-.ldseasons button{padding:5px 12px;border-radius:6px;font-family:'Archivo Black',sans-serif;
-  font-size:13px;color:var(--mute);border:1px solid transparent}
-.ldseasons button:hover{color:var(--hi);border-color:var(--line)}
-.ldseasons button[aria-pressed="true"]{color:var(--hi);border-color:var(--team-accent);
-  background:color-mix(in srgb,var(--team) 16%,transparent)}
-.ldnote{font-size:13px;color:var(--dim)}
-#ldbody{flex:1 1 auto;overflow-y:auto;padding:14px 18px 40px}
-#ldbody > *{max-width:1180px;margin-left:auto;margin-right:auto}
-.ldgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-.ldcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  padding:12px 12px 6px;display:flex;flex-direction:column}
-.ldch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-  padding:0 2px 8px;text-align:left}
-.ldct{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi)}
-.ldcs{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--team-accent);white-space:nowrap}
-.ldch:hover .ldcs{text-decoration:underline}
-.ldsub{font-size:12px;color:var(--dim);margin:-4px 2px 8px}
-.ldtop,.ldrow,.ldline{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
-.ldtop{padding:10px;margin-bottom:4px;border-radius:10px;
-  background:linear-gradient(90deg,color-mix(in srgb,var(--team) 18%,transparent),transparent)}
-.ldrow{padding:6px 4px;border-top:1px solid var(--rule)}
-.ldtop:hover .ldname,.ldrow:hover .ldname,.ldline:hover .ldname{color:var(--team-accent)}
-.ldr{flex:0 0 18px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
-.ldph{flex:0 0 38px;width:38px;height:38px;border-radius:50%;overflow:hidden;background:var(--well);
-  display:flex;align-items:flex-end;justify-content:center}
-.ldph.big{flex-basis:64px;width:64px;height:64px;border:2px solid var(--team-accent)}
-.ldph img{width:100%;height:100%;object-fit:cover;object-position:top}
-.ldph img.ldlogo{object-fit:contain;padding:5px}
-.ldinit{align-self:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
-.ldtx{flex:1 1 auto;min-width:0}
-.ldone{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--team-accent)}
-.ldname{font-weight:600;font-size:14px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ldtop .ldname{font-family:'Archivo Black',sans-serif;font-size:16px;font-weight:400}
-.ldmeta{display:flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;
-  font-size:12px;letter-spacing:.06em;color:var(--dim);margin-top:1px}
-.ldtlogo{width:15px;height:15px;object-fit:contain}
-.ldval{flex:0 0 auto;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi);text-align:right}
-.ldval.big{font-size:24px}
-.gone{opacity:.55;cursor:default}
-.ldlisthead{padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
-.ldback{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--team-accent);padding:0;margin-bottom:6px}
-.ldltitle{font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--hi)}
-.ldlisthead .ldsub{margin:2px 0 0}
-.ldlist{display:flex;flex-direction:column}
-.ldline{padding:9px 4px;border-bottom:1px solid var(--rule)}
-.ldline .ldph{flex-basis:44px;width:44px;height:44px}
-.ldline.podium .ldr{color:var(--brass);font-size:14px}
-.ldline.podium .ldph{border:2px solid var(--brass)}
-.ldbar{height:4px;border-radius:2px;background:var(--rule);margin-top:5px;max-width:320px;overflow:hidden}
-.ldbar i{display:block;height:100%;background:var(--team-accent);border-radius:2px}
-.ldline .ldval{font-size:16px;min-width:64px}
-.ldmv{flex:0 0 auto;font-size:11px;white-space:nowrap}
-@media (max-width:560px){
-  .ldhead{padding:12px 14px 8px} #ldnav{padding:0 14px} #ldbody{padding:12px 14px 40px}
-  .ldgrid{grid-template-columns:1fr}
-  .ldval.big{font-size:21px}
-  .ldmv{display:none}
-}
-
-/* ---------- main menu ----------
-   Copied in spirit from the NBA app: a full-width bar of uppercase labels, each
-   with a small marker in the team colour, the theme switch at the end. */
-#menu{flex:0 0 auto;display:flex;align-items:stretch;background:var(--bar1);
-  border-bottom:1px solid var(--line);position:relative;z-index:60}
-#menu > button,#menu .menuwrap > button{display:flex;align-items:center;justify-content:center;
-  gap:8px;padding:10px 26px;height:100%;background:transparent;
-  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--mute);
-  border-right:1px solid var(--line);transition:background .13s,color .13s;white-space:nowrap}
-#menu button span{font-size:9px;color:var(--team-accent)}
-#menu button i{font-style:normal;font-size:10px;margin-left:-2px;opacity:.7}
-#menu > button:hover,#menu .menuwrap > button:hover,
-#menu button[aria-expanded="true"]{background:var(--hover);color:var(--hi)}
-#menu > button:active{background:color-mix(in srgb,var(--team) 25%,var(--bar1))}
-.menuwrap{position:relative;display:flex}
-#exploremenu{position:absolute;top:100%;left:0;min-width:270px;margin-top:1px;
-  background:var(--panel);border:1px solid var(--line);border-radius:0 0 8px 8px;
-  box-shadow:0 12px 30px rgba(0,0,0,.35);padding:5px;display:flex;flex-direction:column}
-#exploremenu[hidden]{display:none}
-#exploremenu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
-  padding:9px 11px;border-radius:6px;text-align:left}
-#exploremenu button:hover,#exploremenu button:focus-visible{background:var(--hover)}
-#exploremenu b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
-  letter-spacing:.08em;text-transform:uppercase;color:var(--hi)}
-#exploremenu small{font-size:12px;color:var(--dim)}
-#themebtn{margin-left:auto;width:52px;padding:0 !important;font-size:16px;line-height:1;
-  border-right:0 !important;border-left:1px solid var(--line) !important}
-@media (max-width:760px){
-  #menu > button,#menu .menuwrap > button{flex:1 1 0;padding:10px 4px;gap:5px;
-    font-size:12.5px;letter-spacing:.07em}
-  .menuwrap{flex:1 1 0}
-  .menuwrap > button{width:100%}
-  #themebtn{flex:0 0 42px !important;width:42px}
-  #exploremenu{left:auto;right:0}
-}
-@media (max-width:440px){
-  #menu button span{display:none}
-  #menu > button,#menu .menuwrap > button{font-size:12px;letter-spacing:.05em}
-}
-
-/* ---------- clip player ---------- */
-#clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
-  display:flex;align-items:center;justify-content:center;padding:16px}
-#clip[hidden]{display:none}
-.clipbox{width:min(960px,100%);background:var(--panel);border:1px solid var(--line);
-  border-radius:10px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
-.cliphead{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-bottom:1px solid var(--line)}
-#cliptitle{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;color:var(--hi);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#clipframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;
-  max-height:78vh}
-#clipframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.ytholder{position:absolute;inset:0}
-.clipblock{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
-.cbt{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
-.cbs{font-size:13px;color:var(--dim);max-width:42ch;line-height:1.45}
-.cbbtn{margin-top:6px;padding:11px 22px;border-radius:24px;background:#fff;color:#0B0B0B;
-  font-weight:700;font-size:14px;text-decoration:none}
-.cbbtn:hover{background:#e8e8e8}
-.clipdemo{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:12px;color:var(--dim);
-  font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;
-  font-size:12px}
-.clipdemoi{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;border:2px solid var(--team-accent);color:var(--team-accent);
-  font-size:22px;padding-left:4px}
-@media (max-width:560px){ #clip{padding:0} .clipbox{border-radius:0} }
-
 /* ---------- highlights ---------- */
 .hl{padding:8px 0;border-bottom:1px solid var(--rule)}
 .hl:last-of-type{border-bottom:0}
@@ -1020,85 +681,6 @@ table.car tr.cur .yr{color:var(--hi)}
 table.car td.best{color:var(--good-t);font-weight:600}
 .carnote{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.5}
 
-/* ---------- the field on a phone ----------
-   Fits the screen width with no sideways scrolling; tall enough that rows of
-   compact chips never touch. */
-@media (max-width:740px){
-  #fieldwrap{overflow-x:visible}
-  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
-  .chip{width:46px;gap:3px}
-  .disc{width:38px;height:38px}
-  .face .fallback{font-size:13px}
-  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
-  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
-  .slotlab{font-size:9px;line-height:1.1}
-  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-}
-
-/* ---------- scores: game cards ----------
-   After the NFL app: live games large, upcoming and finished games in a
-   two-column grid grouped by day. */
-.gcsec{display:flex;align-items:center;gap:9px;margin:18px 0 10px;
-  font-family:'Archivo Black',sans-serif;font-size:21px;color:var(--hi)}
-.gclive{width:9px;height:9px;border-radius:50%;background:#E0453A;
-  box-shadow:0 0 0 0 rgba(224,69,58,.6);animation:gclivepulse 1.6s infinite}
-@keyframes gclivepulse{70%{box-shadow:0 0 0 8px rgba(224,69,58,0)}100%{box-shadow:0 0 0 0 rgba(224,69,58,0)}}
-.gcday{font-weight:700;font-size:16px;color:var(--hi);margin:14px 0 9px}
-.gcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
-.gcgrid.big{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
-.gc{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  padding:10px 0 0;cursor:pointer;overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .12s,border-color .12s}
-.gc:hover{border-color:var(--team-accent);transform:translateY(-1px)}
-.gc:focus-visible{outline:2px solid var(--team-accent);outline-offset:2px}
-.gcrow{position:relative;display:flex;align-items:center;gap:10px;padding:5px 14px 5px 18px}
-.gcstripe{position:absolute;left:0;top:0;bottom:0;width:6px}
-.gcrow:first-child .gcstripe{top:-10px}
-.gclogo{width:32px;height:32px;object-fit:contain;flex:0 0 auto}
-.gcname{flex:1 1 auto;min-width:0;font-family:'Archivo Black',sans-serif;font-style:italic;
-  font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--hi);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gcright{display:flex;align-items:center;gap:9px;flex:0 0 auto}
-.gcrec{font-weight:600;font-size:14px;color:var(--mute)}
-.gcscore{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:22px;color:var(--hi);
-  min-width:26px;text-align:right}
-.gcposs{width:8px;height:8px;border-radius:50%;background:var(--brass)}
-.gcrow.lost .gcname,.gcrow.lost .gcscore{color:var(--dim)}
-.gcrow.lost .gclogo{opacity:.6}
-.gcbig .gclogo{width:40px;height:40px}
-.gcbig .gcname{font-size:26px}
-.gcbig .gcscore{font-size:30px}
-.gcbig .gcrow{padding:6px 16px 6px 20px}
-.gcfoot{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;margin-top:8px;
-  border-top:1px solid var(--rule);padding:9px 6px 10px}
-.gccell{text-align:center;font-size:13px;color:var(--mute);padding:0 6px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.gccell + .gccell{border-left:1px solid var(--line)}
-.gccell.net{font-family:'Archivo Black',sans-serif;font-size:12px;letter-spacing:.02em;color:var(--hi)}
-.gccell.hot{font-weight:700;color:#E0453A}
-html[data-theme="light"] .gccell.hot{color:#C22B20}
-.gccell.fin{font-weight:700;color:var(--hi);text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
-.gccell.rz{color:var(--alert-t);font-weight:700}
-.gcicons{display:flex;align-items:center;justify-content:center;gap:12px;min-width:44px}
-.gcicon{display:inline-flex;width:18px;height:18px;color:var(--team-accent)}
-.gcicon svg{width:100%;height:100%}
-a.gcicon:hover{color:var(--hi)}
-@media (max-width:560px){
-  .gcgrid{grid-template-columns:1fr 1fr;gap:9px}
-  .gcgrid.big{grid-template-columns:1fr}
-  .gcrow{gap:8px;padding:5px 10px 5px 15px}
-  .gclogo{width:28px;height:28px}
-  .gcname{font-size:18px}
-  .gcrec{font-size:13px}
-  .gcscore{font-size:20px}
-  .gcfoot{padding:8px 2px 9px}
-  .gccell{font-size:12px;padding:0 4px}
-  .gccell.net{font-size:11px}
-  .gcbig .gcname{font-size:24px}
-}
-
 /* ---------- league leaders ---------- */
 #lead{position:fixed;inset:0;z-index:65;background:var(--sheet);display:flex;flex-direction:column;padding:0}
 #lead[hidden]{display:none}
@@ -1156,12 +738,6 @@ a.gcicon:hover{color:var(--hi)}
   text-transform:uppercase;color:var(--dim);white-space:nowrap}
 .lrow .lv{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--chalk);
   min-width:62px;text-align:right}
-#leadbtn{
-  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
-  padding:5px 10px;border-radius:var(--r);
-}
-#leadbtn:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:760px){
   .lsplit{flex-direction:column}
   .lcats{flex:0 0 auto;max-height:132px;border-right:0;border-bottom:1px solid var(--line);
@@ -1396,12 +972,6 @@ a.gcicon:hover{color:var(--hi)}
   .sbgrid{grid-template-columns:1fr}
   .sbnick{font-size:13px}
 }
-#scoresbtn{
-  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
-  padding:5px 10px;border-radius:var(--r);
-}
-#scoresbtn:hover{color:var(--chalk);border-color:var(--team)}
 @media (max-width:560px){
 }
 
@@ -1514,7 +1084,7 @@ a.gcicon:hover{color:var(--hi)}
   text-transform:uppercase;color:var(--bad-t);border:1px solid #C25B5B;
   padding:2px 7px;border-radius:9px;white-space:nowrap}
 
-/* ---------- win probability ---------- */
+
 
 /* ---------- power ratings ---------- */
 .rkrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
@@ -1878,10 +1448,6 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 #concepts{position:fixed;inset:0;z-index:77;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #concepts[hidden]{display:none}
-#conceptbtn{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--mute);
-  border:1px solid var(--line);padding:5px 10px;border-radius:var(--r)}
-#conceptbtn:hover{color:var(--chalk);border-color:var(--team)}
 .ctitle{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi);
   margin-bottom:6px}
 .cblurb{font-size:13.5px;line-height:1.55;color:var(--mute);margin-bottom:12px;
@@ -1925,9 +1491,6 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   letter-spacing:.11em;text-transform:uppercase;color:var(--mute);
   border:1px solid var(--line);padding:5px 10px;border-radius:var(--r)}
 .gsmall:hover{color:var(--chalk);border-color:var(--team)}
-#gamebtn{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--team2);
-  background:var(--team);padding:5px 12px;border-radius:var(--r);font-weight:600}
 .gfield{position:relative;width:100%;aspect-ratio:16/11;min-height:320px;
   background:var(--field);border:1px solid var(--line);border-radius:var(--r);
   overflow:hidden;margin-bottom:12px}
@@ -2059,12 +1622,6 @@ svg.chart{width:100%;height:auto;display:block;margin:6px 0 4px;max-width:340px}
 .chip.inplay,.chip.inplay2{z-index:6}
 @keyframes flash{0%{opacity:.25}100%{opacity:.95}}
 #playlayer path{animation:flash .45s ease-out}
-#facesbtn{
-  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--mute);border:1px solid var(--line);
-  padding:5px 10px;border-radius:var(--r);
-}
-#facesbtn:hover{color:var(--chalk);border-color:var(--team)}
 
 /* ---------- watch mode ----------
    Sized for glancing at from across a room, not reading. */
@@ -2324,23 +1881,6 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
-/* ---------- the field on a phone ----------
-   Fits the screen width with no sideways scrolling; tall enough that rows of
-   compact chips never touch. */
-@media (max-width:740px){
-  #fieldwrap{overflow-x:visible}
-  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
-  .chip{width:46px;gap:3px}
-  .disc{width:38px;height:38px}
-  .face .fallback{font-size:13px}
-  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
-  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
-  .slotlab{font-size:9px;line-height:1.1}
-  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-}
-
 /* ---------- scores: game cards ----------
    After the NFL app: live games large, upcoming and finished games in a
    two-column grid grouped by day. */
@@ -2490,7 +2030,7 @@ a.gcicon:hover{color:var(--hi)}
 #menu{flex:0 0 auto;display:flex;align-items:stretch;background:var(--bar1);
   border-bottom:1px solid var(--line);position:relative;z-index:60}
 #menu > button,#menu .menuwrap > button{display:flex;align-items:center;justify-content:center;
-  gap:8px;padding:10px 26px;height:100%;background:transparent;
+  gap:8px;padding:10px 26px;background:transparent;
   font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--mute);
   border-right:1px solid var(--line);transition:background .13s,color .13s;white-space:nowrap}
@@ -3012,6 +2552,28 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   .stack{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- the field on a phone ----------
+   Fits the screen width with no sideways scrolling; tall enough that rows of
+   compact chips never touch.
+
+   KEEP THIS AT THE END OF THE STYLESHEET. The tablet rules (max-width:920px)
+   also match a phone and set a 700px minimum width and larger chips; with the
+   same selectors, whichever comes later wins. When this block sat earlier, the
+   tablet rules quietly won on phones. check_css.py checks which rule wins. */
+@media (max-width:740px){
+  #fieldwrap{overflow-x:visible}
+  #field{min-width:0;width:100%;aspect-ratio:auto;height:clamp(440px,125vw,560px)}
+  .chip{width:46px;gap:3px}
+  .disc{width:38px;height:38px}
+  .face .fallback{font-size:13px}
+  .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
+  .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
+  .slotlab{font-size:9px;line-height:1.1}
+  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 </style>
 </head>
 <body>

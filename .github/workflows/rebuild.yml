@@ -114,6 +114,18 @@ jobs:
           npm install --no-save --silent jsdom@24
           node dom_test.js index.html
 
+      # The DOM tests build the page but ignore screen-size rules, which is how
+      # tablet rules once overrode the phone rules and kept the field 700px wide
+      # on phones. This runs the real CSS cascade at a phone width and a desktop
+      # width and fails if the wrong rule wins.
+      - name: Check which styles win on phone and desktop
+        working-directory: pipeline
+        run: |
+          pip install -q tinycss2 cssselect2 html5lib
+          node render_dom.js index.html 390 /tmp/page390.html
+          node render_dom.js index.html 1280 /tmp/page1280.html
+          python3 check_css.py /tmp/page390.html /tmp/page1280.html
+
       - name: Confirm the page is valid before publishing
         run: |
           python3 - <<'PY'
