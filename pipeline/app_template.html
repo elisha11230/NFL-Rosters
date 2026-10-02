@@ -41,6 +41,8 @@ try { if(localStorage.getItem("theme") === "light")
   --well:#0B1113;
   --hover:#243039; --hover2:#141C20;
   --bar1:#0A0F11; --bar2:#0C1215;
+  /* Backdrop of the full-screen pages: Scores, Leaders, Faces and the rest. */
+  --sheet:rgba(8,12,14,.97);
   /* Status text colours that must stay readable on either background. */
   --good-t:#5FBF8A; --bad-t:#E4A4A4; --bad2-t:#C98080; --alert-t:#E05B5B;
   --warn-t:#E0A15B; --warn2-t:#E0B48A;
@@ -59,6 +61,7 @@ html[data-theme="light"]{
   --well:#E1E8E5;
   --hover:#E3EAE6; --hover2:#E6ECE9;
   --bar1:#FFFFFF; --bar2:#F6F8F7;
+  --sheet:#EDF1EF;
   --good-t:#15743F; --bad-t:#B23B3B; --bad2-t:#A34545; --alert-t:#C0392B;
   --warn-t:#8F5210; --warn2-t:#955B1F;
   color-scheme:light;
@@ -655,6 +658,149 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
+/* ---------- scores: game cards ----------
+   After the NFL app: live games large, upcoming and finished games in a
+   two-column grid grouped by day. */
+.gcsec{display:flex;align-items:center;gap:9px;margin:18px 0 10px;
+  font-family:'Archivo Black',sans-serif;font-size:21px;color:var(--hi)}
+.gclive{width:9px;height:9px;border-radius:50%;background:#E0453A;
+  box-shadow:0 0 0 0 rgba(224,69,58,.6);animation:gclivepulse 1.6s infinite}
+@keyframes gclivepulse{70%{box-shadow:0 0 0 8px rgba(224,69,58,0)}100%{box-shadow:0 0 0 0 rgba(224,69,58,0)}}
+.gcday{font-weight:700;font-size:16px;color:var(--hi);margin:14px 0 9px}
+.gcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
+.gcgrid.big{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.gc{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:10px 0 0;cursor:pointer;overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .12s,border-color .12s}
+.gc:hover{border-color:var(--team-accent);transform:translateY(-1px)}
+.gc:focus-visible{outline:2px solid var(--team-accent);outline-offset:2px}
+.gcrow{position:relative;display:flex;align-items:center;gap:10px;padding:5px 14px 5px 18px}
+.gcstripe{position:absolute;left:0;top:0;bottom:0;width:6px}
+.gcrow:first-child .gcstripe{top:-10px}
+.gclogo{width:32px;height:32px;object-fit:contain;flex:0 0 auto}
+.gcname{flex:1 1 auto;min-width:0;font-family:'Archivo Black',sans-serif;font-style:italic;
+  font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--hi);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcright{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.gcrec{font-weight:600;font-size:14px;color:var(--mute)}
+.gcscore{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:22px;color:var(--hi);
+  min-width:26px;text-align:right}
+.gcposs{width:8px;height:8px;border-radius:50%;background:var(--brass)}
+.gcrow.lost .gcname,.gcrow.lost .gcscore{color:var(--dim)}
+.gcrow.lost .gclogo{opacity:.6}
+.gcbig .gclogo{width:40px;height:40px}
+.gcbig .gcname{font-size:26px}
+.gcbig .gcscore{font-size:30px}
+.gcbig .gcrow{padding:6px 16px 6px 20px}
+.gcfoot{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;margin-top:8px;
+  border-top:1px solid var(--rule);padding:9px 6px 10px}
+.gccell{text-align:center;font-size:13px;color:var(--mute);padding:0 6px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.gccell + .gccell{border-left:1px solid var(--line)}
+.gccell.net{font-family:'Archivo Black',sans-serif;font-size:12px;letter-spacing:.02em;color:var(--hi)}
+.gccell.hot{font-weight:700;color:#E0453A}
+html[data-theme="light"] .gccell.hot{color:#C22B20}
+.gccell.fin{font-weight:700;color:var(--hi);text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
+.gccell.rz{color:var(--alert-t);font-weight:700}
+.gcicons{display:flex;align-items:center;justify-content:center;gap:12px;min-width:44px}
+.gcicon{display:inline-flex;width:18px;height:18px;color:var(--team-accent)}
+.gcicon svg{width:100%;height:100%}
+a.gcicon:hover{color:var(--hi)}
+@media (max-width:560px){
+  .gcgrid{grid-template-columns:1fr 1fr;gap:9px}
+  .gcgrid.big{grid-template-columns:1fr}
+  .gcrow{gap:8px;padding:5px 10px 5px 15px}
+  .gclogo{width:28px;height:28px}
+  .gcname{font-size:18px}
+  .gcrec{font-size:13px}
+  .gcscore{font-size:20px}
+  .gcfoot{padding:8px 2px 9px}
+  .gccell{font-size:12px;padding:0 4px}
+  .gccell.net{font-size:11px}
+  .gcbig .gcname{font-size:24px}
+}
+
+/* ---------- league leaders ----------
+   Overview of leader cards, then a full list per board. */
+.ldhead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 18px 10px;max-width:1180px;width:100%;margin:0 auto}
+.ldhead h2{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--hi)}
+#ldnav{flex:0 0 auto;max-width:1180px;width:100%;margin:0 auto;padding:0 18px}
+.ldgroups{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.ldgroups::-webkit-scrollbar{display:none}
+.ldgroups button{flex:0 0 auto;padding:8px 15px;border-radius:20px;border:1px solid var(--line);
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--mute);background:var(--panel);white-space:nowrap}
+.ldgroups button.alt{border-style:dashed}
+.ldgroups button:hover{color:var(--hi);border-color:var(--team-accent)}
+.ldgroups button[aria-pressed="true"]{background:var(--team);border-color:var(--team);
+  color:var(--team2);border-style:solid}
+.ldseasons{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:2px 0 12px;
+  border-bottom:1px solid var(--line)}
+.ldlab{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-right:4px}
+.ldseasons button{padding:5px 12px;border-radius:6px;font-family:'Archivo Black',sans-serif;
+  font-size:13px;color:var(--mute);border:1px solid transparent}
+.ldseasons button:hover{color:var(--hi);border-color:var(--line)}
+.ldseasons button[aria-pressed="true"]{color:var(--hi);border-color:var(--team-accent);
+  background:color-mix(in srgb,var(--team) 16%,transparent)}
+.ldnote{font-size:13px;color:var(--dim)}
+#ldbody{flex:1 1 auto;overflow-y:auto;padding:14px 18px 40px}
+#ldbody > *{max-width:1180px;margin-left:auto;margin-right:auto}
+.ldgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ldcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:12px 12px 6px;display:flex;flex-direction:column}
+.ldch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:0 2px 8px;text-align:left}
+.ldct{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi)}
+.ldcs{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--team-accent);white-space:nowrap}
+.ldch:hover .ldcs{text-decoration:underline}
+.ldsub{font-size:12px;color:var(--dim);margin:-4px 2px 8px}
+.ldtop,.ldrow,.ldline{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
+.ldtop{padding:10px;margin-bottom:4px;border-radius:10px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--team) 18%,transparent),transparent)}
+.ldrow{padding:6px 4px;border-top:1px solid var(--rule)}
+.ldtop:hover .ldname,.ldrow:hover .ldname,.ldline:hover .ldname{color:var(--team-accent)}
+.ldr{flex:0 0 18px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
+.ldph{flex:0 0 38px;width:38px;height:38px;border-radius:50%;overflow:hidden;background:var(--well);
+  display:flex;align-items:flex-end;justify-content:center}
+.ldph.big{flex-basis:64px;width:64px;height:64px;border:2px solid var(--team-accent)}
+.ldph img{width:100%;height:100%;object-fit:cover;object-position:top}
+.ldph img.ldlogo{object-fit:contain;padding:5px}
+.ldinit{align-self:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
+.ldtx{flex:1 1 auto;min-width:0}
+.ldone{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--team-accent)}
+.ldname{font-weight:600;font-size:14px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ldtop .ldname{font-family:'Archivo Black',sans-serif;font-size:16px;font-weight:400}
+.ldmeta{display:flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;letter-spacing:.06em;color:var(--dim);margin-top:1px}
+.ldtlogo{width:15px;height:15px;object-fit:contain}
+.ldval{flex:0 0 auto;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi);text-align:right}
+.ldval.big{font-size:24px}
+.gone{opacity:.55;cursor:default}
+.ldlisthead{padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.ldback{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--team-accent);padding:0;margin-bottom:6px}
+.ldltitle{font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--hi)}
+.ldlisthead .ldsub{margin:2px 0 0}
+.ldlist{display:flex;flex-direction:column}
+.ldline{padding:9px 4px;border-bottom:1px solid var(--rule)}
+.ldline .ldph{flex-basis:44px;width:44px;height:44px}
+.ldline.podium .ldr{color:var(--brass);font-size:14px}
+.ldline.podium .ldph{border:2px solid var(--brass)}
+.ldbar{height:4px;border-radius:2px;background:var(--rule);margin-top:5px;max-width:320px;overflow:hidden}
+.ldbar i{display:block;height:100%;background:var(--team-accent);border-radius:2px}
+.ldline .ldval{font-size:16px;min-width:64px}
+.ldmv{flex:0 0 auto;font-size:11px;white-space:nowrap}
+@media (max-width:560px){
+  .ldhead{padding:12px 14px 8px} #ldnav{padding:0 14px} #ldbody{padding:12px 14px 40px}
+  .ldgrid{grid-template-columns:1fr}
+  .ldval.big{font-size:21px}
+  .ldmv{display:none}
+}
+
 /* ---------- main menu ----------
    Copied in spirit from the NBA app: a full-width bar of uppercase labels, each
    with a small marker in the team colour, the theme switch at the end. */
@@ -857,9 +1003,70 @@ table.car tr.cur .yr{color:var(--hi)}
 table.car td.best{color:var(--good-t);font-weight:600}
 .carnote{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.5}
 
+/* ---------- scores: game cards ----------
+   After the NFL app: live games large, upcoming and finished games in a
+   two-column grid grouped by day. */
+.gcsec{display:flex;align-items:center;gap:9px;margin:18px 0 10px;
+  font-family:'Archivo Black',sans-serif;font-size:21px;color:var(--hi)}
+.gclive{width:9px;height:9px;border-radius:50%;background:#E0453A;
+  box-shadow:0 0 0 0 rgba(224,69,58,.6);animation:gclivepulse 1.6s infinite}
+@keyframes gclivepulse{70%{box-shadow:0 0 0 8px rgba(224,69,58,0)}100%{box-shadow:0 0 0 0 rgba(224,69,58,0)}}
+.gcday{font-weight:700;font-size:16px;color:var(--hi);margin:14px 0 9px}
+.gcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
+.gcgrid.big{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.gc{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:10px 0 0;cursor:pointer;overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .12s,border-color .12s}
+.gc:hover{border-color:var(--team-accent);transform:translateY(-1px)}
+.gc:focus-visible{outline:2px solid var(--team-accent);outline-offset:2px}
+.gcrow{position:relative;display:flex;align-items:center;gap:10px;padding:5px 14px 5px 18px}
+.gcstripe{position:absolute;left:0;top:0;bottom:0;width:6px}
+.gcrow:first-child .gcstripe{top:-10px}
+.gclogo{width:32px;height:32px;object-fit:contain;flex:0 0 auto}
+.gcname{flex:1 1 auto;min-width:0;font-family:'Archivo Black',sans-serif;font-style:italic;
+  font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--hi);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcright{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.gcrec{font-weight:600;font-size:14px;color:var(--mute)}
+.gcscore{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:22px;color:var(--hi);
+  min-width:26px;text-align:right}
+.gcposs{width:8px;height:8px;border-radius:50%;background:var(--brass)}
+.gcrow.lost .gcname,.gcrow.lost .gcscore{color:var(--dim)}
+.gcrow.lost .gclogo{opacity:.6}
+.gcbig .gclogo{width:40px;height:40px}
+.gcbig .gcname{font-size:26px}
+.gcbig .gcscore{font-size:30px}
+.gcbig .gcrow{padding:6px 16px 6px 20px}
+.gcfoot{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;margin-top:8px;
+  border-top:1px solid var(--rule);padding:9px 6px 10px}
+.gccell{text-align:center;font-size:13px;color:var(--mute);padding:0 6px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.gccell + .gccell{border-left:1px solid var(--line)}
+.gccell.net{font-family:'Archivo Black',sans-serif;font-size:12px;letter-spacing:.02em;color:var(--hi)}
+.gccell.hot{font-weight:700;color:#E0453A}
+html[data-theme="light"] .gccell.hot{color:#C22B20}
+.gccell.fin{font-weight:700;color:var(--hi);text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
+.gccell.rz{color:var(--alert-t);font-weight:700}
+.gcicons{display:flex;align-items:center;justify-content:center;gap:12px;min-width:44px}
+.gcicon{display:inline-flex;width:18px;height:18px;color:var(--team-accent)}
+.gcicon svg{width:100%;height:100%}
+a.gcicon:hover{color:var(--hi)}
+@media (max-width:560px){
+  .gcgrid{grid-template-columns:1fr 1fr;gap:9px}
+  .gcgrid.big{grid-template-columns:1fr}
+  .gcrow{gap:8px;padding:5px 10px 5px 15px}
+  .gclogo{width:28px;height:28px}
+  .gcname{font-size:18px}
+  .gcrec{font-size:13px}
+  .gcscore{font-size:20px}
+  .gcfoot{padding:8px 2px 9px}
+  .gccell{font-size:12px;padding:0 4px}
+  .gccell.net{font-size:11px}
+  .gcbig .gcname{font-size:24px}
+}
+
 /* ---------- league leaders ---------- */
-#lead{position:fixed;inset:0;z-index:65;background:rgba(8,12,14,.96);
-  display:flex;flex-direction:column;padding:16px 18px}
+#lead{position:fixed;inset:0;z-index:65;background:var(--sheet);display:flex;flex-direction:column;padding:0}
 #lead[hidden]{display:none}
 .lhead{display:flex;align-items:center;justify-content:space-between;gap:14px;
   margin-bottom:12px;flex:0 0 auto}
@@ -944,7 +1151,7 @@ table.car td.best{color:var(--good-t);font-weight:600}
 .lrow .lmv.new{color:var(--brass)}
 
 /* ---------- learn: quiz ---------- */
-#quiz{position:fixed;inset:0;z-index:70;background:rgba(8,12,14,.96);
+#quiz{position:fixed;inset:0;z-index:70;background:var(--sheet);
   display:flex;flex-direction:column;padding:18px;overflow:auto}
 #quiz[hidden]{display:none}
 .qwrap{max-width:520px;margin:0 auto;width:100%;flex:1 1 auto;
@@ -1080,7 +1287,7 @@ table.car td.best{color:var(--good-t);font-weight:600}
 }
 
 /* ---------- scores page ---------- */
-#scores{position:fixed;inset:0;z-index:72;background:rgba(8,12,14,.97);
+#scores{position:fixed;inset:0;z-index:72;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #scores[hidden]{display:none}
 #scoresnav{flex:0 0 auto;max-width:860px;margin:0 auto 4px;width:100%}
@@ -1165,7 +1372,7 @@ table.car td.best{color:var(--good-t);font-weight:600}
 }
 
 /* ---------- drive chart ---------- */
-#drive{position:fixed;inset:0;z-index:82;background:rgba(8,12,14,.97);
+#drive{position:fixed;inset:0;z-index:82;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #drive[hidden]{display:none}
 #drivebody{flex:1 1 auto;overflow-y:auto;max-width:760px;margin:0 auto;width:100%}
@@ -1634,7 +1841,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .chip .stack{cursor:pointer}
 
 /* ---------- concepts library ---------- */
-#concepts{position:fixed;inset:0;z-index:77;background:rgba(8,12,14,.97);
+#concepts{position:fixed;inset:0;z-index:77;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #concepts[hidden]{display:none}
 #conceptbtn{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
@@ -1674,7 +1881,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 .cctl{margin-top:10px}
 
 /* ---------- lineup game ---------- */
-#game{position:fixed;inset:0;z-index:76;background:rgba(8,12,14,.97);
+#game{position:fixed;inset:0;z-index:76;background:var(--sheet);
   display:flex;flex-direction:column;padding:14px 16px}
 #game[hidden]{display:none}
 #gamebody{flex:1 1 auto;overflow-y:auto;max-width:760px;margin:0 auto;width:100%}
@@ -1739,7 +1946,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 }
 
 /* ---------- visual: face wall ---------- */
-#wall{position:fixed;inset:0;z-index:73;background:rgba(8,12,14,.97);
+#wall{position:fixed;inset:0;z-index:73;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #wall[hidden]{display:none}
 #wallbody{flex:1 1 auto;overflow-y:auto;max-width:900px;margin:0 auto;width:100%}
@@ -2083,6 +2290,149 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
+/* ---------- scores: game cards ----------
+   After the NFL app: live games large, upcoming and finished games in a
+   two-column grid grouped by day. */
+.gcsec{display:flex;align-items:center;gap:9px;margin:18px 0 10px;
+  font-family:'Archivo Black',sans-serif;font-size:21px;color:var(--hi)}
+.gclive{width:9px;height:9px;border-radius:50%;background:#E0453A;
+  box-shadow:0 0 0 0 rgba(224,69,58,.6);animation:gclivepulse 1.6s infinite}
+@keyframes gclivepulse{70%{box-shadow:0 0 0 8px rgba(224,69,58,0)}100%{box-shadow:0 0 0 0 rgba(224,69,58,0)}}
+.gcday{font-weight:700;font-size:16px;color:var(--hi);margin:14px 0 9px}
+.gcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
+.gcgrid.big{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.gc{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:10px 0 0;cursor:pointer;overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .12s,border-color .12s}
+.gc:hover{border-color:var(--team-accent);transform:translateY(-1px)}
+.gc:focus-visible{outline:2px solid var(--team-accent);outline-offset:2px}
+.gcrow{position:relative;display:flex;align-items:center;gap:10px;padding:5px 14px 5px 18px}
+.gcstripe{position:absolute;left:0;top:0;bottom:0;width:6px}
+.gcrow:first-child .gcstripe{top:-10px}
+.gclogo{width:32px;height:32px;object-fit:contain;flex:0 0 auto}
+.gcname{flex:1 1 auto;min-width:0;font-family:'Archivo Black',sans-serif;font-style:italic;
+  font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--hi);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcright{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.gcrec{font-weight:600;font-size:14px;color:var(--mute)}
+.gcscore{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:22px;color:var(--hi);
+  min-width:26px;text-align:right}
+.gcposs{width:8px;height:8px;border-radius:50%;background:var(--brass)}
+.gcrow.lost .gcname,.gcrow.lost .gcscore{color:var(--dim)}
+.gcrow.lost .gclogo{opacity:.6}
+.gcbig .gclogo{width:40px;height:40px}
+.gcbig .gcname{font-size:26px}
+.gcbig .gcscore{font-size:30px}
+.gcbig .gcrow{padding:6px 16px 6px 20px}
+.gcfoot{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;margin-top:8px;
+  border-top:1px solid var(--rule);padding:9px 6px 10px}
+.gccell{text-align:center;font-size:13px;color:var(--mute);padding:0 6px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.gccell + .gccell{border-left:1px solid var(--line)}
+.gccell.net{font-family:'Archivo Black',sans-serif;font-size:12px;letter-spacing:.02em;color:var(--hi)}
+.gccell.hot{font-weight:700;color:#E0453A}
+html[data-theme="light"] .gccell.hot{color:#C22B20}
+.gccell.fin{font-weight:700;color:var(--hi);text-transform:uppercase;letter-spacing:.05em;font-size:12.5px}
+.gccell.rz{color:var(--alert-t);font-weight:700}
+.gcicons{display:flex;align-items:center;justify-content:center;gap:12px;min-width:44px}
+.gcicon{display:inline-flex;width:18px;height:18px;color:var(--team-accent)}
+.gcicon svg{width:100%;height:100%}
+a.gcicon:hover{color:var(--hi)}
+@media (max-width:560px){
+  .gcgrid{grid-template-columns:1fr 1fr;gap:9px}
+  .gcgrid.big{grid-template-columns:1fr}
+  .gcrow{gap:8px;padding:5px 10px 5px 15px}
+  .gclogo{width:28px;height:28px}
+  .gcname{font-size:18px}
+  .gcrec{font-size:13px}
+  .gcscore{font-size:20px}
+  .gcfoot{padding:8px 2px 9px}
+  .gccell{font-size:12px;padding:0 4px}
+  .gccell.net{font-size:11px}
+  .gcbig .gcname{font-size:24px}
+}
+
+/* ---------- league leaders ----------
+   Overview of leader cards, then a full list per board. */
+.ldhead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 18px 10px;max-width:1180px;width:100%;margin:0 auto}
+.ldhead h2{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--hi)}
+#ldnav{flex:0 0 auto;max-width:1180px;width:100%;margin:0 auto;padding:0 18px}
+.ldgroups{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.ldgroups::-webkit-scrollbar{display:none}
+.ldgroups button{flex:0 0 auto;padding:8px 15px;border-radius:20px;border:1px solid var(--line);
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--mute);background:var(--panel);white-space:nowrap}
+.ldgroups button.alt{border-style:dashed}
+.ldgroups button:hover{color:var(--hi);border-color:var(--team-accent)}
+.ldgroups button[aria-pressed="true"]{background:var(--team);border-color:var(--team);
+  color:var(--team2);border-style:solid}
+.ldseasons{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:2px 0 12px;
+  border-bottom:1px solid var(--line)}
+.ldlab{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-right:4px}
+.ldseasons button{padding:5px 12px;border-radius:6px;font-family:'Archivo Black',sans-serif;
+  font-size:13px;color:var(--mute);border:1px solid transparent}
+.ldseasons button:hover{color:var(--hi);border-color:var(--line)}
+.ldseasons button[aria-pressed="true"]{color:var(--hi);border-color:var(--team-accent);
+  background:color-mix(in srgb,var(--team) 16%,transparent)}
+.ldnote{font-size:13px;color:var(--dim)}
+#ldbody{flex:1 1 auto;overflow-y:auto;padding:14px 18px 40px}
+#ldbody > *{max-width:1180px;margin-left:auto;margin-right:auto}
+.ldgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ldcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:12px 12px 6px;display:flex;flex-direction:column}
+.ldch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:0 2px 8px;text-align:left}
+.ldct{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi)}
+.ldcs{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--team-accent);white-space:nowrap}
+.ldch:hover .ldcs{text-decoration:underline}
+.ldsub{font-size:12px;color:var(--dim);margin:-4px 2px 8px}
+.ldtop,.ldrow,.ldline{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
+.ldtop{padding:10px;margin-bottom:4px;border-radius:10px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--team) 18%,transparent),transparent)}
+.ldrow{padding:6px 4px;border-top:1px solid var(--rule)}
+.ldtop:hover .ldname,.ldrow:hover .ldname,.ldline:hover .ldname{color:var(--team-accent)}
+.ldr{flex:0 0 18px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
+.ldph{flex:0 0 38px;width:38px;height:38px;border-radius:50%;overflow:hidden;background:var(--well);
+  display:flex;align-items:flex-end;justify-content:center}
+.ldph.big{flex-basis:64px;width:64px;height:64px;border:2px solid var(--team-accent)}
+.ldph img{width:100%;height:100%;object-fit:cover;object-position:top}
+.ldph img.ldlogo{object-fit:contain;padding:5px}
+.ldinit{align-self:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--dim)}
+.ldtx{flex:1 1 auto;min-width:0}
+.ldone{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--team-accent)}
+.ldname{font-weight:600;font-size:14px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ldtop .ldname{font-family:'Archivo Black',sans-serif;font-size:16px;font-weight:400}
+.ldmeta{display:flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;letter-spacing:.06em;color:var(--dim);margin-top:1px}
+.ldtlogo{width:15px;height:15px;object-fit:contain}
+.ldval{flex:0 0 auto;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi);text-align:right}
+.ldval.big{font-size:24px}
+.gone{opacity:.55;cursor:default}
+.ldlisthead{padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.ldback{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--team-accent);padding:0;margin-bottom:6px}
+.ldltitle{font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--hi)}
+.ldlisthead .ldsub{margin:2px 0 0}
+.ldlist{display:flex;flex-direction:column}
+.ldline{padding:9px 4px;border-bottom:1px solid var(--rule)}
+.ldline .ldph{flex-basis:44px;width:44px;height:44px}
+.ldline.podium .ldr{color:var(--brass);font-size:14px}
+.ldline.podium .ldph{border:2px solid var(--brass)}
+.ldbar{height:4px;border-radius:2px;background:var(--rule);margin-top:5px;max-width:320px;overflow:hidden}
+.ldbar i{display:block;height:100%;background:var(--team-accent);border-radius:2px}
+.ldline .ldval{font-size:16px;min-width:64px}
+.ldmv{flex:0 0 auto;font-size:11px;white-space:nowrap}
+@media (max-width:560px){
+  .ldhead{padding:12px 14px 8px} #ldnav{padding:0 14px} #ldbody{padding:12px 14px 40px}
+  .ldgrid{grid-template-columns:1fr}
+  .ldval.big{font-size:21px}
+  .ldmv{display:none}
+}
+
 /* ---------- main menu ----------
    Copied in spirit from the NBA app: a full-width bar of uppercase labels, each
    with a small marker in the team colour, the theme switch at the end. */
@@ -2243,7 +2593,7 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-transform:uppercase;color:var(--dim);white-space:nowrap}
 
 /* ---------- game preview ---------- */
-#prev{position:fixed;inset:0;z-index:74;background:rgba(8,12,14,.97);
+#prev{position:fixed;inset:0;z-index:74;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #prev[hidden]{display:none}
 #prevbody{flex:1 1 auto;overflow-y:auto;max-width:760px;margin:0 auto;width:100%}
@@ -2333,7 +2683,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 .injnone{font-size:12.5px;color:var(--dim);padding:6px 0}
 
 /* ---------- box score popup ---------- */
-#box{position:fixed;inset:0;z-index:84;background:rgba(8,12,14,.97);
+#box{position:fixed;inset:0;z-index:84;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #box[hidden]{display:none}
 #boxbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
@@ -2677,14 +3027,12 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
 </div>
 
 <div id="lead" hidden role="dialog" aria-modal="true" aria-label="League leaders">
-  <div class="lhead">
+  <div class="ldhead">
     <h2 class="blk">League leaders</h2>
     <button class="qx" id="leadclose">Close</button>
   </div>
-  <div class="lsplit">
-    <div class="lcats" id="lcats"></div>
-    <div class="lrows" id="lrows"></div>
-  </div>
+  <div id="ldnav"></div>
+  <div id="ldbody"></div>
 </div>
 
 <div id="scores" hidden role="dialog" aria-modal="true" aria-label="Scores and schedule">
@@ -5283,6 +5631,9 @@ async function fetchLive(){
             ab: normTeam((t.team || {}).abbreviation || ""),
             id: (t.team || {}).id,
             score: t.score, home: t.homeAway === "home",
+          // Season record going into (or out of) this game, as the NFL app shows.
+          rec: ((t.records || []).find(r => r.type === "total" || r.name === "overall")
+                || (t.records || [])[0] || {}).summary || null,
           })),
         };
       });
@@ -8584,6 +8935,7 @@ function demoScoreboard(){
                period: f.q, displayClock: st.detail.split(" ")[1] || ""},
       competitions: [{
         venue: {fullName: "Demo Stadium"},
+        broadcasts: [{names: [["CBS","FOX","NBC","ESPN","Prime Video"][DEMO_FIXTURES.indexOf(f) % 5]]}],
         situation: st.state === "in" ? {
           possession: f.a,
           downDistanceText: ["1st & 10","2nd & 6","3rd & 2","1st & Goal"][
@@ -9957,6 +10309,9 @@ async function loadWeekScores(wk){
           ab: normTeam((t.team || {}).abbreviation || ""),
           id: (t.team || {}).id,
           score: t.score, home: t.homeAway === "home",
+          // Season record going into (or out of) this game, as the NFL app shows.
+          rec: ((t.records || []).find(r => r.type === "total" || r.name === "overall")
+                || (t.records || [])[0] || {}).summary || null,
           // Per-quarter scores come free on the scoreboard. A 21-0 first quarter
           // and a 7-7 fourth say something the final score does not.
           line: (t.linescores || []).map(x => num(x.value)),
@@ -9988,9 +10343,13 @@ async function loadWeekScores(wk){
         const possAb = sit && sit.possession
           ? (teams.find(t => String(t.id) === String(sit.possession)) || {}).ab
           : null;
+        // The network, for the card's footer.
+        const bc = (c.broadcasts || [])[0] || {};
+        const net = (bc.names || [])[0]
+          || ((((c.geoBroadcasts || [])[0] || {}).media || {}).shortName) || null;
         if(a && h) out[a.ab + "@" + h.ab] = {
           id: e.id, state: st.state, detail: st.shortDetail,
-          a: a.score, h: h.score,
+          a: a.score, h: h.score, ar: a.rec, hr: h.rec, net,
           sit, poss: possAb,
           period: (e.status || {}).period,
           clock: (e.status || {}).displayClock,
@@ -10020,6 +10379,168 @@ function closeScores(){
   $("#scores").hidden = true;
   sel = null;
   syncHash();
+}
+
+/* ---------------- scores: game cards ----------------
+   Modelled on the NFL app: a Live Now section of large cards, then Upcoming and
+   Final grouped by day in a two-column grid. Each card has a stripe of each
+   club's colour down its edge, the logo, the name in heavy italic capitals, the
+   record before kickoff or the score after, and a footer of network, kickoff
+   time or game clock, and down and distance. */
+
+/* A stripe colour that shows against the card. Some clubs' main colour is near
+   black (Steelers, Raiders), which disappears on a dark card, so their second
+   colour stands in; on a light card the same applies to pale ones. */
+function stripeColor(t){
+  const lum = h => {
+    const c = String(h || "#888888").match(/\w\w/g).map(x => { x = parseInt(x, 16) / 255;
+      return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const bg = lum(isLight() ? "#FFFFFF" : "#1B252B");
+  const cr = h => { const L = lum(h); return (Math.max(L, bg) + .05) / (Math.min(L, bg) + .05); };
+  const c1 = t.c1 || "#888888", c2 = t.c2 || c1;
+  return cr(c1) >= 1.5 || cr(c2) <= cr(c1) ? c1 : c2;
+}
+
+function liveClock(s){
+  if(!s) return "";
+  if(/half/i.test(s.detail || "")) return "Halftime";
+  if(/end/i.test(s.detail || "")) return s.detail;
+  const q = s.period >= 5 ? "OT" : (s.period ? "Q" + s.period : "");
+  return [q, s.clock].filter(Boolean).join(" ") || (s.detail || "");
+}
+
+function shortNet(n){
+  if(!n) return "";
+  if(/prime/i.test(n)) return "PRIME";
+  if(/nfl\s*net/i.test(n)) return "NFLN";
+  if(/netflix/i.test(n)) return "NETFLIX";
+  return String(n).toUpperCase().slice(0, 8);
+}
+
+const ICON_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg>';
+const ICON_TV = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 14h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+function gameCard(g, s, big){
+  const key = g.a + "@" + g.h;
+  const state = s ? s.state : "pre";
+  const card = el("div","gc gc-" + state + (big ? " gcbig" : ""));
+  card.setAttribute("role", "button");
+  card.tabIndex = 0;
+  const go = () => pickGame(key, g);
+  card.onclick = go;
+  card.onkeydown = e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); go(); } };
+
+  const aw = s ? num(s.a) : null, hw = s ? num(s.h) : null;
+  const won = state === "post" && aw != null && hw != null && aw !== hw ? (aw > hw ? g.a : g.h) : null;
+  const standRec = ab => ((((DATA.standings || {}).teams) || {})[ab] || {}).rec || "";
+
+  [[g.a, s && s.a, s && s.ar], [g.h, s && s.h, s && s.hr]].forEach(([ab, sc, rec])=>{
+    const t = DATA.teams[ab] || {};
+    const row = el("div","gcrow" + (won ? (won === ab ? " won" : " lost") : ""));
+    const stripe = el("i","gcstripe");
+    stripe.style.background = stripeColor(t);
+    row.appendChild(stripe);
+    const lg = el("img","gclogo");
+    if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
+    row.appendChild(lg);
+    row.appendChild(el("span","gcname", big ? (t.nick || ab) : ab));
+    const right = el("span","gcright");
+    if(state === "in" && s.poss === ab) right.appendChild(el("i","gcposs"));
+    if(state === "pre") right.appendChild(el("span","gcrec", rec || standRec(ab)));
+    else right.appendChild(el("span","gcscore", sc ?? ""));
+    row.appendChild(right);
+    card.appendChild(row);
+  });
+
+  const foot = el("div","gcfoot");
+  const cell = (txt, cls) => { const c = el("span","gccell" + (cls ? " " + cls : ""), txt); foot.appendChild(c); return c; };
+  if(state === "in"){
+    cell(liveClock(s), "hot");
+    const pos = s.sit ? fieldPosition(s.sit, s.poss) : null;
+    const dd = s.sit ? (s.sit.downDistanceText || s.sit.shortDownDistanceText || "") : "";
+    const c = cell(dd);
+    if(pos && pos.redZone){ c.classList.add("rz"); c.title = "Red zone"; }
+  } else if(state === "post"){
+    cell(shortNet(s.net), "net");
+    cell(/OT/i.test(s.detail || "") ? "Final/OT" : "Final", "fin");
+  } else {
+    cell(shortNet(s && s.net), "net");
+    cell(fmtKick(g), "kick");
+  }
+  const icons = el("span","gccell gcicons");
+  if(state !== "pre"){
+    const w = el("span","gcicon");
+    w.innerHTML = ICON_PLAY;
+    w.title = state === "in" ? "Watch the live feed" : "Recap and highlights";
+    icons.appendChild(w);
+  }
+  const su = streamUrl(g);
+  if(su && state !== "post"){
+    const a = document.createElement("a");
+    a.className = "gcicon";
+    a.href = su; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.innerHTML = ICON_TV; a.title = "Stream";
+    a.onclick = e => e.stopPropagation();
+    icons.appendChild(a);
+  }
+  foot.appendChild(icons);
+  card.appendChild(foot);
+  return card;
+}
+
+function dayLabel(d){
+  const dt = d ? new Date(d + "T12:00:00Z") : null;
+  return dt ? dt.toLocaleDateString(undefined, {weekday: "long", month: "long", day: "numeric"}) : "";
+}
+
+function drawGames(wrap, slate, scores){
+  wrap.innerHTML = "";
+  const head = el("div","wkhead");
+  head.appendChild(el("span","wknum", "Week " + scoreWeek));
+  head.appendChild(el("span","wkmeta", slate.length + " games"));
+  wrap.appendChild(head);
+
+  const live = [], pre = [], post = [];
+  slate.forEach(g=>{
+    const s = scores ? scores[g.a + "@" + g.h] : null;
+    (s && s.state === "in" ? live : s && s.state === "post" ? post : pre).push({g, s});
+  });
+  const byKick = (x, y) => ((x.g.d || "") + (x.g.t || "")).localeCompare((y.g.d || "") + (y.g.t || ""));
+
+  const section = (title, cls) => {
+    const h = el("div","gcsec " + (cls || ""));
+    if(cls === "live") h.appendChild(el("i","gclive"));
+    h.appendChild(document.createTextNode(title));
+    wrap.appendChild(h);
+  };
+  const byDay = (list, big) => {
+    let day = null, grid = null;
+    list.sort(byKick).forEach(({g, s})=>{
+      if(g.d !== day){
+        day = g.d;
+        wrap.appendChild(el("div","gcday", dayLabel(g.d)));
+        grid = el("div","gcgrid");
+        wrap.appendChild(grid);
+      }
+      grid.appendChild(gameCard(g, s, big));
+    });
+  };
+
+  if(live.length){
+    section("Live now", "live");
+    const grid = el("div","gcgrid big");
+    live.sort(byKick).forEach(({g, s}) => grid.appendChild(gameCard(g, s, true)));
+    wrap.appendChild(grid);
+  }
+  if(pre.length){ section(live.length || post.length ? "Upcoming games" : "Games"); byDay(pre); }
+  if(post.length){ section("Final"); byDay(post); }
+
+  const n = el("div","carnote");
+  n.textContent = "Times are in your time zone. Tap a game for its live feed, "
+    + "recap and highlights, or for the preview before kickoff.";
+  wrap.appendChild(n);
 }
 
 async function renderScores(){
@@ -10074,115 +10595,13 @@ async function renderScores(){
     return;
   }
 
-  const head = el("div","wkhead");
-  head.appendChild(el("span","wknum", "Week " + scoreWeek));
-  head.appendChild(el("span","wkmeta", slate.length + " games"));
-  wrap.appendChild(head);
-
-  // Cards render straight from the schedule so the page is never blank waiting
-  // on a request, then fill in with scores when ESPN answers.
-  const rows = {};
-  let lastDay = null;
-  let grid = null;
-  slate.forEach(g=>{
-    if(g.d !== lastDay){
-      lastDay = g.d;
-      const dl = el("div","daylab");
-      const dt = g.d ? new Date(g.d + "T12:00:00Z") : null;
-      dl.textContent = dt
-        ? dt.toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"})
-        : (g.wd || "");
-      wrap.appendChild(dl);
-      grid = el("div","sbgrid");
-      wrap.appendChild(grid);
-    }
-    const key = g.a + "@" + g.h;
-    const card = el("button","sbcard");
-
-    const side = (ab, home) => {
-      const w = el("div","sbteam");
-      const t = DATA.teams[ab] || {};
-      const lg = el("img","sblogo");
-      if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
-      w.appendChild(lg);
-      const nm = el("div","sbname");
-      nm.appendChild(el("div","sbnick", t.nick || ab));
-      nm.appendChild(el("div","sbrec", ""));
-      w.appendChild(nm);
-      // A marker for who has the ball, kept in the layout so scores do not
-      // shuffle sideways when possession changes.
-      w.appendChild(el("span","sbposs", "\u25CF"));
-      w.appendChild(el("span","sbscore", ""));
-      return w;
-    };
-    const aEl = side(g.a, false), hEl = side(g.h, true);
-    card.appendChild(aEl);
-    card.appendChild(hEl);
-
-    const foot = el("div","sbfoot");
-    foot.appendChild(el("span","sbtime", fmtKick(g)));
-    const extra = el("span","sbdd", "");
-    foot.appendChild(extra);
-    const su = streamUrl(g);
-    if(su){
-      const link = document.createElement("a");
-      link.className = "sbstream";
-      link.href = su;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "Stream";
-      link.title = su;
-      // The card itself opens the box score, so the link must not bubble.
-      link.onclick = e => e.stopPropagation();
-      foot.appendChild(link);
-    }
-    card.appendChild(foot);
-
-    card.onclick = () => pickGame(key, g);
-    grid.appendChild(card);
-    rows[key] = {card, aEl, hEl, foot, time: foot.firstChild, dd: extra, g};
-  });
-
-  const n = el("div","carnote");
-  n.textContent = "Kickoff times are local to you. Tap a finished or live game "
-    + "for the full box score.";
-  wrap.appendChild(n);
-
-  // Now go and see whether any of these have been played.
-  const scores = await loadWeekScores(scoreWeek);
-  for(const key in rows){
-    const s2 = scores[key];
-    if(!s2) continue;
-    const {card, aEl, hEl, time, dd, g} = rows[key];
-    if(s2.state === "pre") continue;
-
-    card.classList.add(s2.state === "in" ? "live" : "done");
-    aEl.querySelector(".sbscore").textContent = s2.a ?? "";
-    hEl.querySelector(".sbscore").textContent = s2.h ?? "";
-    const aw = num(s2.a), hw = num(s2.h);
-    if(aw != null && hw != null && s2.state === "post"){
-      (aw > hw ? aEl : hEl).classList.add("won");
-      (aw > hw ? hEl : aEl).classList.add("lost");
-    }
-    time.textContent = s2.detail || "";
-    if(s2.state === "in") time.classList.add("hot");
-
-    if(s2.poss){
-      (s2.poss === g.a ? aEl : hEl).classList.add("hasball");
-    }
-    if(s2.state === "in" && s2.sit){
-      const pos = fieldPosition(s2.sit, s2.poss);
-      const bits = [];
-      const ddText = s2.sit.downDistanceText || s2.sit.shortDownDistanceText;
-      if(ddText) bits.push(ddText);
-      if(pos && pos.redZone) bits.push("Red zone");
-      dd.textContent = bits.join("  \u00b7  ");
-      if(pos && pos.redZone) dd.classList.add("rz");
-    }
-    // No Watch button: the card itself opens the feed now, and a second control
-    // doing the same thing only crowds the footer beside the Stream link.
-    rows[key].id = s2.id;
-  }
+  // Drawn at once from the schedule, so the page is never blank waiting on a
+  // request, then again with scores, live games and finals in their sections.
+  const wk = scoreWeek;
+  drawGames(wrap, slate, scoreCache[wk] || null);
+  const scores = await loadWeekScores(wk);
+  if(wk !== scoreWeek || scoreMode !== "games" || $("#scores").hidden) return;
+  drawGames(wrap, slate, scores);
 }
 
 function fmtKick(g){
@@ -11316,67 +11735,12 @@ function buildLeaders(){
    in the number: a player can gain yards and still fall. */
 let leadYear = "now";
 
-/* Offered only when the current season can actually be ranked -- early on there
-   are too few games, and a leaderboard from one afternoon is noise. */
-function renderLeadSeason(){
-  const host = $("#lcats");
-  const bar = document.getElementById("leadseason")
-    || (() => { const b = el("div"); b.id = "leadseason"; return b; })();
-  bar.innerHTML = "";
-  const c = DATA.current || {};
-  if(!currentSeasonRankable()){
-    // Say why rather than quietly showing last season as though it were now.
-    if(c.live){
-      const note = el("div","leadnote",
-        "Showing " + DATA.statsSeason + ". " + c.season + " needs a second week "
-        + "before anyone can be ranked — one afternoon is not a leaderboard. "
-        + "Week leaders on the Scores page cover the season so far.");
-      bar.appendChild(note);
-      // Inside the category column. Putting it in .lsplit made it a third item
-      // in a two-column flex row, which squeezed both columns sideways.
-      if(!document.getElementById("leadseason"))
-        host.insertBefore(bar, host.firstChild);
-      return;
-    }
-    bar.remove();
-    return;
-  }
-  const cur = (DATA.current || {}).season, prev = DATA.statsSeason;
-  [["cur", String(cur)], ["prev", String(prev)]].forEach(([k, lab])=>{
-    const b = el("button","lseason", lab);
-    b.setAttribute("aria-pressed", leadSeason === k);
-    b.onclick = () => {
-      leadSeason = k; LEAD = null; leadKey = null; leadYear = "now"; renderLeaders();
-    };
-    bar.appendChild(b);
-  });
-  if(!document.getElementById("leadseason"))
-    host.insertBefore(bar, host.firstChild);
-}
-
 function pastKeyFor(catKey){
   // live keys look like "Receivers|st:WR:Rec yds"; history keys like "WR|Rec yds"
   const m = /^[^|]+\|st:([A-Z]+):(.+)$/.exec(catKey);
   if(!m) return null;
   const k = m[1] + "|" + m[2];
   return (DATA.leadersPast && DATA.leadersPast[k]) ? k : null;
-}
-
-function renderYearStrip(box, catKey){
-  const pk = pastKeyFor(catKey);
-  if(!pk){ leadYear = "now"; return null; }
-  const years = Object.keys(DATA.leadersPast[pk]).sort();
-  const strip = el("div","lyears");
-  const mk = (val, label) => {
-    const b = el("button", null, label);
-    b.setAttribute("aria-pressed", leadYear === val);
-    b.onclick = () => { leadYear = val; renderLeaders(); };
-    strip.appendChild(b);
-  };
-  years.forEach(y => mk(y, y));
-  mk("now", "This roster");
-  box.appendChild(strip);
-  return pk;
 }
 
 function movementCell(r){
@@ -11387,100 +11751,298 @@ function movementCell(r){
   return d > 0 ? {cls:"up", txt:"\u25B2 " + d} : {cls:"dn", txt:"\u25BC " + Math.abs(d)};
 }
 
-function renderLeaders(){
-  const cats = buildLeaders();
-  const keys = Object.keys(cats);
-  const groups = [];
-  BUCKET_ORDER.forEach(b=>{ if(BUCKET_LABEL[b]) groups.push(BUCKET_LABEL[b]); });
-  groups.push("Madden", "X-Factors", "Abilities", "Money", "Teams");
+/* ---------------- league leaders ----------------
+   Rebuilt as an overview first: pick a position group and a season, and every
+   leaderboard for that group appears as a card with the leader large (photo,
+   team, value) and the next four beneath. Tap a card for the full ranked list.
 
-  if(!leadKey || !cats[leadKey]) leadKey = keys[0];
+   One season picker replaces the two the page used to have (a 2025/2026 switch
+   and a second strip of 2021 to 2025 plus "This roster"), which said the same
+   thing twice in two different ways.
 
-  const cl = $("#lcats"); cl.innerHTML = "";
-  // After the clear, or it would be wiped immediately.
-  renderLeadSeason();
-  groups.forEach(g=>{
-    const mine = keys.filter(k=>cats[k].group === g);
-    if(!mine.length) return;
-    cl.appendChild(el("div","lgrp", g));
-    mine.forEach(k=>{
-      const b = el("button","lcat", cats[k].label
-        + (cats[k].sub && cats[k].sub !== "average per year" ? "  \u00b7 "+cats[k].sub : ""));
-      b.setAttribute("aria-pressed", k === leadKey);
-      b.onclick = () => { leadKey = k; if(!pastKeyFor(k)) leadYear = "now"; renderLeaders(); };
-      cl.appendChild(b);
-    });
+   Which boards appear depends honestly on the season chosen:
+     - this season: the season-stat boards only, from this season's numbers.
+       Advanced and situational boards are last season's figures, and the old
+       page showed them under this season's label.
+     - past seasons: whoever actually led that year, retired players included,
+       with movement against the year before.
+     - last season additionally carries the advanced and situational boards.
+   Madden, X-Factors, abilities, money and teams have no seasons; the picker
+   hides and a line says what they are. */
+let leadGroup = null, leadYearSel = null;
+const LEAD_MODE = {};
+
+function leaderCats(mode){
+  if(LEAD_MODE[mode]) return LEAD_MODE[mode];
+  const keep = leadSeason;
+  leadSeason = mode; LEAD = null;
+  const c = buildLeaders();
+  leadSeason = keep; LEAD = null;
+  return LEAD_MODE[mode] = c;
+}
+
+const LEAD_POS_GROUPS = () => BUCKET_ORDER.map(b => BUCKET_LABEL[b]).filter(Boolean);
+const LEAD_OTHER = ["Madden", "X-Factors", "Abilities", "Money", "Teams"];
+const LEAD_OTHER_NOTE = {
+  "Madden": "Madden ratings, ranked within each position",
+  "X-Factors": "Every player with each Madden X-Factor",
+  "Abilities": "Every player with each Madden superstar ability",
+  "Money": "Current contracts, by average per year",
+  "Teams": "Club leaderboards",
+};
+
+function historyYears(){
+  const lp = DATA.leadersPast || {};
+  const ys = new Set();
+  Object.values(lp).forEach(byYear => Object.keys(byYear).forEach(y => ys.add(Number(y))));
+  return [...ys].sort((a, b) => b - a);
+}
+function leadSeasons(){
+  const out = [];
+  const cur = (DATA.current || {}).season;
+  if(currentSeasonRankable() && cur) out.push(cur);
+  historyYears().forEach(y => { if(!out.includes(y)) out.push(y); });
+  if(!out.includes(DATA.statsSeason)) out.push(DATA.statsSeason);
+  return out.sort((a, b) => b - a);
+}
+
+function fmtLeadVal(v, unit){
+  if(v == null) return "";
+  const n = typeof v === "number" ? v.toLocaleString() : v;
+  if(unit === "M") return "$" + n + "M";
+  return n + (unit || "");
+}
+
+/* Boards where fewer is better (interceptions thrown, sacks taken) rank low to
+   high. Calling the man with zero interceptions the "Leader" reads as a mistake,
+   so those boards say "Fewest" instead. */
+function markAscending(boards){
+  boards.forEach(b=>{
+    const v = b.rows.map(r => r.v).filter(x => typeof x === "number");
+    b.asc = v.length > 1 && v[0] < v[v.length - 1];
+  });
+  return boards;
+}
+
+/* Every board for a group and season, rows in one shape whatever their source. */
+function leadBoards(group, year){
+  return markAscending(leadBoardsRaw(group, year));
+}
+function leadBoardsRaw(group, year){
+  const cur = (DATA.current || {}).season;
+  const isPos = LEAD_POS_GROUPS().includes(group);
+  const boards = [];
+  const fromBuilt = (k, c) => ({
+    key: k, label: c.label, sub: c.sub, unit: c.unit, isTeam: !!c.isTeam,
+    rows: c.rows.map(r => c.isTeam
+      ? {team: r.team, v: r.v, r: r.r}
+      : {pid: r.pid, v: r.v, r: r.r}),
   });
 
-  const c = cats[leadKey];
-  const box = $("#lrows"); box.innerHTML = "";
-  box.appendChild(el("div","ltitle", c.label));
-  const pk = renderYearStrip(box, leadKey);
+  if(!isPos){
+    const cats = leaderCats("prev");
+    Object.keys(cats).filter(k => cats[k].group === group)
+      .forEach(k => boards.push(fromBuilt(k, cats[k])));
+    return boards;
+  }
+  if(year === cur && currentSeasonRankable()){
+    const cats = leaderCats("cur");
+    Object.keys(cats).filter(k => cats[k].group === group && k.indexOf("|st:") > 0)
+      .forEach(k => boards.push(Object.assign(fromBuilt(k, cats[k]), {season: year})));
+    return boards;
+  }
+  // A past season: season-stat boards from what actually happened that year.
+  const cats = leaderCats("prev");
+  Object.keys(cats).filter(k => cats[k].group === group).forEach(k=>{
+    const c = cats[k];
+    const pk = pastKeyFor(k);
+    const hist = pk && (DATA.leadersPast[pk] || {})[String(year)];
+    if(hist && hist.length){
+      boards.push({key: k, label: c.label, sub: "", unit: c.unit, season: year, hist: true,
+        rows: hist.map(r => ({pid: DATA.players[r.id] ? r.id : null, name: r.n, team: r.t,
+                              v: r.v, r: r.r, row: r}))});
+    } else if(year === DATA.statsSeason){
+      // Advanced and situational boards exist for last season only.
+      boards.push(Object.assign(fromBuilt(k, c), {season: year}));
+    }
+  });
+  return boards;
+}
 
-  // A past season: names come from that year's file, not the current roster,
-  // so retired players still appear where they belong.
-  if(pk && leadYear !== "now"){
-    const rows = DATA.leadersPast[pk][leadYear] || [];
-    box.appendChild(el("div","lsub",
-      c.group + " \u00b7 " + leadYear + " season \u00b7 move from " + (leadYear - 1)));
-    rows.forEach(r=>{
-      const row = el("button","lrow" + (r.r <= 3 ? " top" : ""));
-      row.appendChild(el("span","lr", r.r));
-      const p = DATA.players[r.id];
-      const f = el("div","lf");
-      const im = p ? faceImg(p, 96, {lazy: true}) : null;
-      if(im) f.appendChild(im);
-      row.appendChild(f);
-      row.appendChild(el("span","ln", r.n));
-      row.appendChild(el("span","lt", r.t || ""));
-      const mv = movementCell(r);
-      row.appendChild(el("span","lmv " + mv.cls, mv.txt));
-      row.appendChild(el("span","lv", r.v.toLocaleString()));
-      if(p) row.onclick = () => { $("#lead").hidden = true; goPlayer(r.id); };
-      else row.disabled = true;     // no longer on any depth chart
-      box.appendChild(row);
+function leadWho(r){
+  if(r.team && !r.pid && r.name == null){
+    const t = DATA.teams[r.team] || {};
+    return {name: t.name || r.team, team: r.team, pos: t.div || "", logo: t.logo, isTeam: true};
+  }
+  const p = r.pid ? DATA.players[r.pid] : null;
+  const loc = r.pid ? LOCATE[r.pid] : null;
+  return {p, name: p ? p.name : (r.name || ""), team: (loc && loc.team) || r.team || "",
+          pos: p ? p.pos : ""};
+}
+
+function leadPhoto(who, size, cls){
+  const f = el("div", cls);
+  if(who.isTeam){
+    if(who.logo){ const im = new Image(); im.src = who.logo; im.alt = ""; im.className = "ldlogo"; f.appendChild(im); }
+    return f;
+  }
+  const im = who.p ? faceImg(who.p, size, {lazy: true}) : null;
+  if(im) f.appendChild(im);
+  else f.appendChild(el("span","ldinit", (who.name || "?").split(" ").map(x => x[0]).join("").slice(0, 2)));
+  return f;
+}
+
+function leadMeta(who){
+  const m = el("div","ldmeta");
+  if(!who.isTeam && who.team){
+    const t = DATA.teams[who.team] || {};
+    if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; im.className = "ldtlogo"; m.appendChild(im); }
+    m.appendChild(document.createTextNode(who.team + (who.pos ? " \u00b7 " + who.pos : "")));
+  } else if(who.pos) m.appendChild(document.createTextNode(who.pos));
+  return m;
+}
+
+function leadOpen(r){
+  if(r.team && !r.pid && r.name == null){ $("#lead").hidden = true; goTeam(r.team); return; }
+  if(r.pid){ $("#lead").hidden = true; goPlayer(r.pid); }
+}
+
+function renderLeaders(){
+  const groups = [...LEAD_POS_GROUPS(), ...LEAD_OTHER];
+  const seasons = leadSeasons();
+  if(leadYearSel == null || !seasons.includes(leadYearSel)) leadYearSel = seasons[0];
+
+  // Opened at a particular board (an ability on a profile, say): go to its group.
+  if(leadKey){
+    const g0 = leadKey.split("|")[0];
+    if(groups.includes(g0)) leadGroup = g0;
+  }
+  if(!leadGroup || !groups.includes(leadGroup)) leadGroup = groups[0];
+  const isPos = LEAD_POS_GROUPS().includes(leadGroup);
+
+  // ---- controls
+  const nav = $("#ldnav"); nav.innerHTML = "";
+  const gt = el("div","ldgroups");
+  groups.forEach(g=>{
+    const b = el("button", LEAD_OTHER.includes(g) ? "alt" : null, g);
+    b.setAttribute("aria-pressed", g === leadGroup);
+    b.onclick = () => { leadGroup = g; leadKey = null; renderLeaders(); };
+    gt.appendChild(b);
+  });
+  nav.appendChild(gt);
+  requestAnimationFrame(() => {
+    const on = gt.querySelector('[aria-pressed="true"]');
+    if(on && on.scrollIntoView) on.scrollIntoView({block: "nearest", inline: "center"});
+  });
+
+  const sr = el("div","ldseasons");
+  if(isPos){
+    sr.appendChild(el("span","ldlab","Season"));
+    seasons.forEach(y=>{
+      const b = el("button", null, String(y));
+      b.setAttribute("aria-pressed", y === leadYearSel);
+      b.onclick = () => { leadYearSel = y; leadKey = null; renderLeaders(); };
+      sr.appendChild(b);
     });
-    const n = el("div","carnote");
-    n.textContent = "Whoever actually led that season, including players since "
-      + "retired \u2014 greyed names are no longer on a depth chart. Movement is "
-      + "the change in rank, so a player can gain yards and still fall.";
-    box.appendChild(n);
-    box.scrollTop = 0;
+  } else sr.appendChild(el("span","ldnote", LEAD_OTHER_NOTE[leadGroup] || ""));
+  nav.appendChild(sr);
+
+  // ---- content
+  const box = $("#ldbody"); box.innerHTML = "";
+  const boards = leadBoards(leadGroup, isPos ? leadYearSel : null);
+  const open = leadKey ? boards.find(b => b.key === leadKey) : null;
+  if(leadKey && !open) leadKey = null;
+
+  if(open){ renderLeadList(box, open); box.scrollTop = 0; return; }
+
+  if(!boards.length){
+    box.appendChild(el("div","carnote","No leaderboards for " + leadGroup
+      + (isPos ? " in " + leadYearSel : "") + "."));
     return;
   }
 
-  box.appendChild(el("div","lsub",
-    c.group + (c.sub ? " \u00b7 " + c.sub : "") + " \u00b7 " + c.rows.length + " ranked"));
+  const grid = el("div","ldgrid");
+  boards.forEach(bd=>{
+    const card = el("div","ldcard");
+    const hd = el("button","ldch");
+    hd.appendChild(el("span","ldct", bd.label));
+    hd.appendChild(el("span","ldcs", "Full list \u203A"));
+    hd.onclick = () => { leadKey = bd.key; renderLeaders(); };
+    card.appendChild(hd);
+    if(bd.sub) card.appendChild(el("div","ldsub", bd.sub));
 
-  c.rows.slice(0, 40).forEach(r=>{
-    const row = el("button","lrow" + (r.r <= 3 ? " top" : ""));
-    row.appendChild(el("span","lr", r.r));
-    if(c.isTeam){
-      const t = DATA.teams[r.team];
-      const f = el("div","lf");
-      if(t.logo){ const im = new Image(); im.src = t.logo; im.alt=""; f.appendChild(im); }
-      row.appendChild(f);
-      row.appendChild(el("span","ln", t.name));
-      row.appendChild(el("span","lt", t.div));
-      row.onclick = () => { $("#lead").hidden = true; goTeam(r.team); };
-    } else {
-      const p = DATA.players[r.pid];
-      const f = el("div","lf");
-      const im = faceImg(p, 96, {lazy: true});
-      if(im) f.appendChild(im);
-      row.appendChild(f);
-      row.appendChild(el("span","ln", p.name));
-      const loc = LOCATE[p.id];
-      row.appendChild(el("span","lt", (loc ? loc.team : "") + " \u00b7 " + p.pos));
-      row.onclick = () => { $("#lead").hidden = true; goPlayer(p.id); };
-    }
-    const unit = c.unit === "M" ? "" : (c.unit || "");
-    const val = (c.unit === "M" ? "$" : "") + (typeof r.v === "number"
-      ? r.v.toLocaleString() : r.v) + (c.unit === "M" ? "M" : unit);
-    row.appendChild(el("span","lv", val));
-    box.appendChild(row);
+    bd.rows.slice(0, 5).forEach((r, i)=>{
+      const who = leadWho(r);
+      const row = el("button", i === 0 ? "ldtop" : "ldrow");
+      if(i) row.appendChild(el("span","ldr", String(r.r)));
+      row.appendChild(leadPhoto(who, i === 0 ? 160 : 96, i === 0 ? "ldph big" : "ldph"));
+      const tx = el("div","ldtx");
+      if(i === 0) tx.appendChild(el("div","ldone", bd.asc ? "Fewest" : "Leader"));
+      tx.appendChild(el("div","ldname", who.name));
+      tx.appendChild(leadMeta(who));
+      row.appendChild(tx);
+      row.appendChild(el("span","ldval" + (i === 0 ? " big" : ""), fmtLeadVal(r.v, bd.unit)));
+      if(r.pid || who.isTeam) row.onclick = () => leadOpen(r);
+      else row.classList.add("gone");
+      card.appendChild(row);
+    });
+    grid.appendChild(card);
   });
+  box.appendChild(grid);
+
+  if(isPos && boards.some(b => b.hist))
+    box.appendChild(el("div","carnote", "Past seasons show whoever actually led that "
+      + "year, including players since retired; those without a photo are no longer "
+      + "on a roster."));
+  if(isPos && leadYearSel === (DATA.current || {}).season)
+    box.appendChild(el("div","carnote", "This season's boards cover season stats so far. "
+      + "Advanced and situational boards are under " + DATA.statsSeason + "."));
   box.scrollTop = 0;
+}
+
+/* The full ranking for one board, with a bar for how close each is to the top. */
+function renderLeadList(box, bd){
+  const top = el("div","ldlisthead");
+  const back = el("button","ldback", "\u2039 " + leadGroup);
+  back.onclick = () => { leadKey = null; renderLeaders(); };
+  top.appendChild(back);
+  top.appendChild(el("div","ldltitle", bd.label));
+  const subBits = [bd.sub, bd.season ? String(bd.season) : null,
+                   bd.asc ? "fewest first" : null, bd.rows.length + " ranked"].filter(Boolean);
+  top.appendChild(el("div","ldsub", subBits.join("  \u00b7  ")));
+  box.appendChild(top);
+
+  const nums = bd.rows.map(r => typeof r.v === "number" ? Math.abs(r.v) : 0);
+  const max = Math.max(...nums, 0) || 1;
+  const list = el("div","ldlist");
+  bd.rows.slice(0, 60).forEach(r=>{
+    const who = leadWho(r);
+    const row = el("button","ldline" + (r.r <= 3 ? " podium" : ""));
+    row.appendChild(el("span","ldr", String(r.r)));
+    row.appendChild(leadPhoto(who, 96, "ldph"));
+    const tx = el("div","ldtx");
+    tx.appendChild(el("div","ldname", who.name));
+    tx.appendChild(leadMeta(who));
+    if(typeof r.v === "number"){
+      const bar = el("div","ldbar");
+      const fill = el("i");
+      fill.style.width = Math.max(3, Math.abs(r.v) / max * 100) + "%";
+      bar.appendChild(fill);
+      tx.appendChild(bar);
+    }
+    row.appendChild(tx);
+    if(r.row){
+      const mv = movementCell(r.row);
+      row.appendChild(el("span","ldmv lmv " + mv.cls, mv.txt));
+    }
+    row.appendChild(el("span","ldval", fmtLeadVal(r.v, bd.unit)));
+    if(r.pid || who.isTeam) row.onclick = () => leadOpen(r);
+    else row.classList.add("gone");
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+  if(bd.hist) box.appendChild(el("div","carnote", "Movement is the change in rank from "
+    + (bd.season - 1) + ", so a player can gain yards and still fall."));
 }
 
 $("#leadbtn").onclick = () => { $("#lead").hidden = false; renderLeaders(); };
