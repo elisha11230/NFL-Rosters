@@ -22,6 +22,10 @@ PHONE = {
     "#leadbtn": {"border-top": {"0", "none"}},
     "#gamebtn": {"background": {"none", "transparent"}},
 }
+# Panels whose left and right padding must match on a phone. A scrollbar gutter
+# once set only the right side to 4px, which pushed every box off centre.
+SYMMETRIC = ["#detail", "#scoresbody", "#boxbody"]
+
 DESKTOP = {
     "#chips .chip": {"width": {"60px"}},
     "#chips .disc": {"width": {"56px"}},
@@ -42,5 +46,16 @@ for path, width, want in ((sys.argv[1], 390, PHONE), (sys.argv[2], 1280, DESKTOP
             good = val in ok
             bad += not good
             print(f"{'OK' if good else 'WRONG':<8} {sel} {prop}: {val}" + ("" if good else f"   (rule that won: {src})"))
+    if width == 390:
+        for sel in SYMMETRIC:
+            els = list(root.query_all(sel))
+            if not els:
+                continue
+            got = computed(doc, m, els[0])
+            l = got.get("padding-left", ("0", ""))[0]
+            r = got.get("padding-right", ("0", ""))[0]
+            good = l == r
+            bad += not good
+            print(f"{'OK' if good else 'WRONG':<8} {sel} padding left {l} / right {r}")
 print("\nclean" if not bad else f"\n{bad} problem(s)")
 sys.exit(1 if bad else 0)

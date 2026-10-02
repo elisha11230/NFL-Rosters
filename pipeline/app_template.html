@@ -257,7 +257,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .chip.sub .pname{color:var(--brass)}
 
 /* ---------- detail panel ---------- */
-#detail{padding-right:4px;
+#detail{
   flex:0 0 336px;border-left:1px solid var(--line);background:var(--panel);
   overflow-y:auto;padding:20px;
 }
@@ -901,7 +901,7 @@ table.car td.best{color:var(--good-t);font-weight:600}
   display:flex;flex-direction:column;padding:16px 18px}
 #scores[hidden]{display:none}
 #scoresnav{flex:0 0 auto;max-width:860px;margin:0 auto 4px;width:100%}
-#scoresbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
+#scoresbody{flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
 .wkstrip{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;
   border-bottom:1px solid var(--line);margin-bottom:12px}
 .wkstrip button{
@@ -2277,7 +2277,7 @@ td.form i.fT{background:var(--rule);color:var(--mute)}
 #box{position:fixed;inset:0;z-index:84;background:var(--sheet);
   display:flex;flex-direction:column;padding:16px 18px}
 #box[hidden]{display:none}
-#boxbody{padding-right:4px;flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
+#boxbody{flex:1 1 auto;overflow-y:auto;max-width:860px;margin:0 auto;width:100%}
 .boxscore-line{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
 .boxscore-line .bt{font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi)}
 .boxscore-line .bd{color:var(--dim)}
@@ -2337,11 +2337,6 @@ table.car td.bxname.link:hover{color:var(--hi);text-decoration:underline}
 .vsusual .cmp2.up{color:var(--good-t)} .vsusual .cmp2.dn{color:#8C6A6A}
 
 /* ---------- time scrubber ---------- */
-#timebar{
-  display:flex;align-items:center;gap:11px;padding:7px 0 9px;
-  border-bottom:1px solid var(--line);margin-bottom:9px;
-}
-#timebar[hidden]{display:none}
 #time{
   flex:1 1 auto;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;
   background:var(--line);outline:none;
@@ -2354,19 +2349,6 @@ table.car td.bxname.link:hover{color:var(--hi);text-decoration:underline}
   width:15px;height:15px;border-radius:50%;background:var(--team);
   border:2px solid var(--ink);cursor:pointer;border-width:2px;
 }
-#timelab{
-  font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--mute);white-space:nowrap;min-width:96px;
-}
-#timelab b{color:var(--chalk);font-family:'Archivo Black',sans-serif;font-size:11.5px;
-  letter-spacing:0}
-#timenow{
-  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--dim);border:1px solid var(--line);
-  padding:4px 9px;border-radius:var(--r);white-space:nowrap;
-}
-#timenow:hover{color:var(--chalk);border-color:var(--team)}
-#timenow[hidden]{display:none}
 .past #field{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--brass) 40%,transparent)}
 
 /* ---------- comparables ---------- */
@@ -2530,7 +2512,7 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   #app{height:auto;min-height:100%}
   #split{flex-direction:column}
   #field{min-height:0;aspect-ratio:16/11}
-  #detail{padding-right:4px;flex:1 1 auto;border-left:0;border-top:1px solid var(--line);max-height:none}
+  #detail{flex:1 1 auto;border-left:0;border-top:1px solid var(--line);max-height:none}
 }
 /* Below ~920px even the full window is too narrow for five linemen at true
    spacing. Rather than distort the formation, hold the field at a minimum width
@@ -2552,6 +2534,8 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   .stack{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.sect .coach{border:0;padding:0;margin:0;background:none}
 
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
@@ -2614,12 +2598,6 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
   <div id="split">
     <div id="fieldwrap">
       <div id="livebar" hidden></div>
-      <div id="timebar" hidden>
-        <span id="timelab"></span>
-        <input id="time" type="range" min="0" max="0" value="0"
-               aria-label="Depth chart date">
-        <button id="timenow" hidden>Back to today</button>
-      </div>
       <div id="fieldbar">
         <div class="hint" id="formlab"></div>
       </div>
@@ -3008,27 +2986,9 @@ function renderResetChanges(){
   };
 }
 
-function renderTimebar(){
-  const bar = $("#timebar");
-  if(!TL){ bar.hidden = true; return; }
-  bar.hidden = false;
-  const sl = $("#time");
-  sl.max = TL.dates.length - 1;
-  sl.value = timeIdx;
-  const d = new Date(TL.dates[timeIdx] + "T12:00:00Z");
-  const nice = d.toLocaleDateString(undefined,{month:"short", day:"numeric"});
-  const lab = $("#timelab");
-  lab.innerHTML = "";
-  if(isPast()){
-    lab.appendChild(el("b", null, nice));
-    lab.appendChild(document.createTextNode(" \u00b7 as it stood"));
-  } else {
-    lab.appendChild(el("b", null, nice));
-    lab.appendChild(document.createTextNode(" \u00b7 today"));
-  }
-  $("#timenow").hidden = !isPast();
-  document.body.classList.toggle("past", isPast());
-}
+/* The date slider above the field was removed (October 2026); the field always
+   shows today's chart. The weekly snapshots still feed the movement badges. */
+function renderTimebar(){}
 
 /* ---------------- phone layouts ----------------
    On a phone the field used to keep a 700px minimum width, so you scrolled it
@@ -4476,6 +4436,8 @@ function renderTeam(){
     h.style.marginTop = "0";
     h.appendChild(el("h3",null,"Coaching staff"));
     d.appendChild(h);
+    // Inside the section, not beside it: added beside, it left an empty headed
+    // box with the card floating separately underneath.
 
     const box = el("div","coach");
     box.appendChild(el("div","nm", co.name));
@@ -4513,7 +4475,7 @@ function renderTeam(){
       });
       box.appendChild(sw);
     }
-    d.appendChild(box);
+    h.appendChild(box);
   }
 
   if(!s){
@@ -5066,18 +5028,6 @@ function renderTrade(){
 
 function renderAll(){ renderRail(); renderHead(); renderField(); renderTeam(); }
 
-if(TL){
-  $("#time").addEventListener("input", e=>{
-    timeIdx = +e.target.value;
-    sel = null;
-    for(const k in sub) delete sub[k];
-    renderField(); renderTeam();
-  });
-  $("#timenow").onclick = () => {
-    timeIdx = TL.dates.length - 1;
-    renderField(); renderTeam();
-  };
-}
 
 /* ---------------- live game day ----------------
    ESPN's endpoints are undocumented and only populate their interesting fields
