@@ -40,6 +40,7 @@ try { if(localStorage.getItem("theme") === "light")
   /* The disc behind headshots and thumbnails. */
   --well:#0B1113;
   --hover:#243039; --hover2:#141C20;
+  --bar1:#0A0F11; --bar2:#0C1215;
   /* Status text colours that must stay readable on either background. */
   --good-t:#5FBF8A; --bad-t:#E4A4A4; --bad2-t:#C98080; --alert-t:#E05B5B;
   --warn-t:#E0A15B; --warn2-t:#E0B48A;
@@ -57,6 +58,7 @@ html[data-theme="light"]{
   --hi:#0A1013;
   --well:#E1E8E5;
   --hover:#E3EAE6; --hover2:#E6ECE9;
+  --bar1:#FFFFFF; --bar2:#F6F8F7;
   --good-t:#15743F; --bad-t:#B23B3B; --bad2-t:#A34545; --alert-t:#C0392B;
   --warn-t:#8F5210; --warn2-t:#955B1F;
   color-scheme:light;
@@ -112,7 +114,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------- team rail, grouped by division ---------- */
 #rail{
   display:flex;gap:0;overflow-x:auto;overflow-y:hidden;
-  background:#0A0F11;border-bottom:1px solid var(--line);
+  background:var(--bar1);border-bottom:1px solid var(--line);
   scrollbar-width:thin;flex:0 0 auto;
 }
 #rail::-webkit-scrollbar{height:3px}
@@ -653,8 +655,46 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
-/* ---------- theme button ---------- */
-#themebtn{margin-left:auto;width:34px;padding:0;font-size:15px;line-height:1}
+/* ---------- main menu ----------
+   Copied in spirit from the NBA app: a full-width bar of uppercase labels, each
+   with a small marker in the team colour, the theme switch at the end. */
+#menu{flex:0 0 auto;display:flex;align-items:stretch;background:var(--bar1);
+  border-bottom:1px solid var(--line);position:relative;z-index:60}
+#menu > button,#menu .menuwrap > button{display:flex;align-items:center;justify-content:center;
+  gap:8px;padding:10px 26px;height:100%;background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--mute);
+  border-right:1px solid var(--line);transition:background .13s,color .13s;white-space:nowrap}
+#menu button span{font-size:9px;color:var(--team-accent)}
+#menu button i{font-style:normal;font-size:10px;margin-left:-2px;opacity:.7}
+#menu > button:hover,#menu .menuwrap > button:hover,
+#menu button[aria-expanded="true"]{background:var(--hover);color:var(--hi)}
+#menu > button:active{background:color-mix(in srgb,var(--team) 25%,var(--bar1))}
+.menuwrap{position:relative;display:flex}
+#exploremenu{position:absolute;top:100%;left:0;min-width:270px;margin-top:1px;
+  background:var(--panel);border:1px solid var(--line);border-radius:0 0 8px 8px;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);padding:5px;display:flex;flex-direction:column}
+#exploremenu[hidden]{display:none}
+#exploremenu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:9px 11px;border-radius:6px;text-align:left}
+#exploremenu button:hover,#exploremenu button:focus-visible{background:var(--hover)}
+#exploremenu b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--hi)}
+#exploremenu small{font-size:12px;color:var(--dim)}
+#themebtn{margin-left:auto;width:52px;padding:0 !important;font-size:16px;line-height:1;
+  border-right:0 !important;border-left:1px solid var(--line) !important}
+@media (max-width:760px){
+  #menu > button,#menu .menuwrap > button{flex:1 1 0;padding:10px 4px;gap:5px;
+    font-size:12.5px;letter-spacing:.07em}
+  .menuwrap{flex:1 1 0}
+  .menuwrap > button{width:100%}
+  #themebtn{flex:0 0 42px !important;width:42px}
+  #exploremenu{left:auto;right:0}
+}
+@media (max-width:440px){
+  #menu button span{display:none}
+  #menu > button,#menu .menuwrap > button{font-size:12px;letter-spacing:.05em}
+}
 
 /* ---------- clip player ---------- */
 #clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
@@ -714,7 +754,7 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
 /* ---------- search ---------- */
 #searchbar{
   flex:0 0 auto;position:relative;border-bottom:1px solid var(--line);
-  background:#0C1215;
+  background:var(--bar2);
 }
 #q{
   width:100%;padding:9px 14px 9px 34px;background:none;border:0;color:var(--chalk);
@@ -2043,8 +2083,46 @@ a.newsrow:hover .newstitle{color:var(--hi);text-decoration:underline}
   text-shadow:0 1px 3px rgba(0,0,0,.7)}
 @media (max-width:520px){ .wpc{height:72px} }
 
-/* ---------- theme button ---------- */
-#themebtn{margin-left:auto;width:34px;padding:0;font-size:15px;line-height:1}
+/* ---------- main menu ----------
+   Copied in spirit from the NBA app: a full-width bar of uppercase labels, each
+   with a small marker in the team colour, the theme switch at the end. */
+#menu{flex:0 0 auto;display:flex;align-items:stretch;background:var(--bar1);
+  border-bottom:1px solid var(--line);position:relative;z-index:60}
+#menu > button,#menu .menuwrap > button{display:flex;align-items:center;justify-content:center;
+  gap:8px;padding:10px 26px;height:100%;background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--mute);
+  border-right:1px solid var(--line);transition:background .13s,color .13s;white-space:nowrap}
+#menu button span{font-size:9px;color:var(--team-accent)}
+#menu button i{font-style:normal;font-size:10px;margin-left:-2px;opacity:.7}
+#menu > button:hover,#menu .menuwrap > button:hover,
+#menu button[aria-expanded="true"]{background:var(--hover);color:var(--hi)}
+#menu > button:active{background:color-mix(in srgb,var(--team) 25%,var(--bar1))}
+.menuwrap{position:relative;display:flex}
+#exploremenu{position:absolute;top:100%;left:0;min-width:270px;margin-top:1px;
+  background:var(--panel);border:1px solid var(--line);border-radius:0 0 8px 8px;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);padding:5px;display:flex;flex-direction:column}
+#exploremenu[hidden]{display:none}
+#exploremenu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:9px 11px;border-radius:6px;text-align:left}
+#exploremenu button:hover,#exploremenu button:focus-visible{background:var(--hover)}
+#exploremenu b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--hi)}
+#exploremenu small{font-size:12px;color:var(--dim)}
+#themebtn{margin-left:auto;width:52px;padding:0 !important;font-size:16px;line-height:1;
+  border-right:0 !important;border-left:1px solid var(--line) !important}
+@media (max-width:760px){
+  #menu > button,#menu .menuwrap > button{flex:1 1 0;padding:10px 4px;gap:5px;
+    font-size:12.5px;letter-spacing:.07em}
+  .menuwrap{flex:1 1 0}
+  .menuwrap > button{width:100%}
+  #themebtn{flex:0 0 42px !important;width:42px}
+  #exploremenu{left:auto;right:0}
+}
+@media (max-width:440px){
+  #menu button span{display:none}
+  #menu > button,#menu .menuwrap > button{font-size:12px;letter-spacing:.05em}
+}
 
 /* ---------- clip player ---------- */
 #clip{position:fixed;inset:0;z-index:88;background:rgba(4,7,9,.86);
@@ -2538,6 +2616,23 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
 <body>
 <div id="app">
   <nav id="rail" aria-label="Teams"></nav>
+  <!-- The main menu, as in the NBA app. Same ids as the old buttons above the
+       field, so everything they already did still works. -->
+  <nav id="menu" aria-label="Menu">
+    <button id="scoresbtn"><span aria-hidden="true">&#9679;</span>Scores</button>
+    <button id="standbtn"><span aria-hidden="true">&#9632;</span>Standings</button>
+    <button id="leadbtn"><span aria-hidden="true">&#9650;</span>Leaders</button>
+    <div class="menuwrap">
+      <button id="explorebtn" aria-haspopup="true" aria-expanded="false"
+              aria-controls="exploremenu"><span aria-hidden="true">&#9670;</span>Explore<i aria-hidden="true">&#9662;</i></button>
+      <div id="exploremenu" role="menu" hidden>
+        <button id="conceptbtn" role="menuitem"><b>How it works</b><small>Routes, coverages and run plays, animated</small></button>
+        <button id="facesbtn" role="menuitem"><b>Faces</b><small>This roster, face by face</small></button>
+        <button id="gamebtn" role="menuitem"><b>Lineup</b><small>Put the starters back where they belong</small></button>
+      </div>
+    </div>
+    <button id="themebtn" aria-label="Switch theme" title="Switch theme"></button>
+  </nav>
   <div id="searchbar">
     <span class="mag" aria-hidden="true">&#9906;</span>
     <input id="q" type="search" autocomplete="off" spellcheck="false"
@@ -2564,12 +2659,6 @@ table.hist td.co{text-align:left;font-size:11.5px;color:var(--dim);
       </div>
       <div id="fieldbar">
         <div class="hint" id="formlab"></div>
-        <button id="scoresbtn">Scores</button>
-        <button id="conceptbtn">How it works</button>
-        <button id="gamebtn">Lineup</button>
-        <button id="facesbtn">Faces</button>
-        <button id="leadbtn">Leaders</button>
-        <button id="themebtn" aria-label="Switch theme" title="Switch theme"></button>
       </div>
       <div id="field">
         <svg id="turf" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"></svg>
@@ -11444,7 +11533,24 @@ $("#cclose").onclick = () => {
   clearTimeout(conceptTimer);
 };
 $("#prev").addEventListener("click", e=>{ if(e.target.id === "prev") closePreview(); });
-$("#scoresbtn").onclick = openScores;
+// Scores always opens on the games; Standings opens the same page on its tab.
+$("#scoresbtn").onclick = () => { scoreMode = "games"; openScores(); };
+$("#standbtn").onclick = () => { scoreMode = hasStandings() ? "stand" : "games"; openScores(); };
+
+/* Explore: the three learning tools under one menu item. Closes on a choice,
+   a tap anywhere else, or Escape. */
+function setExplore(open){
+  $("#exploremenu").hidden = !open;
+  $("#explorebtn").setAttribute("aria-expanded", String(open));
+}
+$("#explorebtn").onclick = e => { e.stopPropagation(); setExplore($("#exploremenu").hidden); };
+$("#exploremenu").addEventListener("click", () => setExplore(false));
+document.addEventListener("click", e => {
+  if(!$("#exploremenu").hidden && !e.target.closest(".menuwrap")) setExplore(false);
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && !$("#exploremenu").hidden){ setExplore(false); $("#explorebtn").focus(); }
+});
 $("#scoresclose").onclick = closeScores;
 $("#box").addEventListener("click", e=>{ if(e.target.id === "box") closeBox(); });
 
