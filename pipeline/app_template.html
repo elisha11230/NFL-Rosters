@@ -5395,6 +5395,10 @@ function clearPlayer(){
 
 function setDock(mode){
   const dock = dockEl();
+  // Already docked: the alignment loop is running, so leave it be. Restarting
+  // it measured the page in the middle of the feed's refresh, while the feed
+  // was momentarily empty, and that snapped the scroll back to the top.
+  if(mode === "docked" && dockMode === "docked" && !dock.hidden) return;
   dockMode = mode;
   dock.hidden = false;
   dock.classList.toggle("floating", mode === "floating");
@@ -5403,8 +5407,9 @@ function setDock(mode){
   clearInterval(dockTimer);
   hideLiveChip();
   if(mode === "docked"){
+    // First placement on the next frame, never mid-render, for the same reason.
     const step = () => { placeDocked(); dockRaf = requestAnimationFrame(step); };
-    step();
+    dockRaf = requestAnimationFrame(step);
   } else {
     dock.removeAttribute("style");
     dock.dataset.corner = dockCorner();
@@ -9518,7 +9523,18 @@ async function refreshWatch(){
   renderWatch(g);
 }
 
+/* The feed is rebuilt on every refresh. Anything that measures the page while
+   it is momentarily empty makes the browser think it is short and snap the
+   scroll to the top, so the position is kept across the redraw regardless. */
 function renderWatch(gRaw){
+  const outer0 = document.getElementById("watchbody");
+  const keep = outer0 ? outer0.scrollTop : 0;
+  const r = renderWatchBody(gRaw);
+  if(outer0 && keep && outer0.scrollTop !== keep) outer0.scrollTop = keep;
+  return r;
+}
+
+function renderWatchBody(gRaw){
   const outer = $("#watchbody");
   // Two regions: the player, which must never be torn down, and everything else,
   // which is rebuilt on every refresh.
