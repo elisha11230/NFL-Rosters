@@ -2791,10 +2791,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   border:2px solid var(--line);border-radius:9px;overflow:hidden}
 .mvt.on{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass)}
 .mvbar{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:36px;padding:0 4px 0 4px;background:var(--panel)}
-.mvsnd{flex:0 0 auto;width:30px;height:30px;display:flex;align-items:center;justify-content:center;
-  border-radius:7px;color:var(--dim)}
-.mvsnd svg{width:19px;height:19px}
-.mvt.on .mvsnd{color:var(--brass)}
+.mvlive{flex:0 0 auto;width:8px;height:8px;margin:0 4px 0 6px;border-radius:50%;background:#E0453A}
 .mvsc{flex:1 1 auto;min-width:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13.5px;
   letter-spacing:.02em;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mvbtn{flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.08em;
@@ -2804,14 +2801,6 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .mvx:hover{color:var(--hi)}
 .mvframe{position:relative;flex:1 1 auto;min-height:0;background:#000}
 .mvframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-/* Streams without the sound take a tap anywhere as "give this one the sound". */
-.mvtap{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px;
-  background:transparent;cursor:pointer}
-.mvtap span{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:14px;background:rgba(0,0,0,.62);
-  color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;
-  text-transform:uppercase}
-.mvtap svg{width:15px;height:15px}
-.mvt.on .mvtap{display:none}
 .mvempty{grid-column:1/-1;align-self:start;max-width:620px;width:100%;margin:24px auto;padding:0 8px;color:var(--chalk)}
 .mvempty h3{font-family:'Archivo Black',sans-serif;font-size:18px;margin:0 0 12px;color:var(--hi)}
 .mvempty p{color:var(--dim);font-size:14px}
@@ -2943,7 +2932,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 <div id="multi" hidden role="dialog" aria-modal="true" aria-label="Multiview">
   <div class="mvhead">
     <h2 class="blk">Multiview</h2>
-    <span class="mvhint">Tap a stream to give it the sound</span>
+    <span class="mvhint">Choose what you hear with each stream's own speaker button</span>
     <button class="pbtn" id="mvadd">+ Add game</button>
     <button class="qx" id="mvclose">Close</button>
   </div>
@@ -12670,28 +12659,22 @@ function renderMock(nav, body){
 
 
 /* ---------------- multiview ----------------
-   Up to four live games at once. Tap a stream to give it the sound.
+   Up to four live games at once.
 
-   The streams are frames from another site, and a page has no way to mute or
-   unmute another site's frame. What it can decide is whether a frame may start
-   playing with sound (the frame's "autoplay" permission). So the stream with
-   the sound is loaded with that permission and the others without it, which
-   makes them start muted. Moving the sound restarts just the two streams
-   involved: the one you leave comes back muted, the one you pick comes back
-   with sound allowed. On a phone the browser may still want one tap on that
-   player's own unmute button; the stream with the sound takes taps on its own
-   controls, while the others take a tap anywhere as "give this one the sound".
+   Sound is chosen with each stream's own speaker button. A page has no way to
+   mute or unmute another site's player, and the first version tried the one
+   lever a page does have: loading the streams without sound permission so they
+   would start muted. This stream site's player does not start muted; without
+   that permission it waits, paused, behind a play button. So tapping one tile
+   for sound left the others stopped (October 2026). Now every stream is
+   allowed to play, nothing restarts when you tap, and the tile you last
+   touched is outlined so you can see which player you are working with.
 
    Tiles are never moved in the page, since moving a frame reloads it: a new
    game is added at the end, and a removed one simply leaves; the grid closes
    the gap on its own. The lineup is kept for the day. */
 const MV_MAX = 4;
 let MV = {slots: [], sound: null}, mvTimer = null, mvPickFor = null;
-const SPEAK_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>'
-  + '<path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
-const SPEAK_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>'
-  + '<path d="M16 9.5l5 5M21 9.5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
-
 function fixtureForGame(g){
   if(!g || !g.teams) return null;
   const a = (g.teams.find(t => !t.home) || {}).ab, h = (g.teams.find(t => t.home) || {}).ab;
@@ -12714,7 +12697,7 @@ function mvSave(){
   PROG.mv = {day: todayStamp(), slots: MV.slots, sound: MV.sound};
   store.save(PROG);
 }
-const mvAllow = snd => (snd ? "autoplay; " : "") + "encrypted-media; picture-in-picture; fullscreen";
+const MV_ALLOW = "autoplay; encrypted-media; picture-in-picture; fullscreen";
 
 async function openMulti(addId){
   // Only one place plays streams at a time: the single player gives way, and
@@ -12729,10 +12712,10 @@ async function openMulti(addId){
   [addId, was].forEach(id=>{
     if(id && !MV.slots.includes(String(id)) && MV.slots.length < MV_MAX) MV.slots.push(String(id));
   });
-  if(addId) MV.sound = String(addId);
-  if(!MV.sound || !MV.slots.includes(MV.sound)) MV.sound = MV.slots[0] || null;
+  MV.sound = null;
   $("#multi").hidden = false;
   document.body.classList.add("watching");
+  mvWatchFocus(true);
   renderMulti();
   mvSave();
   try { await fetchLive(); } catch(e){}
@@ -12744,6 +12727,7 @@ async function openMulti(addId){
 
 function closeMulti(){
   clearInterval(mvTimer);
+  mvWatchFocus(false);
   $("#mvgrid").innerHTML = "";            // stop every stream
   $("#mvpick").hidden = true;
   $("#multi").hidden = true;
@@ -12754,7 +12738,7 @@ function closeMulti(){
 function mvFrame(id){
   const f = document.createElement("iframe");
   f.src = mvSrc(id) || "about:blank";
-  f.setAttribute("allow", mvAllow(String(id) === String(MV.sound)));
+  f.setAttribute("allow", MV_ALLOW);
   f.allowFullscreen = true;
   f.scrolling = "no";
   f.setAttribute("frameborder", "0");
@@ -12766,9 +12750,7 @@ function mvTile(id){
   const t = el("div","mvt");
   t.dataset.game = id;
   const bar = el("div","mvbar");
-  const snd = el("button","mvsnd");
-  snd.onclick = () => mvSetSound(t.dataset.game);
-  bar.appendChild(snd);
+  bar.appendChild(el("i","mvlive"));
   bar.appendChild(el("span","mvsc",""));
   const sw = el("button","mvbtn","Swap");
   sw.onclick = () => mvPick(t.dataset.game);
@@ -12779,10 +12761,6 @@ function mvTile(id){
   t.appendChild(bar);
   const fr = el("div","mvframe");
   fr.appendChild(mvFrame(id));
-  const tap = el("button","mvtap");
-  tap.innerHTML = '<span>' + SPEAK_OFF + 'Tap for sound</span>';
-  tap.onclick = () => mvSetSound(t.dataset.game);
-  fr.appendChild(tap);
   t.appendChild(fr);
   return t;
 }
@@ -12852,52 +12830,38 @@ function mvBars(){
   }
 }
 
+/* Outline the tile you last touched. A tap inside a stream moves focus into
+   its frame, which the page can see even though it cannot see the tap. */
 function mvSoundUI(){
-  document.querySelectorAll("#mvgrid .mvt").forEach(t=>{
-    const on = t.dataset.game === MV.sound;
-    t.classList.toggle("on", on);
-    const b = t.querySelector(".mvsnd");
-    b.innerHTML = on ? SPEAK_ON : SPEAK_OFF;
-    b.setAttribute("aria-label", on ? "This stream has the sound" : "Give this stream the sound");
-    b.title = b.getAttribute("aria-label");
-  });
+  document.querySelectorAll("#mvgrid .mvt").forEach(t => t.classList.toggle("on", t.dataset.game === MV.sound));
 }
-
-/* Restart one tile's stream, with or without permission to play sound. */
-function mvReload(id){
-  const t = $('#mvgrid .mvt[data-game="' + id + '"]');
-  if(!t) return;
-  const fr = t.querySelector(".mvframe"), old = fr.querySelector("iframe");
-  fr.replaceChild(mvFrame(id), old);
-}
-
-function mvSetSound(id){
-  id = String(id);
-  if(id === MV.sound) return;
-  const prev = MV.sound;
-  MV.sound = id;
-  mvSave();
-  mvSoundUI();
-  if(prev) mvReload(prev);     // comes back muted
-  mvReload(id);                // comes back allowed to play sound
+// Moving from one stream straight into another tells the page nothing, so it
+// checks which frame holds focus a few times a second while multiview is open.
+let mvFocusT = null;
+function mvWatchFocus(on){
+  clearInterval(mvFocusT);
+  if(!on) return;
+  mvFocusT = setInterval(()=>{
+    const f = document.activeElement;
+    if(!f || f.tagName !== "IFRAME") return;
+    const t = f.closest("#mvgrid .mvt");
+    if(t && t.dataset.game !== MV.sound){ MV.sound = t.dataset.game; mvSoundUI(); }
+  }, 300);
 }
 
 function mvAdd(id){
   id = String(id);
   if(MV.slots.includes(id) || MV.slots.length >= MV_MAX) return;
   MV.slots.push(id);
-  if(!MV.sound) MV.sound = id;
   mvSave();
   renderMulti();
 }
 
 function mvRemove(id){
   MV.slots = MV.slots.filter(x => x !== String(id));
-  const hadSound = MV.sound === String(id);
-  if(hadSound) MV.sound = MV.slots[0] || null;
+  if(MV.sound === String(id)) MV.sound = null;
   mvSave();
   renderMulti();
-  if(hadSound && MV.sound) mvReload(MV.sound);    // the sound moves to the first stream
 }
 
 /* Swap a tile for another game, in place: only that tile's stream restarts. */
