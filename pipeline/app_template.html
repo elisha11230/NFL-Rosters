@@ -2766,6 +2766,14 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--team-accent)}
 .pbpmore:hover{border-style:solid;border-color:var(--team-accent);color:var(--hi)}
 
+/* ---------- app-wide stream delay and Hide scores ---------- */
+.lsrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 2px;padding:9px 12px;
+  border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.lsrow .dlylab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim)}
+.lsrow .dlrange{flex:1 1 140px}
+.hidesc[aria-pressed="true"]{background:var(--team);border-color:var(--team);color:var(--team2)}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -3323,7 +3331,7 @@ function renderField(){
 
     c.appendChild(el("div","slotlab", slotLabel(grp, slot, row.abb)));
     c.appendChild(el("div","pname", shortName(p.name)));
-    const lv = liveDelay > 0 ? null : liveLineFor(p);   // held back with a feed delay on
+    const lv = hideScores() ? null : liveLineFor(p);
     if(lv) c.appendChild(el("div","livestat", lv.length > 26 ? lv.slice(0,26)+"\u2026" : lv));
     else if(stackArr.length>1) c.appendChild(el("div","stack", `+${stackArr.length-1}`));
 
@@ -5491,10 +5499,13 @@ function dockMatchup(g){
 function updateDockBar(){
   const dock = dockEl();
   if(!dock || dockMode !== "floating") return;
-  const g = dockGame(), out = dock.querySelector(".sdscore");
+  const g = viewLive(dockGame()), out = dock.querySelector(".sdscore");
   if(!g){ out.textContent = "Live game"; return; }
   const a = g.teams.find(t => !t.home) || {}, h = g.teams.find(t => t.home) || {};
-  out.textContent = liveDelay ? dockMatchup(g)
+  // The score as it stood your stream delay ago; just the matchup while
+  // syncing or with Hide scores on.
+  out.textContent = g.catching ? dockMatchup(g) + "  \u00b7  syncing"
+    : hideScores() ? dockMatchup(g)
     : a.ab + " " + (a.score ?? 0) + ", " + h.ab + " " + (h.score ?? 0) + "  \u00b7  " + clockFromDetail(g);
 }
 
@@ -5609,6 +5620,10 @@ function liveLog(...a){ if(LIVE_DEBUG) console.log("[live]", ...a); }
    miss games being played today. Asking for an explicit date removes the
    guesswork; the bare call is kept as a fallback in case the parameter is ever
    rejected. */
+function todayISO(){
+  const t = todayStamp();
+  return t.slice(0, 4) + "-" + t.slice(4, 6) + "-" + t.slice(6);
+}
 function todayStamp(){
   const d = new Date();
   const p = n => String(n).padStart(2, "0");
@@ -5650,6 +5665,14 @@ async function fetchLive(){
       }));
       LIVE.on = LIVE.games.some(g => g.state === "in");
       LIVE.at = Date.now();
+      LIVE.games.forEach(g=>{
+        const a = g.teams.find(t => !t.home) || {}, h = g.teams.find(t => t.home) || {};
+        const sit = g.situation;
+        const poss = sit && sit.possession
+          ? (g.teams.find(t => String(t.id) === String(sit.possession)) || {}).ab : null;
+        recordGame(g.id, {state: g.state, detail: g.detail, a: a.score, h: h.score,
+          sit: sit ? JSON.parse(JSON.stringify(sit)) : null, poss});
+      });
       LIVE.err = null;
       checkAlerts();
       liveLog("teams with a game today:", Object.keys(LIVE.byTeam).join(","),
@@ -5806,7 +5829,9 @@ async function fetchGame(gameId){
 /* ---- reading a player's day ---- */
 function liveLineFor(p){
   if(!p.eid) return null;
-  const s = LIVE.stats[p.eid];
+  // With a stream delay, tonight's stats as they stood that long ago.
+  const src = liveDelay ? delayedStats((LIVE.byTeam[team] || {}).id) : LIVE.stats;
+  const s = (src || {})[p.eid];
   if(!s) return null;
   const bits = [];
   for(const cat in s){
@@ -5860,7 +5885,10 @@ async function refreshLive(){
   if(!ok){ renderLiveStrip(false); return false; }
   const g = LIVE.byTeam[team];
   LIVE.situation = g && g.state === "in" ? g.situation : null;
-  if(g && g.state !== "pre"){ await fetchGame(g.id); await fetchPlays(g.id); }
+  if(g && g.state !== "pre"){
+    await fetchGame(g.id); await fetchPlays(g.id);
+    recordGame(g.id, {stats: JSON.parse(JSON.stringify(LIVE.stats || {}))});
+  }
   else { LIVE.stats = {}; LIVE.active = new Set(); LIVE.drives = []; LIVE.wp = null; }
   renderLiveStrip(true);
   renderField();
@@ -5878,8 +5906,9 @@ function startLive(){ refreshLive().then(schedulePoll); }
    app should tighten up when it does. */
 function schedulePoll(){
   clearInterval(livePoll);
+  // With a delay set, check more often so the delayed view moves in small steps.
   livePoll = setInterval(() => refreshLive().then(schedulePoll),
-                         LIVE.on ? 30000 : 300000);
+                         LIVE.on ? (liveDelay ? 10000 : 30000) : 300000);
 }
 
 /* ---- the strip above the field ----
@@ -5981,7 +6010,7 @@ function renderLiveStrip(ok){
 
 /* ---- today's game, in the team panel ---- */
 function sectionGame(d){
-  const g = LIVE.byTeam[team];
+  const g = viewLive(LIVE.byTeam[team]);
   if(!g || g.state === "pre") return;
   const live = g.state === "in";
   const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
@@ -5995,7 +6024,7 @@ function sectionGame(d){
 
   // Field position on its own diagram rather than on the formation, because the
   // formation is a picture of personnel and not a scale map of the field.
-  const st = LIVE.situation;
+  const st = liveDelay ? (g.catching ? null : g.situation) : LIVE.situation;
   const offAb2 = st && st.possession
     ? (g.teams.find(t => String(t.id) === String(st.possession)) || {}).ab : null;
   const defAb2 = offAb2 ? (offAb2 === h.ab ? a.ab : h.ab) : null;
@@ -6006,7 +6035,7 @@ function sectionGame(d){
     bx = el("button","boxfull","Box score");
     bx.onclick = openBox;
   }
-  const hideTeam = liveDelay > 0 && g.state === "in";
+  const hideTeam = scoreBlank(g.state, g.catching, true);
   sec.appendChild(scoreCard(g, {poss: offAb2, sit: st, pos: pos2, extra: bx, hide: hideTeam}));
   if(st){
     if(offAb2) sec.appendChild(possessionChip(offAb2, st, pos2));
@@ -6100,7 +6129,8 @@ function renderBox(){
   head.innerHTML = ""; body.innerHTML = "";
 
   if(g){
-    head.appendChild(scoreCard(g, {hide: !watchOn && liveDelay > 0 && g.state === "in"}));
+    const gb = watchOn ? g : viewLive(g);
+    head.appendChild(scoreCard(gb, {hide: !watchOn && scoreBlank(gb.state, gb.catching, true)}));
   }
 
   // Team totals side by side, when the feed carries them.
@@ -8744,6 +8774,127 @@ function applyDelay(g){
   return {...g, state: snap ? snap.state : "in", detail, situation: LIVE.situation, teams};
 }
 
+
+/* ---------------- one delay for the whole app ----------------
+   The stream delay applies everywhere, not only inside the game you watch:
+   every live score in the app (the Scores page, the game strip, the team page,
+   the mini player, score alerts, week leaders, live stats on the field) shows
+   the game as it stood `liveDelay` seconds ago, so it matches your stream
+   instead of spoiling it.
+
+   Each scoreboard check records every live game's state in a short history
+   (ten minutes), and each place that shows a game reads the entry from that
+   long ago. Right after the app opens there is not yet enough history, so for
+   those first seconds a live game shows "syncing" rather than the present.
+
+   Separately, Hide scores blanks out live and finished-today scores everywhere
+   except the game you are watching, for when you want no scores at all. */
+const GH = {};                                   // game id -> snapshots, oldest first
+function recordGame(id, v){
+  if(!id) return;
+  const list = GH[id] ||= [];
+  const now = Date.now(), last = list[list.length - 1];
+  if(last && now - last.t < 1500) Object.assign(last, v);   // same check, two sources
+  else list.push({t: now, ...v});
+  const cut = now - SNAP_KEEP;
+  while(list.length > 1 && list[0].t < cut) list.shift();
+}
+/* The newest snapshot at least `liveDelay` old that carries `field`; or how many
+   seconds until there is one. */
+function snapAt(id, field){
+  const list = GH[id];
+  if(!list || !list.length) return {catching: liveDelay};
+  const cutoff = Date.now() - liveDelay * 1000;
+  let pick = null;
+  for(const s of list){
+    if(s.t > cutoff) break;
+    if(!field || s[field] !== undefined) pick = s;
+  }
+  return pick || {catching: Math.max(1, Math.ceil((list[0].t - cutoff) / 1000))};
+}
+
+/* A game already final when the app first saw it has nothing left to spoil.
+   Only one seen live has to wait for enough history. */
+function finishedBeforeSeen(id, state){
+  if(state !== "post") return false;
+  const list = GH[id];
+  return !list || !list.length || list[0].state === "post";
+}
+/* A LIVE.games entry as it stood `liveDelay` ago. Games not yet started have
+   nothing to spoil and pass straight through. */
+function viewLive(g){
+  if(!g || !liveDelay || g.state === "pre" || g.__v) return g;
+  const s = snapAt(g.id, "state");
+  if(s.catching && finishedBeforeSeen(g.id, g.state)) return g;
+  if(s.catching) return {...g, __v: 1, catching: s.catching};
+  return {...g, __v: 1, state: s.state, detail: s.detail, situation: s.sit || null,
+          teams: g.teams.map(t => ({...t, score: t.home ? s.h : s.a}))};
+}
+/* The same for a Scores page entry. */
+function viewScore(sc){
+  if(!sc || !liveDelay || sc.state === "pre" || sc.__v) return sc;
+  const s = snapAt(sc.id, "state");
+  if(s.catching && finishedBeforeSeen(sc.id, sc.state)) return sc;
+  if(s.catching) return {...sc, __v: 1, catching: s.catching, state: "in"};
+  const lead = snapAt(sc.id, "leaders");
+  return {...sc, __v: 1, state: s.state, detail: s.detail, a: s.a, h: s.h,
+          period: s.period, clock: s.clock, poss: s.poss || null, sit: s.sit || null,
+          leaders: lead.catching ? null : lead.leaders};
+}
+/* Live stats for the field's chips, held back the same way. */
+function delayedStats(gameId){
+  if(!liveDelay) return LIVE.stats;
+  const s = snapAt(gameId, "stats");
+  return s.catching ? {} : (s.stats || {});
+}
+
+function hideScores(){ return !!(store.ok && PROG.hideScores); }
+function setHideScores(on){
+  if(store.ok){ PROG.hideScores = !!on; store.save(PROG); }
+  document.querySelectorAll(".hidesc").forEach(b => b.setAttribute("aria-pressed", !!on));
+  afterLiveSettingChange();
+}
+/* Whether a game's score should be blanked: while syncing, or when Hide scores
+   is on and the game is live or finished today. */
+function scoreBlank(state, catching, today){
+  if(catching) return true;
+  return hideScores() && (state === "in" || (state === "post" && today));
+}
+
+/* Everything that shows a live score redraws when the delay or Hide scores
+   changes. */
+function afterLiveSettingChange(){
+  updateDockBar();
+  if(watchOn) redrawDelayed(true);
+  if(!$("#scores").hidden && scoreMode === "games") renderScores(true);
+  if(LIVE.byTeam[team] && !sel) renderTeam();
+  renderField();
+}
+
+/* The two controls, for the Scores page and the game view. The slider redraws
+   on release, so dragging is never interrupted. */
+function liveSettingsRow(){
+  const row = el("div","lsrow");
+  row.appendChild(el("span","dlylab","Stream delay"));
+  const val = el("b","dlv", liveDelay + "s");
+  row.appendChild(val);
+  const range = document.createElement("input");
+  range.type = "range"; range.className = "dlrange"; range.min = 0; range.max = DELAY_MAX; range.step = 1;
+  range.value = liveDelay; range.setAttribute("aria-label","Stream delay in seconds");
+  range.oninput = () => { document.querySelectorAll(".dlv").forEach(e => e.textContent = range.value + "s"); };
+  range.onchange = () => setDelay(+range.value);
+  row.appendChild(range);
+  row.appendChild(hideScoresButton());
+  return row;
+}
+function hideScoresButton(){
+  const b = el("button","pbtn hidesc","Hide scores");
+  b.setAttribute("aria-pressed", hideScores());
+  b.title = "Blank out live and finished-today scores everywhere except the game you are watching";
+  b.onclick = () => setHideScores(!hideScores());
+  return b;
+}
+
 /* ---- the control: built once and kept, so dragging the slider is never
    interrupted by the feed redrawing around it ---- */
 let syncPlay = null, delayRedrawT = null, delayTick = null, delayKey = "";
@@ -8753,7 +8904,7 @@ function setDelay(v){
   document.querySelectorAll(".dlv").forEach(e => e.textContent = liveDelay + "s");
   document.querySelectorAll(".dlrange").forEach(e => { if(+e.value !== liveDelay) e.value = liveDelay; });
   clearTimeout(delayRedrawT);
-  delayRedrawT = setTimeout(() => { delayKey = ""; redrawDelayed(true); updateDockBar(); }, 120);
+  delayRedrawT = setTimeout(() => { delayKey = ""; afterLiveSettingChange(); }, 120);
 }
 
 function redrawDelayed(force){
@@ -8821,7 +8972,7 @@ function renderDelayHost(live){
     // takes a line of its own under the label, value and Sync button.
     const row = el("div","dlrow");
     [minus, range, plus].forEach(x => row.appendChild(x));
-    [val, sync, row].forEach(x => bar.appendChild(x));
+    [val, sync, row, hideScoresButton()].forEach(x => bar.appendChild(x));
     host.appendChild(bar);
     const sn = el("div","dlsync"); sn.hidden = true; host.appendChild(sn);
     host.appendChild(el("div","dlynote"));
@@ -8830,7 +8981,7 @@ function renderDelayHost(live){
   note.textContent = !liveDelay ? ""
     : LIVE.delayWait ? "Plays are held " + liveDelay + "s. Down and distance, drives and the box score catch up in "
         + LIVE.delayWait + "s."
-    : "Showing the game " + liveDelay + "s behind live.";
+    : "Every live score in the app is shown " + liveDelay + "s behind, to match your stream.";
 }
 
 /* ---------------- power ratings ----------------
@@ -9398,7 +9549,7 @@ function startDemo(){
 function renderGameStrip(){
   const host = document.getElementById("striphost");
   if(!host) return;
-  const games = (LIVE.games || []).filter(g => g.teams && g.teams.length === 2);
+  const games = (LIVE.games || []).filter(g => g.teams && g.teams.length === 2).map(viewLive);
   if(games.length < 2){ host.innerHTML = ""; return; }
 
   // Live first, then finished, then whatever has not kicked off.
@@ -9422,7 +9573,7 @@ function renderGameStrip(){
       if(tm.logo){ lg.src = tm.logo; lg.alt = ""; lg.loading = "lazy"; }
       row.appendChild(lg);
       row.appendChild(el("span","gsab", t.ab || ""));
-      const hideS = g.state === "in" && liveDelay > 0;
+      const hideS = String(g.id) !== String(watchGame) && scoreBlank(g.state, g.catching, true);
       const sc = el("span","gssc", g.state === "pre" ? "" : hideS ? "\u2022\u2022" : String(t.score ?? 0));
       // Mark the side that is ahead, so a glance reads the result.
       const mine = num(t.score), theirs = num(opp.score);
@@ -9437,7 +9588,7 @@ function renderGameStrip(){
     const foot = el("div","gsfoot" + (g.state === "in" ? " hot" : ""));
     if(g.state === "in") foot.appendChild(el("span","gsdot"));
     foot.appendChild(el("span", null, g.state === "pre"
-      ? (g.detail || "").replace(/^.*?-\s*/, "") : (g.state === "in" && liveDelay > 0) ? "Live" : clockFromDetail(g)));
+      ? (g.detail || "").replace(/^.*?-\s*/, "") : g.catching ? "Syncing" : clockFromDetail(g)));
     tile.appendChild(foot);
 
     tile.onclick = () => switchGame(g.id);
@@ -9589,9 +9740,9 @@ const ALERT_SEEN = {};
 let alertsOn = true;
 
 function checkAlerts(){
-  if(!alertsOn) return;
-  (LIVE.games || []).forEach(g=>{
-    if(g.state !== "in" || String(g.id) === String(watchGame)) return;
+  if(!alertsOn || hideScores()) return;
+  (LIVE.games || []).map(viewLive).forEach(g=>{
+    if(g.catching || g.state !== "in" || String(g.id) === String(watchGame)) return;
     const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
     const as = num(a.score), hs = num(h.score);
     if(as == null || hs == null) return;
@@ -10478,15 +10629,21 @@ function weekDates(wk){
 
 /* ESPN is asked per date. A week is at most four distinct dates, so this is a
    handful of requests, cached for the session. */
+const scoreCacheAt = {};
 async function loadWeekScores(wk){
   const dates = weekDates(wk);
   if(!dates.length) return {};
-  if(scoreCache[wk]) return scoreCache[wk];
+  if(scoreCache[wk]){
+    const anyLive = Object.values(scoreCache[wk]).some(x => x.state === "in");
+    if(!anyLive || Date.now() - (scoreCacheAt[wk] || 0) < 15000) return scoreCache[wk];
+  }
   const out = {};
+  let fetched = 0;
   for(const d of dates){
     const stamp = d.replace(/-/g, "");
     try {
       const j = await getJSON("/scoreboard?dates=" + stamp);
+      fetched++;
       (j.events || []).forEach(e=>{
         const c = (e.competitions || [])[0] || {};
         const st = (e.status || {}).type || {};
@@ -10550,7 +10707,14 @@ async function loadWeekScores(wk){
       });
     } catch(err){ liveLog("scores for", d, "failed:", err.message); }
   }
+  // A refresh that failed outright keeps the last good scores rather than
+  // emptying the page.
+  if(!fetched && scoreCache[wk]) return scoreCache[wk];
   scoreCache[wk] = out;
+  scoreCacheAt[wk] = Date.now();
+  Object.values(out).forEach(x => { if(x.state !== "pre") recordGame(x.id, {state: x.state, detail: x.detail,
+    a: x.a, h: x.h, period: x.period, clock: x.clock, poss: x.poss,
+    sit: x.sit ? JSON.parse(JSON.stringify(x.sit)) : null, leaders: x.leaders}); });
   return out;
 }
 
@@ -10562,6 +10726,7 @@ function openScores(){
 }
 function closeScores(){
   $("#scores").hidden = true;
+  clearInterval(scoresTick);
   sel = null;
   syncHash();
 }
@@ -10607,9 +10772,11 @@ function shortNet(n){
 const ICON_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg>';
 const ICON_TV = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 14h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 
-function gameCard(g, s, big){
+function gameCard(g, s0, big){
+  const s = viewScore(s0);
   const key = g.a + "@" + g.h;
   const state = s ? s.state : "pre";
+  const blank = !!s && scoreBlank(state, s.catching, g.d === todayISO());
   const card = el("div","gc gc-" + state + (big ? " gcbig" : ""));
   card.setAttribute("role", "button");
   card.tabIndex = 0;
@@ -10632,8 +10799,7 @@ function gameCard(g, s, big){
     row.appendChild(lg);
     row.appendChild(el("span","gcname", big ? (t.nick || ab) : ab));
     const right = el("span","gcright");
-    // With a feed delay on, a live score here would spoil the stream: dots instead.
-    const hide = state === "in" && liveDelay > 0;
+    const hide = blank;
     if(state === "in" && s.poss === ab && !hide) right.appendChild(el("i","gcposs"));
     if(state === "pre") right.appendChild(el("span","gcrec", rec || standRec(ab)));
     else right.appendChild(el("span","gcscore" + (hide ? " hid" : ""), hide ? "\u2022\u2022" : (sc ?? "")));
@@ -10643,9 +10809,12 @@ function gameCard(g, s, big){
 
   const foot = el("div","gcfoot");
   const cell = (txt, cls) => { const c = el("span","gccell" + (cls ? " " + cls : ""), txt); foot.appendChild(c); return c; };
-  if(state === "in" && liveDelay > 0){
-    cell("Live", "hot");
-    cell("Feed delayed " + liveDelay + "s");
+  if(s && s.catching){
+    cell("Syncing", "hot");
+    cell(liveDelay + "s delay");
+  } else if(blank){
+    cell(state === "in" ? "Live" : "Final", state === "in" ? "hot" : "fin");
+    cell("Score hidden");
   } else if(state === "in"){
     cell(liveClock(s), "hot");
     const pos = s.sit ? fieldPosition(s.sit, s.poss) : null;
@@ -10718,8 +10887,8 @@ function scoreCard(g, opts){
   });
   const foot = el("div","gcfoot");
   foot.appendChild(el("span","gccell" + (g.state === "in" ? " hot" : g.state === "post" ? " fin" : ""),
-    opts.hide ? "Live" : clockFromDetail(g)));
-  const dd = opts.hide ? "Feed delayed " + liveDelay + "s" : opts.sit && g.state === "in"
+    opts.hide ? (g.catching ? "Syncing" : g.state === "post" ? "Final" : "Live") : clockFromDetail(g)));
+  const dd = opts.hide ? (g.catching ? liveDelay + "s delay" : "Score hidden") : opts.sit && g.state === "in"
     ? (opts.sit.downDistanceText || opts.sit.shortDownDistanceText || "") : "";
   foot.appendChild(el("span","gccell" + (opts.pos && opts.pos.redZone ? " rz" : ""), dd));
   const icons = el("span","gccell gcicons");
@@ -10757,7 +10926,9 @@ function drawGames(wrap, slate, scores){
 
   const live = [], pre = [], post = [];
   slate.forEach(g=>{
-    const s = scores ? scores[g.a + "@" + g.h] : null;
+    // Sorted by the delayed state, so a game that ended moments ago on the
+    // field does not jump to Final ahead of your stream.
+    const s = scores ? viewScore(scores[g.a + "@" + g.h]) : null;
     (s && s.state === "in" ? live : s && s.state === "post" ? post : pre).push({g, s});
   });
   const byKick = (x, y) => ((x.g.d || "") + (x.g.t || "")).localeCompare((y.g.d || "") + (y.g.t || ""));
@@ -10796,10 +10967,20 @@ function drawGames(wrap, slate, scores){
   wrap.appendChild(n);
 }
 
-async function renderScores(){
+let scoresTick = null;
+async function renderScores(keep){
   const wrap = $("#scoresbody");
   const nav = $("#scoresnav");
+  const keepTop = keep ? wrap.scrollTop : 0;
   nav.innerHTML = "";
+  clearInterval(scoresTick);
+  // While a game is on, the Games tab keeps itself current (and the delayed
+  // view moves on) without you touching it.
+  scoresTick = setInterval(()=>{
+    if($("#scores").hidden || scoreMode !== "games") return;
+    const c = scoreCache[scoreWeek];
+    if(c && Object.values(c).some(x => x.state === "in")) renderScores(true);
+  }, 15000);
 
   const modes = el("div","boxtabs");
   modes.style.marginTop = "0";
@@ -10851,10 +11032,14 @@ async function renderScores(){
   // Drawn at once from the schedule, so the page is never blank waiting on a
   // request, then again with scores, live games and finals in their sections.
   const wk = scoreWeek;
+  nav.appendChild(liveSettingsRow());
   drawGames(wrap, slate, scoreCache[wk] || null);
+  if(keep) wrap.scrollTop = keepTop;
   const scores = await loadWeekScores(wk);
   if(wk !== scoreWeek || scoreMode !== "games" || $("#scores").hidden) return;
+  const top2 = wrap.scrollTop;
   drawGames(wrap, slate, scores);
+  wrap.scrollTop = top2;
 }
 
 function fmtKick(g){
@@ -11274,7 +11459,8 @@ const LIVE_LEADER_CATS = [
 function liveWeekLeaders(week){
   const cache = scoreCache[week];
   if(!cache) return null;
-  const games = Object.values(cache).filter(g => g.state && g.state !== "pre");
+  const games = Object.values(cache).map(viewScore)
+    .filter(g => g.state && g.state !== "pre" && !g.catching);
   if(!games.length) return null;
 
   const out = [];
