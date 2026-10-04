@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>NFL Depth Charts</title>
+<title>NFL</title>
 <meta name="description" content="Every NFL roster laid out in formation, with last season's numbers and league ranks.">
 <meta name="theme-color" content="#0E1417">
 <script id="themeboot">
@@ -15,8 +15,8 @@ try { if(localStorage.getItem("theme") === "light")
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Depth Chart">
-<meta name="application-name" content="Depth Chart">
+<meta name="apple-mobile-web-app-title" content="NFL">
+<meta name="application-name" content="NFL">
 <!--ICONS-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5815,9 +5815,14 @@ function schedulePoll(){
                          LIVE.on ? 30000 : 300000);
 }
 
-/* ---- the strip above the field ---- */
+/* ---- the strip above the field ----
+   Switched off (October 2026): the live score no longer shows on the team page.
+   Live games are on the Scores page, and the pop out player carries the score
+   while you browse. The rest of the function is kept so it can come back. */
 function renderLiveStrip(ok){
   const bar = $("#livebar");
+  bar.hidden = true;
+  return;
   bar.className = "";
   // A failed request used to hide silently, which is indistinguishable from
   // "no games today". Say so instead, quietly, so a problem is visible.

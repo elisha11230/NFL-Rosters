@@ -33,8 +33,8 @@ def build_head():
     mask512 = "data:image/png;base64," + ic["maskable-512"]
 
     manifest = {
-        "name": "NFL Depth Charts",
-        "short_name": "Depth Chart",
+        "name": "NFL",
+        "short_name": "NFL",
         "description": "Every NFL roster laid out in formation.",
         "start_url": ".",
         "scope": ".",
