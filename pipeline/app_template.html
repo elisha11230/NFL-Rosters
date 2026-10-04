@@ -2774,6 +2774,81 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .lsrow .dlrange{flex:1 1 140px}
 .hidesc[aria-pressed="true"]{background:var(--team);border-color:var(--team);color:var(--team2)}
 
+/* ---------- multiview ---------- */
+#multi{position:fixed;inset:0;z-index:83;background:#000;display:flex;flex-direction:column}
+#multi[hidden]{display:none}
+.mvhead{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--ink);border-bottom:1px solid var(--line)}
+.mvhead h2{margin:0}
+.mvhint{flex:1 1 auto;min-width:0;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mvadd:disabled{opacity:.4;cursor:default}
+#mvgrid{flex:1 1 auto;min-height:0;display:grid;gap:6px;padding:6px;overflow-y:auto;
+  padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+#mvgrid.n1{grid-template-columns:1fr;grid-template-rows:1fr}
+#mvgrid.n2{grid-template-columns:1fr 1fr;grid-template-rows:1fr}
+#mvgrid.n3,#mvgrid.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.mvt{display:flex;flex-direction:column;min-height:0;min-width:0;background:#000;
+  border:2px solid var(--line);border-radius:9px;overflow:hidden}
+.mvt.on{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass)}
+.mvbar{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:36px;padding:0 4px 0 4px;background:var(--panel)}
+.mvsnd{flex:0 0 auto;width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:7px;color:var(--dim)}
+.mvsnd svg{width:19px;height:19px}
+.mvt.on .mvsnd{color:var(--brass)}
+.mvsc{flex:1 1 auto;min-width:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13.5px;
+  letter-spacing:.02em;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvbtn{flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.08em;
+  text-transform:uppercase;padding:4px 9px;border:1px solid var(--line);border-radius:12px;color:var(--mute)}
+.mvbtn:hover{color:var(--hi);border-color:var(--team-accent)}
+.mvx{flex:0 0 auto;width:30px;height:30px;font-size:19px;line-height:1;color:var(--dim)}
+.mvx:hover{color:var(--hi)}
+.mvframe{position:relative;flex:1 1 auto;min-height:0;background:#000}
+.mvframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+/* Streams without the sound take a tap anywhere as "give this one the sound". */
+.mvtap{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px;
+  background:transparent;cursor:pointer}
+.mvtap span{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:14px;background:rgba(0,0,0,.62);
+  color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;
+  text-transform:uppercase}
+.mvtap svg{width:15px;height:15px}
+.mvt.on .mvtap{display:none}
+.mvempty{grid-column:1/-1;align-self:start;max-width:620px;width:100%;margin:24px auto;padding:0 8px;color:var(--chalk)}
+.mvempty h3{font-family:'Archivo Black',sans-serif;font-size:18px;margin:0 0 12px;color:var(--hi)}
+.mvempty p{color:var(--dim);font-size:14px}
+.mvlist{display:flex;flex-direction:column;gap:8px}
+.mvrow{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:11px;text-align:left;
+  background:var(--panel);border:1px solid var(--line)}
+.mvrow:hover{border-color:var(--team-accent)}
+.mvteam{display:flex;align-items:center;gap:7px;min-width:0}
+.mvteam img{width:24px;height:24px;object-fit:contain}
+.mvteam b{font-family:'Archivo Black',sans-serif;font-style:italic;font-size:14px;color:var(--hi);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvrs{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi)}
+.mvat{font-size:12px;color:var(--dim)}
+.mvclock{margin-left:auto;flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+  letter-spacing:.06em;color:#E0453A}
+#mvpick{position:absolute;inset:0;z-index:2;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;
+  justify-content:center}
+#mvpick[hidden]{display:none}
+.mvpickcard{width:100%;max-width:560px;max-height:80%;overflow-y:auto;background:var(--ink);
+  border:1px solid var(--line);border-radius:16px 16px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+.mvpickhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mvpickhead b{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi)}
+.gcsec.live{display:flex;align-items:center;gap:8px}
+/* Four buttons beside the stream: on the narrowest phones the label gives way. */
+@media (max-width:400px){ #playerhost .pbar .plab{display:none} #playerhost .pbar{justify-content:flex-end} }
+.gcsec .mvopen{margin-left:auto}
+/* A phone held upright: one column, each stream at 16:9, scrolling. Turn it
+   sideways for the grid. */
+@media (max-width:700px) and (orientation:portrait){
+  #mvgrid,#mvgrid.n1,#mvgrid.n2,#mvgrid.n3,#mvgrid.n4{grid-template-columns:1fr;grid-template-rows:none;
+    grid-auto-rows:max-content;align-content:start}
+  .mvt{min-height:auto}
+  .mvframe{flex:none;aspect-ratio:16/9}
+  .mvhint{display:none}
+  .mvhead{gap:8px}
+}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -2814,6 +2889,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
         <button id="conceptbtn" role="menuitem"><b>How it works</b><small>Routes, coverages and run plays, animated</small></button>
         <button id="facesbtn" role="menuitem"><b>Faces</b><small>This roster, face by face</small></button>
         <button id="gamebtn" role="menuitem"><b>Lineup</b><small>Put the starters back where they belong</small></button>
+        <button id="multibtn" role="menuitem"><b>Multiview</b><small>Up to four live games at once</small></button>
       </div>
     </div>
     <button id="themebtn" aria-label="Switch theme" title="Switch theme"></button>
@@ -2862,6 +2938,23 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   </div>
   <div id="ldnav"></div>
   <div id="ldbody"></div>
+</div>
+
+<div id="multi" hidden role="dialog" aria-modal="true" aria-label="Multiview">
+  <div class="mvhead">
+    <h2 class="blk">Multiview</h2>
+    <span class="mvhint">Tap a stream to give it the sound</span>
+    <button class="pbtn" id="mvadd">+ Add game</button>
+    <button class="qx" id="mvclose">Close</button>
+  </div>
+  <div id="mvgrid"></div>
+  <div id="mvpick" hidden>
+    <div class="mvpickcard">
+      <div class="mvpickhead"><b id="mvpicktitle">Add a live game</b>
+        <button class="qx" id="mvpickclose">Cancel</button></div>
+      <div id="mvpickbody"></div>
+    </div>
+  </div>
 </div>
 
 <div id="draft" hidden role="dialog" aria-modal="true" aria-label="Draft">
@@ -4963,6 +5056,8 @@ document.addEventListener("keydown", e=>{
   else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
   else if(e.key === "Escape" && !$("#clip").hidden) closeClip();
   else if(e.key === "Escape" && !$("#drive").hidden) closeDrive();
+  else if(e.key === "Escape" && !$("#mvpick").hidden) $("#mvpick").hidden = true;
+  else if(e.key === "Escape" && !$("#multi").hidden) closeMulti();
   else if(e.key === "Escape" && watchOn) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
   else if(e.key === "Escape" && !$("#scores").hidden) closeScores();
@@ -5438,6 +5533,10 @@ function renderPlayerBar(host, fixture, hidden){
   const bar = el("div","pbar");
   bar.appendChild(el("span","plab", "Stream"));
   if(!hidden){
+    const mvb = el("button","pbtn", "Multiview");
+    mvb.title = "Watch this and up to three other live games together";
+    mvb.onclick = () => openMulti(watchGame);
+    bar.appendChild(mvb);
     const pop = el("button","pbtn pop", "Pop out");
     pop.title = "Keep watching in a mini player while you browse";
     pop.onclick = () => closeWatch();          // leaving the game view pops it out
@@ -10979,6 +11078,11 @@ function drawGames(wrap, slate, scores){
     const h = el("div","gcsec " + (cls || ""));
     if(cls === "live") h.appendChild(el("i","gclive"));
     h.appendChild(document.createTextNode(title));
+    if(cls === "live" && mvLiveGames().length){
+      const mv = el("button","pbtn mvopen","Multiview");
+      mv.onclick = () => { closeScores(); openMulti(); };
+      h.appendChild(mv);
+    }
     wrap.appendChild(h);
   };
   const byDay = (list, big) => {
@@ -12564,6 +12668,270 @@ function renderMock(nav, body){
     + "work. Prospect lists appear once players declare in the spring."));
 }
 
+
+/* ---------------- multiview ----------------
+   Up to four live games at once. Tap a stream to give it the sound.
+
+   The streams are frames from another site, and a page has no way to mute or
+   unmute another site's frame. What it can decide is whether a frame may start
+   playing with sound (the frame's "autoplay" permission). So the stream with
+   the sound is loaded with that permission and the others without it, which
+   makes them start muted. Moving the sound restarts just the two streams
+   involved: the one you leave comes back muted, the one you pick comes back
+   with sound allowed. On a phone the browser may still want one tap on that
+   player's own unmute button; the stream with the sound takes taps on its own
+   controls, while the others take a tap anywhere as "give this one the sound".
+
+   Tiles are never moved in the page, since moving a frame reloads it: a new
+   game is added at the end, and a removed one simply leaves; the grid closes
+   the gap on its own. The lineup is kept for the day. */
+const MV_MAX = 4;
+let MV = {slots: [], sound: null}, mvTimer = null, mvPickFor = null;
+const SPEAK_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>'
+  + '<path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const SPEAK_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>'
+  + '<path d="M16 9.5l5 5M21 9.5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+
+function fixtureForGame(g){
+  if(!g || !g.teams) return null;
+  const a = (g.teams.find(t => !t.home) || {}).ab, h = (g.teams.find(t => t.home) || {}).ab;
+  return (DATA.slate && Object.values(DATA.slate).flat().find(x => x.a === a && x.h === h)) || null;
+}
+const mvGame = id => (LIVE.games || []).find(x => String(x.id) === String(id)) || null;
+function mvSrc(id){ return embedUrl(fixtureForGame(mvGame(id))); }
+/* Live games that have a stream to show. */
+function mvLiveGames(){
+  return (LIVE.games || []).filter(g => g.state === "in" && g.teams && g.teams.length === 2 && mvSrc(g.id));
+}
+function mvLoad(){
+  const s = store.ok && PROG.mv;
+  MV = (s && s.day === todayStamp() && Array.isArray(s.slots))
+    ? {slots: s.slots.slice(0, MV_MAX).map(String), sound: s.sound ? String(s.sound) : null}
+    : {slots: [], sound: null};
+}
+function mvSave(){
+  if(!store.ok) return;
+  PROG.mv = {day: todayStamp(), slots: MV.slots, sound: MV.sound};
+  store.save(PROG);
+}
+const mvAllow = snd => (snd ? "autoplay; " : "") + "encrypted-media; picture-in-picture; fullscreen";
+
+async function openMulti(addId){
+  // Only one place plays streams at a time: the single player gives way, and
+  // the game it was showing joins the multiview.
+  const was = playerSrc ? dockGameId : null;
+  if(playerSrc) stopStream();
+  if(watchOn) closeWatch();
+  hideLiveChip();
+  mvLoad();
+  // Games from an earlier lineup that have since finished leave on their own.
+  MV.slots = MV.slots.filter(id => { const g = mvGame(id); return !g || g.state === "in"; });
+  [addId, was].forEach(id=>{
+    if(id && !MV.slots.includes(String(id)) && MV.slots.length < MV_MAX) MV.slots.push(String(id));
+  });
+  if(addId) MV.sound = String(addId);
+  if(!MV.sound || !MV.slots.includes(MV.sound)) MV.sound = MV.slots[0] || null;
+  $("#multi").hidden = false;
+  document.body.classList.add("watching");
+  renderMulti();
+  mvSave();
+  try { await fetchLive(); } catch(e){}
+  if($("#multi").hidden) return;
+  renderMulti();
+  clearInterval(mvTimer);
+  mvTimer = setInterval(async () => { try { await fetchLive(); } catch(e){} mvBars(); }, 15000);
+}
+
+function closeMulti(){
+  clearInterval(mvTimer);
+  $("#mvgrid").innerHTML = "";            // stop every stream
+  $("#mvpick").hidden = true;
+  $("#multi").hidden = true;
+  document.body.classList.remove("watching");
+  mvSave();
+}
+
+function mvFrame(id){
+  const f = document.createElement("iframe");
+  f.src = mvSrc(id) || "about:blank";
+  f.setAttribute("allow", mvAllow(String(id) === String(MV.sound)));
+  f.allowFullscreen = true;
+  f.scrolling = "no";
+  f.setAttribute("frameborder", "0");
+  f.title = "Stream";
+  return f;
+}
+
+function mvTile(id){
+  const t = el("div","mvt");
+  t.dataset.game = id;
+  const bar = el("div","mvbar");
+  const snd = el("button","mvsnd");
+  snd.onclick = () => mvSetSound(t.dataset.game);
+  bar.appendChild(snd);
+  bar.appendChild(el("span","mvsc",""));
+  const sw = el("button","mvbtn","Swap");
+  sw.onclick = () => mvPick(t.dataset.game);
+  const x = el("button","mvx","\u00d7");
+  x.setAttribute("aria-label","Remove this game");
+  x.onclick = () => mvRemove(t.dataset.game);
+  bar.appendChild(sw); bar.appendChild(x);
+  t.appendChild(bar);
+  const fr = el("div","mvframe");
+  fr.appendChild(mvFrame(id));
+  const tap = el("button","mvtap");
+  tap.innerHTML = '<span>' + SPEAK_OFF + 'Tap for sound</span>';
+  tap.onclick = () => mvSetSound(t.dataset.game);
+  fr.appendChild(tap);
+  t.appendChild(fr);
+  return t;
+}
+
+function renderMulti(){
+  const grid = $("#mvgrid");
+  [...grid.querySelectorAll(".mvt")].forEach(t => { if(!MV.slots.includes(t.dataset.game)) t.remove(); });
+  MV.slots.forEach(id=>{
+    if(!grid.querySelector('.mvt[data-game="' + id + '"]')) grid.appendChild(mvTile(id));
+  });
+  const empty = grid.querySelector(".mvempty");
+  if(empty) empty.remove();
+  if(!MV.slots.length) grid.appendChild(mvEmpty());
+  grid.className = "n" + Math.max(1, MV.slots.length);
+  mvSoundUI();
+  mvBars();
+}
+
+function mvEmpty(){
+  const box = el("div","mvempty");
+  const live = mvLiveGames();
+  box.appendChild(el("h3", null, live.length ? "Pick up to four live games" : "No games are live right now"));
+  if(live.length) box.appendChild(mvGameList(live, id => mvAdd(id)));
+  else box.appendChild(el("p", null, "Come back once games kick off. Each live game with a stream can go in a tile."));
+  return box;
+}
+
+function mvGameList(games, onPick){
+  const list = el("div","mvlist");
+  games.forEach(g0=>{
+    const g = viewLive(g0);
+    const a = g.teams.find(t => !t.home) || {}, h = g.teams.find(t => t.home) || {};
+    const row = el("button","mvrow");
+    [a, h].forEach((t, i)=>{
+      const tm = DATA.teams[t.ab] || {};
+      const side = el("span","mvteam");
+      if(tm.logo){ const im = el("img"); im.src = tm.logo; im.alt = ""; side.appendChild(im); }
+      side.appendChild(el("b", null, tm.nick || t.ab));
+      if(!hideScores() && !g.catching) side.appendChild(el("span","mvrs", String(t.score ?? 0)));
+      row.appendChild(side);
+      if(i === 0) row.appendChild(el("span","mvat","at"));
+    });
+    row.appendChild(el("span","mvclock", g.catching ? "Syncing" : clockFromDetail(g)));
+    row.onclick = () => onPick(String(g.id));
+    list.appendChild(row);
+  });
+  return list;
+}
+
+/* Score bars follow the app's stream delay and Hide scores, like everywhere else. */
+function mvBars(){
+  document.querySelectorAll("#mvgrid .mvt").forEach(t=>{
+    const g0 = mvGame(t.dataset.game), out = t.querySelector(".mvsc");
+    if(!g0){ out.textContent = "Game not found"; return; }
+    const g = viewLive(g0);
+    const a = g.teams.find(x => !x.home) || {}, h = g.teams.find(x => x.home) || {};
+    out.textContent = g.state === "post" ? a.ab + " at " + h.ab + "  \u00b7  Final"
+      : hideScores() ? a.ab + " at " + h.ab
+      : g.catching ? a.ab + " at " + h.ab + "  \u00b7  syncing"
+      : a.ab + " " + (a.score ?? 0) + "  " + h.ab + " " + (h.score ?? 0) + "  \u00b7  " + clockFromDetail(g);
+  });
+  const add = $("#mvadd");
+  if(add){
+    const more = mvLiveGames().filter(g => !MV.slots.includes(String(g.id))).length;
+    add.disabled = MV.slots.length >= MV_MAX || !more;
+    add.textContent = "+ Add game  " + MV.slots.length + "/" + MV_MAX;
+  }
+}
+
+function mvSoundUI(){
+  document.querySelectorAll("#mvgrid .mvt").forEach(t=>{
+    const on = t.dataset.game === MV.sound;
+    t.classList.toggle("on", on);
+    const b = t.querySelector(".mvsnd");
+    b.innerHTML = on ? SPEAK_ON : SPEAK_OFF;
+    b.setAttribute("aria-label", on ? "This stream has the sound" : "Give this stream the sound");
+    b.title = b.getAttribute("aria-label");
+  });
+}
+
+/* Restart one tile's stream, with or without permission to play sound. */
+function mvReload(id){
+  const t = $('#mvgrid .mvt[data-game="' + id + '"]');
+  if(!t) return;
+  const fr = t.querySelector(".mvframe"), old = fr.querySelector("iframe");
+  fr.replaceChild(mvFrame(id), old);
+}
+
+function mvSetSound(id){
+  id = String(id);
+  if(id === MV.sound) return;
+  const prev = MV.sound;
+  MV.sound = id;
+  mvSave();
+  mvSoundUI();
+  if(prev) mvReload(prev);     // comes back muted
+  mvReload(id);                // comes back allowed to play sound
+}
+
+function mvAdd(id){
+  id = String(id);
+  if(MV.slots.includes(id) || MV.slots.length >= MV_MAX) return;
+  MV.slots.push(id);
+  if(!MV.sound) MV.sound = id;
+  mvSave();
+  renderMulti();
+}
+
+function mvRemove(id){
+  MV.slots = MV.slots.filter(x => x !== String(id));
+  const hadSound = MV.sound === String(id);
+  if(hadSound) MV.sound = MV.slots[0] || null;
+  mvSave();
+  renderMulti();
+  if(hadSound && MV.sound) mvReload(MV.sound);    // the sound moves to the first stream
+}
+
+/* Swap a tile for another game, in place: only that tile's stream restarts. */
+function mvSwap(oldId, newId){
+  oldId = String(oldId); newId = String(newId);
+  const i = MV.slots.indexOf(oldId);
+  if(i < 0 || MV.slots.includes(newId)) return;
+  MV.slots[i] = newId;
+  if(MV.sound === oldId) MV.sound = newId;
+  mvSave();
+  const t = $('#mvgrid .mvt[data-game="' + oldId + '"]');
+  if(t){
+    t.dataset.game = newId;
+    const fr = t.querySelector(".mvframe");
+    fr.replaceChild(mvFrame(newId), fr.querySelector("iframe"));
+  }
+  mvSoundUI();
+  mvBars();
+}
+
+function mvPick(swapId){
+  mvPickFor = swapId || null;
+  const sheet = $("#mvpick"), body = $("#mvpickbody");
+  body.innerHTML = "";
+  const games = mvLiveGames().filter(g => !MV.slots.includes(String(g.id)));
+  $("#mvpicktitle").textContent = swapId ? "Swap for another live game" : "Add a live game";
+  if(!games.length) body.appendChild(el("p","carnote", "Every live game with a stream is already on screen."));
+  else body.appendChild(mvGameList(games, id=>{
+    sheet.hidden = true;
+    if(mvPickFor) mvSwap(mvPickFor, id); else mvAdd(id);
+  }));
+  sheet.hidden = false;
+}
+
 /* ---------------- league leaders ----------------
    Rebuilt as an overview first: pick a position group and a season, and every
    leaderboard for that group appears as a card with the leader large (photo,
@@ -12911,6 +13279,11 @@ $("#wallclose").onclick = () => { $("#wall").hidden = true; };
 $("#gamebtn").onclick = () => { $("#game").hidden = false; startGame(team, GAME.unit); };
 $("#gameclose").onclick = () => { $("#game").hidden = true; };
 $("#conceptbtn").onclick = () => { $("#concepts").hidden = false; renderConcepts(); };
+$("#multibtn").onclick = () => { setExplore(false); openMulti(); };
+$("#mvclose").onclick = closeMulti;
+$("#mvadd").onclick = () => mvPick(null);
+$("#mvpickclose").onclick = () => { $("#mvpick").hidden = true; };
+$("#mvpick").onclick = e => { if(e.target.id === "mvpick") $("#mvpick").hidden = true; };
 $("#cclose").onclick = () => {
   $("#concepts").hidden = true;
   clearTimeout(conceptTimer);
