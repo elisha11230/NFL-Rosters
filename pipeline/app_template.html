@@ -2687,18 +2687,21 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   #menu > button,#menu .menuwrap > button{font-size:11.5px;letter-spacing:.03em}
 }
 
-/* ---------- stream player: docked or floating ---------- */
-#streamdock{position:fixed;z-index:81;background:#000;overflow:hidden}
-#streamdock[hidden]{display:none}
+/* ---------- stream player: in the feed, or floating ---------- */
+/* In the game view it is an ordinary box in the feed, so it scrolls natively. */
+#streamdock{position:relative;width:100%;aspect-ratio:16/9;max-height:46vh;background:#000;overflow:hidden}
 #streamdock .sdbar{display:none}
 #streamdock .sdframe{position:absolute;inset:0}
 #streamdock .sdframe iframe{display:block;width:100%;height:100%;border:0}
-/* Floating: a mini player in a corner, above every page but below a clip. */
-#streamdock.floating{z-index:86;width:min(340px,76vw);border-radius:12px;background:var(--panel);
+/* Popped out, the game view stays in the page but invisible (moving the stream
+   would reload it), and the player alone shows, fixed in a corner. */
+#watch.bg{visibility:hidden}
+#streamdock.floating{position:fixed;z-index:5;visibility:visible;width:min(340px,76vw);
+  aspect-ratio:auto;max-height:none;border-radius:12px;background:var(--panel);
   border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.5);overflow:hidden}
 #streamdock.floating .sdbar{display:flex;align-items:center;gap:6px;height:38px;padding:0 4px 0 11px;
   cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
-#streamdock.floating.dragging{transition:none;opacity:.92}
+#streamdock.floating.dragging{opacity:.92}
 #streamdock.floating.dragging .sdbar{cursor:grabbing}
 #streamdock.floating .sdframe{position:relative;inset:auto;aspect-ratio:16/9;background:#000}
 #streamdock.floating[data-corner="br"]{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
@@ -2744,6 +2747,24 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .dlynote:empty{display:none}
 .gcscore.hid{color:var(--dim);letter-spacing:.1em}
 @media (min-width:900px){ #delayhost{max-width:none;margin:0 0 14px} }
+
+/* ---------- play by play: quarter dropdowns ---------- */
+.pbpqd{margin:10px 0 0}
+.pbpqd > summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:10px;
+  padding:10px 4px;border-bottom:1px solid var(--rule);margin-bottom:10px;user-select:none}
+.pbpqd > summary::-webkit-details-marker{display:none}
+.pbpqd > summary::before{content:"\25B8";font-size:12px;color:var(--team-accent);transition:transform .15s;
+  display:inline-block;width:12px}
+.pbpqd[open] > summary::before{transform:rotate(90deg)}
+.pbpqn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--hi)}
+.pbpqc{font-size:12px;color:var(--dim)}
+.pbpqs{margin-left:auto;font-family:'Archivo Black',sans-serif;font-style:italic;font-size:14px;color:var(--mute)}
+.pbpqd:not([open]) > summary{margin-bottom:0}
+.pbpmore{display:block;width:100%;margin:2px 0 6px;padding:10px;border-radius:10px;
+  border:1px dashed var(--line);background:transparent;font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--team-accent)}
+.pbpmore:hover{border-style:solid;border-color:var(--team-accent);color:var(--hi)}
 
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
@@ -2891,14 +2912,6 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   </div>
 </div>
 
-<div id="streamdock" hidden>
-  <div class="sdbar">
-    <span class="sdscore">Live game</span>
-    <button class="sdbtn" data-sd="game">Game</button>
-    <button class="sdx" data-sd="close" aria-label="Close the stream">&times;</button>
-  </div>
-  <div class="sdframe"></div>
-</div>
 <button id="livechip" hidden><i></i><span>Back to the game</span></button>
 
 <div id="toasts" aria-live="polite"></div>
@@ -4942,7 +4955,7 @@ document.addEventListener("keydown", e=>{
   else if(e.key === "Escape" && !$("#wall").hidden) $("#wall").hidden = true;
   else if(e.key === "Escape" && !$("#clip").hidden) closeClip();
   else if(e.key === "Escape" && !$("#drive").hidden) closeDrive();
-  else if(e.key === "Escape" && !$("#watch").hidden) closeWatch();
+  else if(e.key === "Escape" && watchOn) closeWatch();
   else if(e.key === "Escape" && !$("#prev").hidden) closePreview();
   else if(e.key === "Escape" && !$("#scores").hidden) closeScores();
 });
@@ -5325,23 +5338,42 @@ function embedUrl(g){
   return sl ? base + "/embed/nfl/" + sl : null;
 }
 
-/* ---------------- the stream player: docked or floating ----------------
-   Browsers reload a frame whenever it is moved in the page, so the stream lives
-   in one permanent box (#streamdock) that is never moved. In the game view it is
-   laid exactly over its spot (a placeholder of the same size) and follows it as
-   you scroll; anywhere else it floats as a mini player in a corner, so you can
-   browse player and team pages without the stream stopping.
+/* ---------------- the stream player: in the feed, or floating ----------------
+   The stream lives inside the game view's feed, in its own box, and scrolls with
+   it natively. An earlier version laid a separate player over the feed and moved
+   it into place by code every frame; on a phone the page scrolls on its own fast
+   track, so the player always lagged a beat behind and slid over the content
+   around it.
 
-   It pops out on its own when you leave the game view during a live game (the
-   Close button, Escape, or tapping a player's name), and the mini player's Game
-   button brings the feed back. The same design as the NBA app. */
+   Moving a video frame in the page reloads it, so popping out cannot move it
+   anywhere. Instead the game view stays in the page but turns invisible, and the
+   player alone stays visible, fixed in a corner as a mini player, while you
+   browse. Game brings the view back and the player drops straight back into
+   the feed. Same behaviour as the NBA app, built so nothing has to chase the
+   scroll. */
 let playerOn = true, playerSrc = null;
-let dockGameId = null, dockMode = null, dockRaf = null, dockTimer = null, chipTimer = null;
+let dockGameId = null, dockMode = null, dockTimer = null, chipTimer = null;
 
 const dockEl = () => document.getElementById("streamdock");
 
-function ensureStream(src){
-  const dock = dockEl();
+function makeDock(host){
+  const dock = document.createElement("div");
+  dock.id = "streamdock";
+  dock.className = "docked";
+  dock.innerHTML = '<div class="sdbar"><span class="sdscore">Live game</span>'
+    + '<button class="sdbtn" data-sd="game">Game</button>'
+    + '<button class="sdx" data-sd="close" aria-label="Close the stream">&times;</button></div>'
+    + '<div class="sdframe"></div>';
+  host.appendChild(dock);
+  dock.querySelector('[data-sd="game"]').onclick = () => openWatch(dockGameId);
+  dock.querySelector('[data-sd="close"]').onclick = () => { const id = dockGameId; stopStream(); showLiveChip(id); };
+  wireDockDrag(dock);
+  return dock;
+}
+
+function ensureStream(src, host){
+  let dock = dockEl();
+  if(!dock) dock = makeDock(host);
   const frame = dock.querySelector(".sdframe");
   if(playerSrc === src && frame.querySelector("iframe")) return;   // already playing: leave it alone
   frame.innerHTML = "";
@@ -5360,15 +5392,18 @@ function ensureStream(src){
 
 function stopStream(){
   const dock = dockEl();
-  if(!dock) return;
-  dock.querySelector(".sdframe").innerHTML = "";
-  dock.hidden = true;
-  dock.className = "";
-  dock.removeAttribute("style");
+  if(dock) dock.remove();
   dockMode = null;
   playerSrc = null;
-  cancelAnimationFrame(dockRaf);
   clearInterval(dockTimer);
+  // If the game view was only kept around for the mini player, close it now.
+  const w = $("#watch");
+  if(w && w.classList.contains("bg")){
+    w.classList.remove("bg");
+    w.hidden = true;
+    const outer = $("#watchbody");
+    if(outer) outer.innerHTML = "";
+  }
 }
 
 function mountPlayer(fixture){
@@ -5376,19 +5411,18 @@ function mountPlayer(fixture){
   if(!host) return;
   const src = fixture ? embedUrl(fixture) : null;
   if(!src || !playerOn){
-    host.innerHTML = "";
     if(!playerOn && playerSrc && dockGameId === String(watchGame)) stopStream();
-    if(src) renderPlayerBar(host, fixture, true);
+    const dock = dockEl();
+    [...host.children].forEach(c => { if(c !== dock) c.remove(); });
+    if(src && !host.querySelector(".pbar")) renderPlayerBar(host, fixture, true);
     return;
   }
   dockGameId = String(watchGame);
-  ensureStream(src);
-  // The game view's own spot for it: a bar and an empty box the stream is laid over.
-  if(!host.querySelector(".pframe")){
-    host.innerHTML = "";
+  if(!host.querySelector(".pbar")){
+    [...host.children].forEach(c => { if(c.id !== "streamdock") c.remove(); });
     renderPlayerBar(host, fixture, false);
-    host.appendChild(el("div","pframe"));
   }
+  ensureStream(src, host);
   setDock("docked");
 }
 
@@ -5402,7 +5436,11 @@ function renderPlayerBar(host, fixture, hidden){
     bar.appendChild(pop);
   }
   const toggle = el("button","pbtn", hidden ? "Show" : "Hide");
-  toggle.onclick = () => { playerOn = !playerOn; mountPlayer(fixture); };
+  toggle.onclick = () => {
+    playerOn = !playerOn;
+    host.querySelector(".pbar").remove();
+    mountPlayer(fixture);
+  };
   bar.appendChild(toggle);
   const out = document.createElement("a");
   out.className = "pbtn";
@@ -5411,53 +5449,35 @@ function renderPlayerBar(host, fixture, hidden){
   out.rel = "noopener noreferrer";
   out.textContent = "Open";
   bar.appendChild(out);
-  host.appendChild(bar);
+  host.insertBefore(bar, host.firstChild);
 }
 
-/* Clears the game view's spot only. A stream floating from another game keeps
-   playing; mountPlayer and the mini player's × decide when a stream stops. */
+/* Clears the game view's spot. A stream floating from another game keeps
+   playing; mountPlayer and the mini player's x decide when a stream stops. */
 function clearPlayer(){
   const host = document.getElementById("playerhost");
-  if(host) host.innerHTML = "";
+  if(!host) return;
+  const dock = dockEl();
+  if(dock && dockMode === "docked" && dockGameId === String(watchGame)) stopStream();
+  [...host.children].forEach(c => { if(c.id !== "streamdock") c.remove(); });
 }
 
 function setDock(mode){
   const dock = dockEl();
-  // Already docked: the alignment loop is running, so leave it be. Restarting
-  // it measured the page in the middle of the feed's refresh, while the feed
-  // was momentarily empty, and that snapped the scroll back to the top.
-  if(mode === "docked" && dockMode === "docked" && !dock.hidden) return;
+  if(!dock) return;
+  if(mode === dockMode) { if(mode === "floating") updateDockBar(); return; }
   dockMode = mode;
-  dock.hidden = false;
   dock.classList.toggle("floating", mode === "floating");
   dock.classList.toggle("docked", mode === "docked");
-  cancelAnimationFrame(dockRaf);
   clearInterval(dockTimer);
   hideLiveChip();
-  if(mode === "docked"){
-    // First placement on the next frame, never mid-render, for the same reason.
-    const step = () => { placeDocked(); dockRaf = requestAnimationFrame(step); };
-    dockRaf = requestAnimationFrame(step);
-  } else {
-    dock.removeAttribute("style");
+  dock.removeAttribute("style");
+  if(mode === "floating"){
     dock.dataset.corner = dockCorner();
     updateDockBar();
     // While browsing, the score in the bar keeps up on its own.
     dockTimer = setInterval(async () => { try { await fetchLive(); } catch(e){} updateDockBar(); }, 15000);
   }
-}
-
-/* Lay the stream exactly over its spot, trimmed to the scrolling area so it
-   never covers the game view's header when you scroll past it. */
-function placeDocked(){
-  const dock = dockEl(), ph = document.querySelector("#playerhost .pframe"), body = $("#watchbody");
-  if(!ph || !body || !watchOn) return;
-  const r = ph.getBoundingClientRect(), b = body.getBoundingClientRect();
-  dock.style.left = r.left + "px"; dock.style.top = r.top + "px";
-  dock.style.width = r.width + "px"; dock.style.height = r.height + "px";
-  const it = Math.max(0, b.top - r.top), ib = Math.max(0, r.bottom - b.bottom);
-  dock.style.clipPath = (it || ib) ? "inset(" + it + "px 0 " + ib + "px 0)" : "";
-  dock.style.visibility = (it + ib >= r.height) ? "hidden" : "";
 }
 
 function dockGame(){ return LIVE.games.find(x => String(x.id) === String(dockGameId)) || null; }
@@ -5485,8 +5505,8 @@ function dockCorner(){
 }
 
 /* Drag the mini player by its bar; on release it settles into the nearest corner. */
-function wireDockDrag(){
-  const dock = dockEl(), bar = dock && dock.querySelector(".sdbar");
+function wireDockDrag(dock){
+  const bar = dock && dock.querySelector(".sdbar");
   if(!bar) return;
   let sx = 0, sy = 0, ox = 0, oy = 0, dragging = false;
   bar.addEventListener("pointerdown", e=>{
@@ -5502,7 +5522,7 @@ function wireDockDrag(){
     dock.style.left = (ox + e.clientX - sx) + "px";
     dock.style.top = (oy + e.clientY - sy) + "px";
   });
-  const end = e=>{
+  const end = ()=>{
     if(!dragging) return;
     dragging = false;
     dock.classList.remove("dragging");
@@ -5516,7 +5536,7 @@ function wireDockDrag(){
   bar.addEventListener("pointercancel", end);
 }
 
-/* After × during a live game, a small button stays so you can get back to it. */
+/* After x during a live game, a small button stays so you can get back to it. */
 function showLiveChip(id){
   const chip = document.getElementById("livechip");
   const g = LIVE.games.find(x => String(x.id) === String(id));
@@ -9615,6 +9635,7 @@ function openWatch(gameId){
   if(!watchGame) return;
   watchOn = true;
   hideLiveChip();
+  $("#watch").classList.remove("bg");
   $("#watch").hidden = false;
   document.body.classList.add("watching");
   refreshWatch();
@@ -9639,13 +9660,18 @@ function closeWatch(){
   watchOn = false;
   clearInterval(watchPoll); watchPoll = null; watchPollMs = 0;
   clearInterval(delayTick);
+  document.body.classList.remove("watching");
+  // A live stream pops out into the mini player rather than stopping, so you
+  // can browse a player or team page and come straight back. The game view
+  // stays in the page, invisible, because moving the stream would reload it.
+  if(playerSrc){
+    $("#watch").classList.add("bg");
+    setDock("floating");
+    return;
+  }
   const outer = $("#watchbody");
   if(outer) outer.innerHTML = "";
   $("#watch").hidden = true;
-  document.body.classList.remove("watching");
-  // A live stream pops out into the mini player rather than stopping, so you
-  // can browse a player or team page and come straight back.
-  if(playerSrc) setDock("floating");
 }
 
 async function refreshWatch(){
@@ -9965,10 +9991,16 @@ const playKey = p => p.id || [p.period, p.clock, String(p.text || "").slice(0, 4
 /* From a clip to its play: open All Plays so the card is certainly shown, then
    scroll it into view and flash it. */
 function jumpToPlay(p){
-  if(pbpTab !== "all" || (pbpTeam && pbpTeam !== p.team)){
-    pbpTab = "all"; pbpTeam = null;
-    renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
-  }
+  pbpTab = "all"; pbpTeam = null;
+  // Open its quarter and expand it far enough to include the play.
+  const st = pbpState(), q = p.period || 0;
+  st.open[q] = true;
+  const gNow = LIVE.games.find(x => String(x.id) === String(watchGame));
+  const ordered = gNow && gNow.state === "post" ? (LIVE.plays || []).slice().reverse() : (LIVE.plays || []);
+  const inQ = ordered.filter(x => (x.period || 0) === q);
+  const at = inQ.findIndex(x => playKey(x) === playKey(p));
+  if(at >= 0) st.more[q] = Math.max(st.more[q] || PBP_STEP, Math.ceil((at + 1) / PBP_STEP) * PBP_STEP);
+  renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
   const key = playKey(p);
   const card = [...document.querySelectorAll(".pbpc")].find(c => c.dataset.play === key);
   if(!card) return;
@@ -10143,12 +10175,7 @@ function renderPlayByPlay(host, g, a, h, idx, matches){
   const clipOf = (matches || {}).byPlay || new Map();
 
   const driveOf = id => (LIVE.drives || []).find(d => d.id === id);
-  let lastQ = null;
-  shown.slice(0, pbpTab === "all" ? 80 : 60).forEach(p=>{
-    if(p.period && p.period !== lastQ){
-      lastQ = p.period;
-      box.appendChild(el("div","pbpq", QUARTER(p.period)));
-    }
+  const makeCard = p => {
     const card = el("div","pbpc" + (p.scoring ? " score" : "")
       + (isTurnover(p) ? " to" : ""));
     card.dataset.play = playKey(p);
@@ -10237,10 +10264,60 @@ function renderPlayByPlay(host, g, a, h, idx, matches){
       foot.appendChild(v);
     }
     if(foot.children.length) card.appendChild(foot);
-    box.appendChild(card);
+    return card;
+  };
+
+  /* Quarters as dropdowns, each showing only its first few plays (the newest,
+     during a game) with a button for more. The feed used to list up to eighty
+     plays in one long column. What you open and how far you expand is kept
+     across the five second refreshes, which rebuild all of this. */
+  const groups = [];
+  shown.forEach(p=>{
+    const q = p.period || 0;
+    const gq = groups[groups.length - 1];
+    if(gq && gq.q === q) gq.plays.push(p); else groups.push({q, plays: [p]});
+  });
+  const st = pbpState();
+  const shortTab = pbpTab !== "all";              // scoring and key plays are short
+  groups.forEach((gq, gi)=>{
+    const d = document.createElement("details");
+    d.className = "pbpqd";
+    const saved = st.open[gq.q];
+    d.open = saved != null ? saved : (shortTab || gi === 0);
+    const sum = document.createElement("summary");
+    sum.appendChild(el("span","pbpqn", QUARTER(gq.q || 1)));
+    sum.appendChild(el("span","pbpqc", gq.plays.length + (gq.plays.length === 1 ? " play" : " plays")));
+    // the score at the end of the quarter, from the last play in it
+    const ends = gq.plays.reduce((m, p) => (p.as != null && (!m || playTime(p) > playTime(m))) ? p : m, null);
+    if(ends) sum.appendChild(el("span","pbpqs", ends.as + "\u2013" + ends.hs));
+    d.appendChild(sum);
+    // Only your own taps are remembered; a default (the latest quarter open)
+    // must keep following the game as new quarters start.
+    sum.addEventListener("click", () => setTimeout(() => { st.open[gq.q] = d.open; }, 0));
+    const limit = shortTab ? Infinity : (st.more[gq.q] || PBP_STEP);
+    gq.plays.slice(0, limit).forEach(p => d.appendChild(makeCard(p)));
+    const left = gq.plays.length - Math.min(limit, gq.plays.length);
+    if(left > 0){
+      const more = el("button","pbpmore", "Show " + Math.min(left, PBP_STEP) + " more"
+        + (left > PBP_STEP ? "  \u00b7  " + left + " left" : ""));
+      more.onclick = () => {
+        st.more[gq.q] = Math.min(gq.plays.length, (st.more[gq.q] || PBP_STEP) + PBP_STEP);
+        renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
+      };
+      d.appendChild(more);
+    }
+    box.appendChild(d);
   });
 
   host.appendChild(box);
+}
+
+/* What is open and how far each quarter is expanded, per game and tab. */
+const PBP_STEP = 8;
+const PBP_STATE = {};
+function pbpState(){
+  const k = watchGame + "|" + pbpTab + "|" + (pbpTeam || "");
+  return PBP_STATE[k] ||= {open: {}, more: {}};
 }
 
 /* ---------------- weather ----------------
@@ -12560,10 +12637,9 @@ $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
 // The mini player's buttons and the return button.
-$('#streamdock [data-sd="game"]').onclick = () => openWatch(dockGameId);
-$('#streamdock [data-sd="close"]').onclick = () => { const id = dockGameId; stopStream(); showLiveChip(id); };
+
 $("#livechip").onclick = () => openWatch($("#livechip").dataset.game);
-wireDockDrag();
+
 $("#driveclose").onclick = closeDrive;
 $("#clipclose").onclick = closeClip;
 
