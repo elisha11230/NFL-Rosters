@@ -1325,13 +1325,15 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
     grid-template-areas:
       "strip  strip"
       "player aside"
+      "delay  aside"
       "main   aside";
-    grid-template-rows:auto auto 1fr;
+    grid-template-rows:auto auto auto 1fr;
     column-gap:24px;
     max-width:1500px;margin:0 auto;width:100%;
   }
   #striphost{grid-area:strip}
   #playerhost{grid-area:player}
+  #delayhost{grid-area:delay}
   #watchmain{grid-area:main}
   #watchaside{grid-area:aside}
   #striphost,#playerhost,#watchmain,#watchaside{max-width:none;margin:0}
@@ -2717,6 +2719,32 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 #livechip[hidden]{display:none}
 #livechip i{width:8px;height:8px;border-radius:50%;background:#E0453A}
 
+/* ---------- feed delay ---------- */
+#delayhost{width:100%;max-width:660px;margin:0 auto 12px}
+#delayhost[hidden]{display:none}
+.dlbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dlbar .dlylab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim)}
+.dlrow{display:flex;align-items:center;gap:8px;flex:1 1 260px;min-width:0}
+.dlrange{flex:1 1 auto;min-width:100px;accent-color:var(--team-accent);height:24px}
+@media (max-width:620px){
+  .dlrow{flex-basis:100%;order:3}
+  .dlbar .dls{margin-left:auto}
+}
+.dlv{min-width:34px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi)}
+.dlbar .pbtn{padding:5px 10px}
+.dlbar .dls{border-color:var(--team-accent);color:var(--hi)}
+.dlbar .dls.on{background:var(--team);border-color:var(--team);color:var(--team2)}
+.dlsync{margin-top:8px;padding:8px 11px;border-radius:8px;background:var(--panel);
+  border:1px solid var(--line);font-size:13px;line-height:1.45;color:var(--chalk)}
+.dlsync[hidden]{display:none}
+.dlsync b{color:var(--hi)}
+.dlynote{margin-top:5px;font-family:inherit;font-size:12.5px;letter-spacing:0;
+  text-transform:none;color:var(--dim)}
+.dlynote:empty{display:none}
+.gcscore.hid{color:var(--dim);letter-spacing:.1em}
+@media (min-width:900px){ #delayhost{max-width:none;margin:0 0 14px} }
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -3282,7 +3310,7 @@ function renderField(){
 
     c.appendChild(el("div","slotlab", slotLabel(grp, slot, row.abb)));
     c.appendChild(el("div","pname", shortName(p.name)));
-    const lv = liveLineFor(p);
+    const lv = liveDelay > 0 ? null : liveLineFor(p);   // held back with a feed delay on
     if(lv) c.appendChild(el("div","livestat", lv.length > 26 ? lv.slice(0,26)+"\u2026" : lv));
     else if(stackArr.length>1) c.appendChild(el("div","stack", `+${stackArr.length-1}`));
 
@@ -5618,9 +5646,23 @@ async function fetchLive(){
 
 /* Box score, drives and win probability for one game. Keyed by ESPN athlete id,
    which every player in the payload carries, so stats land on the chart itself. */
+/* fetchGame and fetchPlays (and the preview's inactives) all need the game
+   summary. They used to download it once each; at a refresh every five seconds
+   that doubled the data used for nothing, so one download is shared for a
+   couple of seconds. */
+let SUMMARY = {id: null, at: 0, p: null};
+function getSummary(gameId){
+  const now = Date.now();
+  if(SUMMARY.id === String(gameId) && now - SUMMARY.at < 2500 && SUMMARY.p) return SUMMARY.p;
+  const p = getJSON("/summary?event=" + gameId);
+  SUMMARY = {id: String(gameId), at: now, p};
+  p.catch(() => { if(SUMMARY.p === p) SUMMARY = {id: null, at: 0, p: null}; });
+  return p;
+}
+
 async function fetchGame(gameId){
   try {
-    const j = await getJSON("/summary?event=" + gameId);
+    const j = await getSummary(gameId);
     const stats = {}, active = new Set(), box = [];
 
     // Two shapes are kept from the same payload: a flat lookup keyed by athlete
@@ -5944,7 +5986,8 @@ function sectionGame(d){
     bx = el("button","boxfull","Box score");
     bx.onclick = openBox;
   }
-  sec.appendChild(scoreCard(g, {poss: offAb2, sit: st, pos: pos2, extra: bx}));
+  const hideTeam = liveDelay > 0 && g.state === "in";
+  sec.appendChild(scoreCard(g, {poss: offAb2, sit: st, pos: pos2, extra: bx, hide: hideTeam}));
   if(st){
     if(offAb2) sec.appendChild(possessionChip(offAb2, st, pos2));
     sec.appendChild(miniField(offAb2 || a.ab, defAb2 || h.ab, pos2));
@@ -6037,7 +6080,7 @@ function renderBox(){
   head.innerHTML = ""; body.innerHTML = "";
 
   if(g){
-    head.appendChild(scoreCard(g));
+    head.appendChild(scoreCard(g, {hide: !watchOn && liveDelay > 0 && g.state === "in"}));
   }
 
   // Team totals side by side, when the feed carries them.
@@ -7007,7 +7050,7 @@ function extractPlays(j){
 
 async function fetchPlays(gameId){
   try {
-    const j = await getJSON("/summary?event=" + gameId);
+    const j = await getSummary(gameId);
     LIVE.plays = extractPlays(j);
     return true;
   } catch(e){ LIVE.plays = []; return false; }
@@ -7746,7 +7789,9 @@ function rankRows(cat, key){
 function renderLiveBox(host, teamsInGame){
   host.innerHTML = "";
   if(!LIVE.box || !LIVE.box.length){
-    host.appendChild(el("div","carnote","Box score appears once the game starts."));
+    host.appendChild(el("div","carnote", liveDelay && LIVE.delayWait
+      ? "The box score catches up with your feed delay in " + LIVE.delayWait + "s."
+      : "Box score appears once the game starts."));
     return;
   }
 
@@ -8551,26 +8596,30 @@ function defensiveCredit(text){
   return out.length ? out : null;
 }
 
-/* ---------------- broadcast delay ----------------
-   A stream runs anywhere from twenty seconds to a minute behind the field, so a
-   live feed spoils plays before you see them.
+/* ---------------- live feed delay ----------------
+   Holds the feed back to match a stream, the way the NBA app does it.
 
-   Delaying only the play list would not fix it: the score jumping is the loudest
-   spoiler of the lot, and so is a down-and-distance that suddenly reads 1st and
-   10 on the other forty. So the whole game state is held back together -- score,
-   clock, situation, win probability and plays -- by replaying a snapshot from
-   however many seconds ago.
+   Plays appear one at a time, each at the moment it happened on the field (ESPN
+   stamps every play with its wall-clock time) plus the delay, so the feed moves
+   play by play instead of in ten or twenty second jumps. The score, clock and
+   quarter scores are rebuilt from the last play shown, so nothing gets ahead of
+   the stream. What has no per-play time -- down and distance, the box score,
+   drives, win probability -- comes from the snapshot taken at that moment;
+   snapshots are taken on every refresh (every five seconds while a game is on)
+   and kept for ten minutes. Until there is a snapshot old enough, those parts
+   wait rather than spoil.
 
-   Snapshots are taken on every refresh and kept for ten minutes. Nothing is
-   fetched twice; this is purely about what gets shown. */
-const DELAY_CHOICES = [0, 10, 20, 30, 45, 60, 90];
+   The delay is a slider from 0 to 3 minutes with one-second nudges, and Sync to
+   stream sets it exactly: tap once and it names the newest play, tap again the
+   moment you see that play on your stream. It is remembered on this device. */
+const DELAY_MAX = 180;
 const SNAP_KEEP = 6e5;                    // ten minutes of history
 let liveDelay = 0, liveHistory = [];      // liveDelay set from storage at boot
-
+const FIRST_SEEN = {};
 function loadDelay(){
   if(!store.ok) return 0;
   const v = parseInt(PROG.delay, 10);
-  return DELAY_CHOICES.includes(v) ? v : 0;
+  return Number.isFinite(v) ? Math.max(0, Math.min(DELAY_MAX, v)) : 0;
 }
 function saveDelay(v){
   liveDelay = v;
@@ -8578,22 +8627,24 @@ function saveDelay(v){
   PROG.delay = v;
   store.save(PROG);
 }
+// When a play happened: ESPN's wall-clock stamp, or failing that when we first saw it.
+const playTime = p => (p && p.wall && Date.parse(p.wall)) || (p && p.id && FIRST_SEEN[p.id]) || 0;
 
 /* Everything that changes during a game, captured together so it can be replayed
    together. Taken by value: holding references would let later refreshes mutate
    the past. */
 function snapshotLive(g){
   if(!g) return;
+  const now = Date.now();
+  (LIVE.plays || []).forEach(p => { if(p.id && !FIRST_SEEN[p.id]) FIRST_SEEN[p.id] = now; });
   liveHistory.push({
-    t: Date.now(),
+    t: now,
     state: g.state,
     detail: g.detail,
-    scores: g.teams.map(x => ({ab: x.ab, score: x.score, home: x.home, id: x.id})),
+    scores: g.teams.map(x => ({ab: x.ab, score: x.score, home: x.home, id: x.id, line: (x.line || []).slice()})),
     situation: g.situation ? JSON.parse(JSON.stringify(g.situation)) : null,
     wp: LIVE.wp ? JSON.parse(JSON.stringify(LIVE.wp)) : null,
     plays: (LIVE.plays || []).slice(),
-    // Held back with everything else: a clip titled "41 yard touchdown" is as
-    // much a spoiler as the score.
     videos: (LIVE.videos || []).slice(),
     drives: (LIVE.drives || []).slice(),
     box: LIVE.box || [],
@@ -8601,71 +8652,165 @@ function snapshotLive(g){
     stats: LIVE.stats || {},
     active: LIVE.active || new Set(),
   });
-  const cutoff = Date.now() - SNAP_KEEP;
+  const cutoff = now - SNAP_KEEP;
   while(liveHistory.length > 1 && liveHistory[0].t < cutoff) liveHistory.shift();
 }
-
-/* The newest snapshot at least `liveDelay` seconds old. Early on there may not be
-   one yet, in which case the oldest we have is closer to the truth than the
-   newest -- and better than a blank screen. */
+/* The newest snapshot at least `liveDelay` seconds old, or none yet. */
 function delayedLive(){
   if(!liveDelay || !liveHistory.length) return null;
   const want = Date.now() - liveDelay * 1000;
   let pick = null;
   for(const s of liveHistory){ if(s.t <= want) pick = s; else break; }
-  return pick || liveHistory[0];
+  return pick;
 }
-
-/* How far behind we actually are, which is not always the delay asked for: at
-   the start of a game the history is shorter than the setting. */
 function delayLag(){
   const s = delayedLive();
   return s ? Math.round((Date.now() - s.t) / 1000) : 0;
 }
-
-/* Present the delayed snapshot as if it were now, so every renderer downstream
-   needs no knowledge of any of this. */
-function applyDelay(g){
-  const s = delayedLive();
-  if(!s) return g;
-  LIVE.wp = s.wp;
-  LIVE.plays = s.plays;
-  LIVE.videos = s.videos || [];
-  LIVE.drives = s.drives;
-  LIVE.box = s.box;
-  LIVE.teamStats = s.teamStats;
-  LIVE.stats = s.stats;
-  LIVE.active = s.active;
-  LIVE.situation = s.situation;
-  return {
-    ...g,
-    state: s.state, detail: s.detail, situation: s.situation,
-    teams: s.scores,
-  };
+function delayedPlays(){
+  const latest = liveHistory[liveHistory.length - 1];
+  if(!latest) return [];
+  const cutoff = Date.now() - liveDelay * 1000;
+  return latest.plays.filter(p => { const t = playTime(p); return t && t <= cutoff; });
 }
 
-function delayControl(){
-  const wrap = el("div","dlybar");
-  const lab = el("span","dlylab", "Delay");
-  wrap.appendChild(lab);
-  DELAY_CHOICES.forEach(v=>{
-    const b = el("button","dly", v === 0 ? "Off" : v + "s");
-    b.setAttribute("aria-pressed", v === liveDelay);
-    b.onclick = () => {
-      saveDelay(v);
-      retimeWatch();
-      renderWatch(LIVE.games.find(x => x.id === watchGame) || LIVE.byTeam[team]);
-    };
-    wrap.appendChild(b);
+/* Present the game as it stood `liveDelay` seconds ago, so every renderer
+   downstream needs no knowledge of any of this. */
+function applyDelay(g){
+  if(!liveDelay || !liveHistory.length) return g;
+  const latest = liveHistory[liveHistory.length - 1];
+  const cutoff = Date.now() - liveDelay * 1000;
+  const snap = delayedLive();
+  const shown = delayedPlays();
+  const last = shown.reduce((m, p) => (!m || playTime(p) > playTime(m)) ? p : m, null);
+
+  LIVE.plays = shown;
+  LIVE.videos = (latest.videos || []).filter(v => {
+    const t = Date.parse(v.at || "");
+    return Number.isFinite(t) ? t <= cutoff : !!snap;
   });
-  if(liveDelay){
-    const lag = delayLag();
-    wrap.appendChild(el("span","dlynote",
-      lag < liveDelay - 2
-        ? "catching up \u00b7 " + lag + "s behind"
-        : "showing " + lag + "s behind"));
+  if(snap){
+    LIVE.wp = snap.wp; LIVE.drives = snap.drives; LIVE.box = snap.box;
+    LIVE.teamStats = snap.teamStats; LIVE.stats = snap.stats; LIVE.active = snap.active;
+    LIVE.situation = snap.situation; LIVE.delayWait = 0;
+  } else {
+    // No snapshot that old yet (the game view was only just opened): the parts
+    // with no per-play time wait, rather than show the present.
+    LIVE.wp = null; LIVE.drives = []; LIVE.box = []; LIVE.teamStats = [];
+    LIVE.stats = {}; LIVE.active = new Set(); LIVE.situation = null;
+    LIVE.delayWait = Math.max(1, Math.ceil((liveHistory[0].t - cutoff) / 1000));
   }
-  return wrap;
+
+  const teams = (snap || latest).scores.map(t => ({...t}));
+  if(last && last.as != null && last.hs != null)
+    teams.forEach(t => { t.score = String(t.home ? last.hs : last.as); });
+  // Quarter scores rebuilt from the plays shown, so a later quarter cannot leak.
+  const byQ = {a: {}, h: {}};
+  shown.slice().sort((x, y) => playTime(x) - playTime(y)).forEach(p=>{
+    if(p.period && p.as != null && p.hs != null){ byQ.a[p.period] = +p.as; byQ.h[p.period] = +p.hs; }
+  });
+  teams.forEach(t=>{
+    const m = t.home ? byQ.h : byQ.a;
+    const qs = Object.keys(m).map(Number);
+    const top = qs.length ? Math.max(...qs) : 0;
+    const line = []; let prev = 0;
+    for(let q = 1; q <= top; q++){ const v = m[q] != null ? m[q] : prev; line.push(v - prev); prev = v; }
+    t.line = line;
+  });
+  const qName = n => n >= 5 ? "OT" : ["1st", "2nd", "3rd", "4th"][n - 1];
+  const detail = last && last.clock && last.period
+    ? last.clock + " - " + qName(last.period)
+    : (snap ? snap.detail : "Waiting for the stream");
+  return {...g, state: snap ? snap.state : "in", detail, situation: LIVE.situation, teams};
+}
+
+/* ---- the control: built once and kept, so dragging the slider is never
+   interrupted by the feed redrawing around it ---- */
+let syncPlay = null, delayRedrawT = null, delayTick = null, delayKey = "";
+
+function setDelay(v){
+  saveDelay(Math.max(0, Math.min(DELAY_MAX, Math.round(v))));
+  document.querySelectorAll(".dlv").forEach(e => e.textContent = liveDelay + "s");
+  document.querySelectorAll(".dlrange").forEach(e => { if(+e.value !== liveDelay) e.value = liveDelay; });
+  clearTimeout(delayRedrawT);
+  delayRedrawT = setTimeout(() => { delayKey = ""; redrawDelayed(true); updateDockBar(); }, 120);
+}
+
+function redrawDelayed(force){
+  if(!watchOn) return;
+  const g = LIVE.games.find(x => String(x.id) === String(watchGame));
+  if(!g) return;
+  const shown = liveDelay ? delayedPlays().length : -1;
+  const key = shown + "|" + (delayedLive() || {}).t + "|" + liveDelay;
+  if(!force && key === delayKey) return;
+  delayKey = key;
+  renderWatch(g);
+}
+// Plays come due between refreshes; check once a second and redraw when one does.
+function startDelayTicker(){
+  clearInterval(delayTick);
+  delayTick = setInterval(() => { if(watchOn && liveDelay) redrawDelayed(false); }, 1000);
+}
+
+function syncStep(btn){
+  const latest = liveHistory[liveHistory.length - 1];
+  const note = document.querySelector("#delayhost .dlsync");
+  if(!latest || !note) return;
+  if(!syncPlay){
+    syncPlay = latest.plays.filter(p => p.text && playTime(p))
+      .reduce((m, p) => (!m || playTime(p) > playTime(m)) ? p : m, null);
+    if(!syncPlay){ note.hidden = false; note.textContent = "No plays yet to sync to."; return; }
+    btn.textContent = "Tap when you see it";
+    btn.classList.add("on");
+    note.hidden = false;
+    note.innerHTML = "";
+    note.appendChild(document.createTextNode("Watch your stream for: "));
+    note.appendChild(el("b", null, syncPlay.text));
+    if(syncPlay.period) note.appendChild(document.createTextNode("  (" + (syncPlay.period >= 5 ? "OT" : "Q" + syncPlay.period)
+      + " " + (syncPlay.clock || "") + ")"));
+  } else {
+    setDelay((Date.now() - playTime(syncPlay)) / 1000);
+    syncPlay = null;
+    btn.textContent = "Sync to stream";
+    btn.classList.remove("on");
+    note.textContent = "Feed delay set to " + liveDelay + " seconds.";
+    setTimeout(() => { if(!syncPlay) note.hidden = true; }, 4000);
+  }
+}
+
+function renderDelayHost(live){
+  const host = document.getElementById("delayhost");
+  if(!host) return;
+  if(!live){ host.innerHTML = ""; host.hidden = true; return; }
+  host.hidden = false;
+  if(!host.querySelector(".dlrange")){
+    const bar = el("div","dlbar");
+    bar.appendChild(el("span","dlylab","Feed delay"));
+    const minus = el("button","pbtn dlm","\u22121"); minus.setAttribute("aria-label","One second less");
+    minus.onclick = () => setDelay(liveDelay - 1);
+    const range = document.createElement("input");
+    range.type = "range"; range.className = "dlrange"; range.min = 0; range.max = DELAY_MAX; range.step = 1;
+    range.value = liveDelay; range.setAttribute("aria-label","Feed delay in seconds");
+    range.oninput = () => setDelay(+range.value);
+    const plus = el("button","pbtn dlp","+1"); plus.setAttribute("aria-label","One second more");
+    plus.onclick = () => setDelay(liveDelay + 1);
+    const val = el("b","dlv", liveDelay + "s");
+    const sync = el("button","pbtn dls","Sync to stream");
+    sync.onclick = () => syncStep(sync);
+    // The slider and its nudges stay together as one row; on a phone that row
+    // takes a line of its own under the label, value and Sync button.
+    const row = el("div","dlrow");
+    [minus, range, plus].forEach(x => row.appendChild(x));
+    [val, sync, row].forEach(x => bar.appendChild(x));
+    host.appendChild(bar);
+    const sn = el("div","dlsync"); sn.hidden = true; host.appendChild(sn);
+    host.appendChild(el("div","dlynote"));
+  }
+  const note = host.querySelector(".dlynote");
+  note.textContent = !liveDelay ? ""
+    : LIVE.delayWait ? "Plays are held " + liveDelay + "s. Down and distance, drives and the box score catch up in "
+        + LIVE.delayWait + "s."
+    : "Showing the game " + liveDelay + "s behind live.";
 }
 
 /* ---------------- power ratings ----------------
@@ -9001,6 +9146,7 @@ function demoSummary(id){
         end: {yardsToEndzone: to},
         statYardage: gain,
         scoringPlay: scoring,
+        wallclock: new Date((DEMO.t0 || Date.now()) + (idx - 11) * 8000).toISOString(),
         period: {number: Math.min(4, 1 + Math.floor(d / 2))},
         clock: {displayValue: (14 - (p * 2)) + ":" + String((d * 17) % 60).padStart(2,"0")},
         awayScore: runA, homeScore: runH,
@@ -9256,10 +9402,11 @@ function renderGameStrip(){
       if(tm.logo){ lg.src = tm.logo; lg.alt = ""; lg.loading = "lazy"; }
       row.appendChild(lg);
       row.appendChild(el("span","gsab", t.ab || ""));
-      const sc = el("span","gssc", g.state === "pre" ? "" : String(t.score ?? 0));
+      const hideS = g.state === "in" && liveDelay > 0;
+      const sc = el("span","gssc", g.state === "pre" ? "" : hideS ? "\u2022\u2022" : String(t.score ?? 0));
       // Mark the side that is ahead, so a glance reads the result.
       const mine = num(t.score), theirs = num(opp.score);
-      if(g.state !== "pre" && mine != null && theirs != null && mine > theirs)
+      if(g.state !== "pre" && !hideS && mine != null && theirs != null && mine > theirs)
         sc.classList.add("lead");
       row.appendChild(sc);
       return row;
@@ -9270,7 +9417,7 @@ function renderGameStrip(){
     const foot = el("div","gsfoot" + (g.state === "in" ? " hot" : ""));
     if(g.state === "in") foot.appendChild(el("span","gsdot"));
     foot.appendChild(el("span", null, g.state === "pre"
-      ? (g.detail || "").replace(/^.*?-\s*/, "") : clockFromDetail(g)));
+      ? (g.detail || "").replace(/^.*?-\s*/, "") : (g.state === "in" && liveDelay > 0) ? "Live" : clockFromDetail(g)));
     tile.appendChild(foot);
 
     tile.onclick = () => switchGame(g.id);
@@ -9472,19 +9619,26 @@ function openWatch(gameId){
   document.body.classList.add("watching");
   refreshWatch();
   retimeWatch();
+  startDelayTicker();
 }
 /* Snapshots are only as fine-grained as the polling, so a ten second delay
    against a twenty second poll really means somewhere between ten and thirty.
    Sampling twice as often when a delay is set halves that error, and it is one
    game rather than the whole scoreboard. */
+let watchPollMs = 0;
 function retimeWatch(){
+  const g = LIVE.games.find(x => String(x.id) === String(watchGame));
+  const ms = g && g.state === "in" ? 5000 : 20000;
+  if(ms === watchPollMs && watchPoll) return;
   clearInterval(watchPoll);
-  watchPoll = setInterval(refreshWatch, liveDelay ? 10000 : 20000);
+  watchPollMs = ms;
+  watchPoll = setInterval(refreshWatch, ms);
 }
 
 function closeWatch(){
   watchOn = false;
-  clearInterval(watchPoll);
+  clearInterval(watchPoll); watchPoll = null; watchPollMs = 0;
+  clearInterval(delayTick);
   const outer = $("#watchbody");
   if(outer) outer.innerHTML = "";
   $("#watch").hidden = true;
@@ -9521,6 +9675,7 @@ async function refreshWatch(){
     snapshotLive(g);
   }
   renderWatch(g);
+  retimeWatch();
 }
 
 /* The feed is rebuilt on every refresh. Anything that measures the page while
@@ -9548,6 +9703,7 @@ function renderWatchBody(gRaw){
     outer.innerHTML = "";
     sHost = el("div"); sHost.id = "striphost"; outer.appendChild(sHost);
     pHost = el("div"); pHost.id = "playerhost"; outer.appendChild(pHost);
+    const dHost = el("div"); dHost.id = "delayhost"; outer.appendChild(dHost);
     mainHost = el("div"); mainHost.id = "watchmain"; outer.appendChild(mainHost);
     asideHost = el("div"); asideHost.id = "watchaside"; outer.appendChild(asideHost);
   }
@@ -9575,7 +9731,7 @@ function renderWatchBody(gRaw){
   const b = mainHost, aside = asideHost;
   const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
 
-  if(gRaw.state === "in") b.appendChild(delayControl());
+  renderDelayHost(gRaw.state === "in");
 
   // score
   // The scoreboard, as the Scores page's live card; filled in once possession
@@ -9585,10 +9741,7 @@ function renderWatchBody(gRaw){
   const ls = lineScore(g);
   if(ls && g.state !== "pre") b.appendChild(ls);
 
-  if(liveDelay && gRaw.state === "in"){
-    b.appendChild(el("div","dlyflag",
-      "Held " + delayLag() + " seconds back to match your stream"));
-  }
+
 
   // Who has it, where it is, and which way they are going.
   const sit = LIVE.situation;
@@ -10202,7 +10355,7 @@ function rememberLine(key, odds){
    payload, under a shape that varies, so read it defensively. */
 async function fetchInactives(gameId){
   try {
-    const j = await getJSON("/summary?event=" + gameId);
+    const j = await getSummary(gameId);
     const out = [];
     (j.injuries || []).forEach(team=>{
       const ab = normTeam(((team.team || {}).abbreviation) || "");
@@ -10402,16 +10555,21 @@ function gameCard(g, s, big){
     row.appendChild(lg);
     row.appendChild(el("span","gcname", big ? (t.nick || ab) : ab));
     const right = el("span","gcright");
-    if(state === "in" && s.poss === ab) right.appendChild(el("i","gcposs"));
+    // With a feed delay on, a live score here would spoil the stream: dots instead.
+    const hide = state === "in" && liveDelay > 0;
+    if(state === "in" && s.poss === ab && !hide) right.appendChild(el("i","gcposs"));
     if(state === "pre") right.appendChild(el("span","gcrec", rec || standRec(ab)));
-    else right.appendChild(el("span","gcscore", sc ?? ""));
+    else right.appendChild(el("span","gcscore" + (hide ? " hid" : ""), hide ? "\u2022\u2022" : (sc ?? "")));
     row.appendChild(right);
     card.appendChild(row);
   });
 
   const foot = el("div","gcfoot");
   const cell = (txt, cls) => { const c = el("span","gccell" + (cls ? " " + cls : ""), txt); foot.appendChild(c); return c; };
-  if(state === "in"){
+  if(state === "in" && liveDelay > 0){
+    cell("Live", "hot");
+    cell("Feed delayed " + liveDelay + "s");
+  } else if(state === "in"){
     cell(liveClock(s), "hot");
     const pos = s.sit ? fieldPosition(s.sit, s.poss) : null;
     const dd = s.sit ? (s.sit.downDistanceText || s.sit.shortDownDistanceText || "") : "";
@@ -10475,15 +10633,16 @@ function scoreCard(g, opts){
     row.appendChild(lg);
     row.appendChild(el("span","gcname", tm.nick || t.ab || ""));
     const right = el("span","gcright");
-    if(g.state === "in" && opts.poss === t.ab) right.appendChild(el("i","gcposs"));
-    right.appendChild(el("span","gcscore", g.state === "pre" ? "" : String(t.score ?? 0)));
+    if(g.state === "in" && opts.poss === t.ab && !opts.hide) right.appendChild(el("i","gcposs"));
+    right.appendChild(el("span","gcscore" + (opts.hide ? " hid" : ""),
+      g.state === "pre" ? "" : opts.hide ? "\u2022\u2022" : String(t.score ?? 0)));
     row.appendChild(right);
     card.appendChild(row);
   });
   const foot = el("div","gcfoot");
   foot.appendChild(el("span","gccell" + (g.state === "in" ? " hot" : g.state === "post" ? " fin" : ""),
-    clockFromDetail(g)));
-  const dd = opts.sit && g.state === "in"
+    opts.hide ? "Live" : clockFromDetail(g)));
+  const dd = opts.hide ? "Feed delayed " + liveDelay + "s" : opts.sit && g.state === "in"
     ? (opts.sit.downDistanceText || opts.sit.shortDownDistanceText || "") : "";
   foot.appendChild(el("span","gccell" + (opts.pos && opts.pos.redZone ? " rz" : ""), dd));
   const icons = el("span","gccell gcicons");
