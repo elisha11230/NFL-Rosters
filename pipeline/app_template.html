@@ -3331,9 +3331,9 @@ function renderField(){
 
     c.appendChild(el("div","slotlab", slotLabel(grp, slot, row.abb)));
     c.appendChild(el("div","pname", shortName(p.name)));
-    const lv = hideScores() ? null : liveLineFor(p);
-    if(lv) c.appendChild(el("div","livestat", lv.length > 26 ? lv.slice(0,26)+"\u2026" : lv));
-    else if(stackArr.length>1) c.appendChild(el("div","stack", `+${stackArr.length-1}`));
+    // Live stat lines under the icons were removed (October 2026): too much on
+    // the field at once. Live stats stay in the player panel and box score.
+    if(stackArr.length>1) c.appendChild(el("div","stack", `+${stackArr.length-1}`));
 
     c.onclick = () => { sel=p.id; renderDetail(grp,slot,idx); paintSel(); syncHash(); };
     attachHold(c, grp, slot, stackArr);
@@ -8914,6 +8914,7 @@ function redrawDelayed(force){
   const shown = liveDelay ? delayedPlays().length : -1;
   const key = shown + "|" + (delayedLive() || {}).t + "|" + liveDelay;
   if(!force && key === delayKey) return;
+  if(!force && busyFor("watchbody")) return;      // the next tick tries again
   delayKey = key;
   renderWatch(g);
 }
@@ -9851,8 +9852,47 @@ async function refreshWatch(){
     // history to replay from.
     snapshotLive(g);
   }
-  renderWatch(g);
+  whenIdle("watchbody", () => { if(watchOn) renderWatch(g); });
   retimeWatch();
+}
+
+/* Automatic refreshes rebuild whole sections. One landing mid-gesture cut the
+   swipe off, and every sideways row (the game strip, highlights, the week
+   picker) came back as a new row scrolled to its start -- the live scores
+   strip snapped back to your own game every five seconds. So an automatic
+   refresh waits while you are scrolling or swiping and runs a moment after you
+   stop, and every sideways row keeps its position through a rebuild. Taps
+   are not held: switching a tab still redraws at once. */
+const H_ROWS = ".gsrail, .hlrail, .wkstrip, .boxtabs, .ldgroups";
+const TOUCHED = {};
+function watchInteraction(id){
+  const r = document.getElementById(id);
+  if(!r) return;
+  const mark = () => { TOUCHED[id] = Date.now(); };
+  ["scroll", "touchmove", "wheel"].forEach(ev => r.addEventListener(ev, mark, {capture: true, passive: true}));
+}
+const busyFor = id => Date.now() - (TOUCHED[id] || 0) < 1200;
+const IDLE_T = {};
+function whenIdle(id, fn){
+  clearTimeout(IDLE_T[id]);
+  const start = Date.now();
+  const go = () => {
+    // Give up waiting after ten seconds of continuous scrolling.
+    if(busyFor(id) && Date.now() - start < 10000){ IDLE_T[id] = setTimeout(go, 400); return; }
+    fn();
+  };
+  go();
+}
+function saveRows(root){
+  return root ? [...root.querySelectorAll(H_ROWS)].map(e => [e.className, e.scrollLeft]) : [];
+}
+function restoreRows(root, saved){
+  if(!root || !saved.length) return;
+  const rows = [...root.querySelectorAll(H_ROWS)];
+  saved.forEach(([cls, x], i) => {
+    const r = rows[i];
+    if(r && r.className === cls && x && r.scrollLeft !== x) r.scrollLeft = x;
+  });
 }
 
 /* The feed is rebuilt on every refresh. Anything that measures the page while
@@ -9861,8 +9901,10 @@ async function refreshWatch(){
 function renderWatch(gRaw){
   const outer0 = document.getElementById("watchbody");
   const keep = outer0 ? outer0.scrollTop : 0;
+  const rows = saveRows(outer0);
   const r = renderWatchBody(gRaw);
   if(outer0 && keep && outer0.scrollTop !== keep) outer0.scrollTop = keep;
+  restoreRows(outer0, rows);
   return r;
 }
 
@@ -10972,12 +11014,13 @@ async function renderScores(keep){
   const wrap = $("#scoresbody");
   const nav = $("#scoresnav");
   const keepTop = keep ? wrap.scrollTop : 0;
+  const keepRowsAt = keep ? saveRows($("#scores")) : [];
   nav.innerHTML = "";
   clearInterval(scoresTick);
   // While a game is on, the Games tab keeps itself current (and the delayed
   // view moves on) without you touching it.
   scoresTick = setInterval(()=>{
-    if($("#scores").hidden || scoreMode !== "games") return;
+    if($("#scores").hidden || scoreMode !== "games" || busyFor("scores")) return;
     const c = scoreCache[scoreWeek];
     if(c && Object.values(c).some(x => x.state === "in")) renderScores(true);
   }, 15000);
@@ -11034,7 +11077,7 @@ async function renderScores(keep){
   const wk = scoreWeek;
   nav.appendChild(liveSettingsRow());
   drawGames(wrap, slate, scoreCache[wk] || null);
-  if(keep) wrap.scrollTop = keepTop;
+  if(keep){ wrap.scrollTop = keepTop; restoreRows($("#scores"), keepRowsAt); }
   const scores = await loadWeekScores(wk);
   if(wk !== scoreWeek || scoreMode !== "games" || $("#scores").hidden) return;
   const top2 = wrap.scrollTop;
@@ -12822,6 +12865,8 @@ $("#draftclose").onclick = () => { $("#draft").hidden = true; };
 $("#boxclose").onclick = closeBox;
 $("#prevclose").onclick = closePreview;
 $("#watchclose").onclick = closeWatch;
+watchInteraction("watchbody");
+watchInteraction("scores");
 // The mini player's buttons and the return button.
 
 $("#livechip").onclick = () => openWatch($("#livechip").dataset.game);
