@@ -22,8 +22,11 @@ def build(teams, divisions):
     if s.empty:
         return {}, {"live": False, "season": SEASON, "played": 0}
 
+    # Sorted, so teams level on every measure always come out in the same order
+    # (they arrived as a set, whose order changed from one build to the next),
+    # and the app's in-browser recompute after games end matches it exactly.
     rec = {t: {"w": 0, "l": 0, "t": 0, "pf": 0, "pa": 0,
-               "dw": 0, "dl": 0, "cw": 0, "cl": 0, "form": []} for t in teams}
+               "dw": 0, "dl": 0, "cw": 0, "cl": 0, "form": []} for t in sorted(teams)}
 
     conf = {t: divisions.get(t, " ").split()[0] for t in teams}
 

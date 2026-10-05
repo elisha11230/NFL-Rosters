@@ -5978,12 +5978,14 @@ async function refreshLive(){
     recordGame(g.id, {stats: JSON.parse(JSON.stringify(LIVE.stats || {}))});
   }
   else { LIVE.stats = {}; LIVE.active = new Set(); LIVE.drives = []; LIVE.wp = null; }
+  rebuildStandings();             // finals since the last build count straight away
   renderLiveStrip(true);
   renderField();
   // No play arrows here. The field's job is who lines up where; a line drawn
   // across it during a game competes with that and belongs in watch mode.
   clearPlayArrow();
   if(sel){ paintSel(); } else { renderTeam(); }
+  if(!$("#scores").hidden && scoreMode === "stand") renderScores(true);
   return true;
 }
 
@@ -8952,6 +8954,7 @@ function scoreBlank(state, catching, today){
 /* Everything that shows a live score redraws when the delay or Hide scores
    changes. */
 function afterLiveSettingChange(){
+  rebuildStandings();
   updateDockBar();
   if(watchOn) redrawDelayed(true);
   if(!$("#scores").hidden && scoreMode === "games") renderScores(true);
@@ -11113,7 +11116,10 @@ async function renderScores(keep){
   // While a game is on, the Games tab keeps itself current (and the delayed
   // view moves on) without you touching it.
   scoresTick = setInterval(()=>{
-    if($("#scores").hidden || scoreMode !== "games" || busyFor("scores")) return;
+    if($("#scores").hidden || busyFor("scores")) return;
+    // Week leaders keep up while their week is being played.
+    if(scoreMode === "lead"){ if(WL_LIVE && weekInProgress(WL_LIVE.wk)) WL_LIVE.refresh(); return; }
+    if(scoreMode !== "games") return;
     const c = scoreCache[scoreWeek];
     if(c && Object.values(c).some(x => x.state === "in")) renderScores(true);
   }, 15000);
@@ -11173,6 +11179,7 @@ async function renderScores(keep){
   if(keep){ wrap.scrollTop = keepTop; restoreRows($("#scores"), keepRowsAt); }
   const scores = await loadWeekScores(wk);
   if(wk !== scoreWeek || scoreMode !== "games" || $("#scores").hidden) return;
+  rebuildStandings();             // records on the cards include today's finals
   const top2 = wrap.scrollTop;
   drawGames(wrap, slate, scores);
   wrap.scrollTop = top2;
@@ -11572,7 +11579,7 @@ let weekCat = null;
    leaders fell through to the live scoreboard, which only carries passing,
    rushing and receiving. That is why only three categories appeared. This view
    defaults to the newest week with real data. */
-let weekLeadWeek = null;
+let weekLeadWeek = null, weekLeadPicked = false, WL_LIVE = null;
 
 /* ---------------- live week leaders ----------------
    (Restored October 2026: an overlapping edit in mid September deleted this
@@ -11634,6 +11641,127 @@ function liveWeekLeaders(week){
   return out.length ? out : null;
 }
 
+
+/* ---------------- standings that keep up after games end ----------------
+   The standings are built by the pipeline from the league's schedule file,
+   which only reaches this page at the next rebuild (Tuesday morning, or any
+   push). In between, a final seen on the live scoreboard is added here and the
+   table is recomputed in the browser with the same rules as build_standings.py:
+   win percentage, then division record, then points difference, with seeds once
+   three quarters of the league has played. A result counts once your view of
+   the game shows it final, so the stream delay is respected, and with Hide
+   scores on, today's results wait.
+
+   Which results are new: each team's schedule marks the games the build already
+   counted, so a final whose fixture has no result yet is one to add. */
+let STAND_BASE = null;
+
+function computeStandings(sched){
+  const teams = Object.keys(DATA.teams).sort();
+  const divOf = ab => (DATA.teams[ab] || {}).div || "";
+  const confOf = ab => divOf(ab).split(" ")[0];
+  const rec = {};
+  teams.forEach(t => rec[t] = {w:0, l:0, t:0, pf:0, pa:0, dw:0, dl:0, cw:0, cl:0, form:[]});
+  const seen = new Set();
+  let weekMax = 0;
+  teams.forEach(me=>{
+    ((sched[me] || {}).games || []).filter(g => g.res).sort((a, b) => a.wk - b.wk).forEach(g=>{
+      if(!rec[g.opp]) return;
+      const d = rec[me], res = g.res;
+      d.pf += +g.pf; d.pa += +g.pa;
+      d[res === "W" ? "w" : res === "L" ? "l" : "t"] += 1;
+      if(divOf(me) === divOf(g.opp) && res !== "T") d[res === "W" ? "dw" : "dl"] += 1;
+      if(confOf(me) === confOf(g.opp) && res !== "T") d[res === "W" ? "cw" : "cl"] += 1;
+      d.form.push(res);
+      seen.add(g.wk + ":" + [me, g.opp].sort().join("-"));
+      weekMax = Math.max(weekMax, g.wk);
+    });
+  });
+  const out = {};
+  teams.forEach(t=>{
+    const d = rec[t], n = d.w + d.l + d.t;
+    if(!n) return;
+    out[t] = {w: d.w, l: d.l, t: d.t,
+      rec: d.w + "-" + d.l + (d.t ? "-" + d.t : ""),
+      pct: Math.round((d.w + 0.5 * d.t) / n * 1e4) / 1e4,
+      pf: d.pf, pa: d.pa, diff: d.pf - d.pa,
+      div: d.dw + "-" + d.dl, conf: d.cw + "-" + d.cl,
+      form: d.form.slice(-5), played: n};
+  });
+  const key = t => { const v = out[t], [dw, dl] = v.div.split("-").map(Number); return [-v.pct, -(dw - dl), -v.diff]; };
+  const cmp = (a, b) => { const x = key(a), y = key(b); for(let i = 0; i < 3; i++) if(x[i] !== y[i]) return x[i] - y[i]; return 0; };
+  const byDiv = {}, byConf = {};
+  Object.keys(out).forEach(t=>{
+    (byDiv[divOf(t)] ||= []).push(t);
+    (byConf[confOf(t)] ||= []).push(t);
+  });
+  Object.entries(byDiv).forEach(([d, m])=>{
+    m.sort(cmp);
+    m.forEach((t, i) => { out[t].dpos = i + 1; out[t].division = d; });
+  });
+  const enough = Object.keys(out).length >= teams.length * 0.75;
+  Object.entries(byConf).forEach(([c, m])=>{
+    m.sort(cmp);
+    m.forEach((t, i) => { out[t].cpos = i + 1; out[t].conf_name = c; out[t].seed = enough && i < 7 ? i + 1 : null; });
+  });
+  const sortObj = o => Object.fromEntries(Object.keys(o).sort().map(k => [k, o[k]]));
+  return {standings: {teams: out, tables: {divisions: sortObj(byDiv), conferences: sortObj(byConf)}},
+          meta: {played: seen.size, week: weekMax, partial: !enough}};
+}
+
+/* Finals you can see right now, keyed AWAY@HOME. */
+function liveFinals(){
+  const out = {};
+  const add = (a, h, as, hs) => {
+    if(!a || !h || as == null || hs == null || as === "" || hs === "") return;
+    out[a + "@" + h] = {a, h, as: +as, hs: +hs};
+  };
+  (LIVE.games || []).forEach(g0=>{
+    const g = viewLive(g0);
+    const f = fixtureForGame(g0);
+    if(g.state !== "post" || scoreBlank("post", g.catching, !f || f.d === todayISO())) return;
+    const A = g.teams.find(t => !t.home), H = g.teams.find(t => t.home);
+    if(A && H) add(A.ab, H.ab, A.score, H.score);
+  });
+  Object.values(DATA.slate || {}).flat().forEach(f=>{
+    const s0 = Object.values(scoreCache).map(c => c && c[f.a + "@" + f.h]).find(Boolean);
+    if(!s0) return;
+    const s = viewScore(s0);
+    if(s.state !== "post" || scoreBlank("post", s.catching, f.d === todayISO())) return;
+    add(f.a, f.h, s.a, s.h);
+  });
+  return out;
+}
+
+/* Rebuild the standings from what was built plus the finals seen since.
+   Returns true when the table changed. */
+function rebuildStandings(){
+  if(!DATA.standings || !DATA.schedule) return false;
+  if(!STAND_BASE) STAND_BASE = {standings: DATA.standings, meta: DATA.standMeta || {},
+                                sched: JSON.parse(JSON.stringify(DATA.schedule))};
+  const sched = JSON.parse(JSON.stringify(STAND_BASE.sched));
+  let added = 0;
+  Object.values(liveFinals()).forEach(f=>{
+    const hg = ((sched[f.h] || {}).games || []).find(x => x.opp === f.a && x.home === true && !x.res);
+    const ag = ((sched[f.a] || {}).games || []).find(x => x.opp === f.h && x.home === false && !x.res);
+    if(!hg || !ag) return;       // already counted, or not a regular season game
+    const r = f.hs > f.as ? "W" : f.hs < f.as ? "L" : "T";
+    Object.assign(hg, {pf: f.hs, pa: f.as, res: r, live: 1});
+    Object.assign(ag, {pf: f.as, pa: f.hs, res: r === "W" ? "L" : r === "L" ? "W" : "T", live: 1});
+    added++;
+  });
+  const before = JSON.stringify(DATA.standings);
+  if(!added){
+    DATA.standings = STAND_BASE.standings; DATA.standMeta = STAND_BASE.meta; DATA.schedule = STAND_BASE.sched;
+  } else {
+    const c = computeStandings(sched);
+    DATA.standings = c.standings;
+    DATA.standMeta = Object.assign({}, STAND_BASE.meta, c.meta, {liveAdded: added});
+    DATA.schedule = sched;
+  }
+  return JSON.stringify(DATA.standings) !== before;
+}
+
 /* Is the week being viewed still going on? */
 function weekInProgress(week){
   const cache = scoreCache[week];
@@ -11643,9 +11771,15 @@ function weekInProgress(week){
 
 async function renderWeekLeaders(host){
   const settled = Object.keys(DATA.weekly || {}).map(Number).sort((a,b)=>a-b);
-  const weeks = [...new Set([...settled, scoreWeek])].sort((a,b)=>a-b);
-  if(weekLeadWeek == null)
-    weekLeadWeek = settled.length ? settled[settled.length - 1] : scoreWeek;
+  const nowWk = seasonWeekNow();
+  const weeks = [...new Set([...settled, scoreWeek, nowWk].filter(Boolean))].sort((a,b)=>a-b);
+  // Open on the week being played once its games have started, rather than on
+  // the last finished week, unless you picked a week yourself.
+  if(!weekLeadPicked){
+    try { await loadWeekScores(nowWk); } catch(e){}
+    const started = Object.values(scoreCache[nowWk] || {}).some(x => x.state && x.state !== "pre");
+    weekLeadWeek = started ? nowWk : (settled.length ? settled[settled.length - 1] : scoreWeek);
+  }
   const wk = weeks.includes(weekLeadWeek) ? weekLeadWeek : weeks[weeks.length - 1];
 
   const strip = el("div","wkstrip");
@@ -11653,7 +11787,7 @@ async function renderWeekLeaders(host){
     const b = el("button", null, String(w));
     b.setAttribute("aria-pressed", w === wk);
     if(!settled.includes(w)) b.title = "No finished games yet";
-    b.onclick = () => { weekLeadWeek = w; host.innerHTML = ""; renderWeekLeaders(host); };
+    b.onclick = () => { weekLeadWeek = w; weekLeadPicked = true; host.innerHTML = ""; renderWeekLeaders(host); };
     strip.appendChild(b);
   });
   host.appendChild(strip);
@@ -11745,6 +11879,13 @@ async function renderWeekLeaders(host){
   // settled set is fuller, and it is the one with all eighteen categories.
   if(live && weekInProgress(wk)) draw(live, true);
   else if(live && !(DATA.weekly || {})[String(wk)]) draw(live, false);
+  // While that week is being played, the Scores page's own refresh calls this
+  // to bring the leaders up to date in place.
+  WL_LIVE = {wk, refresh: async () => {
+    await loadWeekScores(wk);
+    const lv = liveWeekLeaders(wk);
+    if(lv && weekInProgress(wk)) draw(lv, true);
+  }};
 }
 
 function renderStandings(host){
