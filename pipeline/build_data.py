@@ -540,6 +540,20 @@ import build_draft_board
 draft_board, draft_board_meta = build_draft_board.build(players)
 print(f"draft      {draft_board_meta['picks']} picks, {draft_board_meta['first']}-{draft_board_meta['last']}")
 
+import build_nextgen
+ngs, ngs_meta = build_nextgen.build(set(players))
+for pid, v in ngs.items():
+    players[pid]["ngs"] = v
+print("next gen   " + (f"{ngs_meta['players']} players, through week {ngs_meta['weeks']}"
+                       if ngs_meta["live"] else "no Next Gen Stats this season yet"))
+
+import build_ftn
+ftn, ftn_teams, ftn_meta = build_ftn.build(set(players), list(team_meta))
+for pid, v in ftn.items():
+    players[pid]["ftn"] = v
+print("charting   " + (f"{ftn_meta['players']} players, {len(ftn_teams)} teams, through week {ftn_meta['weeks']}"
+                       if ftn_meta["live"] else "no FTN charting this season yet"))
+
 import build_qbr
 _espn_ids = {p["eid"]: pid for pid, p in players.items() if p.get("eid")}
 qbr, qbr_meta = build_qbr.build(_espn_ids)
@@ -631,6 +645,9 @@ payload = {
     "rankings": rankings,
     "rankMeta": rank_meta,
     "qbrMeta": qbr_meta,
+    "ngsMeta": ngs_meta,
+    "ftnMeta": ftn_meta,
+    "ftnTeams": ftn_teams,
     "draftBoard": draft_board,
     "draftMeta": draft_board_meta,
     "madMeta": mad_meta,

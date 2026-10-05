@@ -2838,6 +2838,24 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   .mvhead{gap:8px}
 }
 
+/* ---------- Next Gen Stats and charting in a profile ---------- */
+.trkhd{display:flex;align-items:baseline;justify-content:space-between;margin:12px 0 4px;padding-bottom:4px;
+  border-bottom:1px solid var(--rule)}
+.trkhd b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--hi)}
+.trkhd span{font-size:12px;color:var(--dim)}
+.trkrow{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.trkrow:last-of-type{border-bottom:0}
+.trktx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+.trkl{font-size:14px;color:var(--chalk)}
+.trkd{font-size:11.5px;color:var(--dim);line-height:1.35}
+.trkr{flex:0 0 108px;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.trkv{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--hi)}
+.trkrk{font-size:11px;color:var(--mute);white-space:nowrap}
+.trkbar{display:block;width:100%;height:4px;border-radius:2px;background:var(--rule);overflow:hidden}
+.trkbar i{display:block;height:100%;background:var(--team-accent);border-radius:2px}
+.trkcounts{margin:6px 0 2px;font-size:12px;color:var(--mute)}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -3904,6 +3922,11 @@ function renderDetail(grp,slot,idx){
     }
     d.appendChild(sec);
   }
+
+  // Next Gen Stats and FTN charting: measurements of the play rather than its
+  // result. Built by build_nextgen.py and build_ftn.py.
+  if(p.ngs) d.appendChild(trackSection(p, "ngs"));
+  if(p.ftn) d.appendChild(trackSection(p, "ftn"));
 
   // where he works
   const tc = targetChart(p), rc = runChart(p);
@@ -12380,9 +12403,9 @@ function buildLeaders(){
   const cacheKey = useCur ? "cur" : "prev";
   if(LEAD && LEAD.__key === cacheKey) return LEAD;
   const cats = {};
-  const add = (group, key, label, sub, pid, v, r, n, unit) => {
+  const add = (group, key, label, sub, pid, v, r, n, unit, word) => {
     const k = group + "|" + key;
-    (cats[k] ||= {group, label, sub, unit, rows: []})
+    (cats[k] ||= {group, label, sub, unit, word, rows: []})
       .rows.push({pid, v, r, n});
   };
 
@@ -12430,6 +12453,24 @@ function buildLeaders(){
     });
   });
 
+  // Next Gen Stats and charting: every ranked measure is a board.
+  Object.values(DATA.players).forEach(p=>{
+    [["ngs", "Next Gen"], ["ftn", "Charting"]].forEach(([src, group])=>{
+      const data = p[src];
+      if(!data) return;
+      Object.entries(TRACK_META[src]).forEach(([part, spec])=>{
+        if(part === "title" || !data[part]) return;
+        Object.entries(spec.rows).forEach(([k, row])=>{
+          const val = (data[part].m || {})[k];
+          if(!val || val[1] == null) return;
+          const v = row.pct ? Math.round(val[0] * 1000) / 10 : val[0];
+          add(group, src + ":" + part + ":" + k, row.l, spec.who, p.id, v, val[1], val[2],
+              row.u,
+              row.rw === "quickest" ? "Quickest" : row.d.includes("Lower is better") ? "Lowest" : null);
+        });
+      });
+    });
+  });
   // Attribute boards come in unranked, because the ranking is across everybody
   // rather than within a position. Rank them here, ties sharing a place.
   Object.keys(cats).forEach(k=>{
@@ -12466,7 +12507,7 @@ function buildLeaders(){
   });
 
   // Teams are ranked too, just held elsewhere in the payload.
-  const teamCat = (key, label, sub, fn, unit, asc) => {
+  const teamCat = (key, label, sub, fn, unit, asc, group = "Teams") => {
     const rows = [];
     Object.keys(DATA.teams).forEach(ab=>{
       const v = fn(ab);
@@ -12476,7 +12517,7 @@ function buildLeaders(){
     if(rows.length < 10) return;
     rows.sort((a,b)=> asc ? a.v-b.v : b.v-a.v);
     rows.forEach((r,i)=>{ r.r = i+1; r.n = rows.length; });
-    cats["Teams|"+key] = {group:"Teams", label, sub, unit, rows, isTeam:true};
+    cats[group + "|" + key] = {group, label, sub, unit, rows, isTeam:true};
   };
   const S = ab => DATA.season[ab] || {};
   const R = ab => (DATA.roster||{})[ab] || {};
@@ -12493,6 +12534,12 @@ function buildLeaders(){
           ab=>R(ab).age?R(ab).age.avg:null);
   teamCat("home","Homegrown share","drafted by this club",
           ab=>(DATA.draft||{})[ab]?.own_pct, "%");
+  // Charting: how each team plays, from FTN's play charting.
+  const FT = ab => (DATA.ftnTeams || {})[ab] || {};
+  teamCat("ftpa", "Play action", "share of dropbacks", ab => FT(ab).pa, "%", false, "Charting");
+  teamCat("ftmot", "Pre-snap motion", "share of plays", ab => FT(ab).mot, "%", false, "Charting");
+  teamCat("ftnh", "No huddle", "share of plays", ab => FT(ab).nh, "%", false, "Charting");
+  teamCat("ftblz", "Blitz rate", "defence, share of dropbacks", ab => FT(ab).blz, "%", false, "Charting");
 
   LEAD = cats;
   return cats;
@@ -13037,6 +13084,133 @@ function mvPick(swapId){
   sheet.hidden = false;
 }
 
+
+/* ---------------- Next Gen Stats and FTN charting ----------------
+   Labels and one-line explanations live here; the pipeline sends only numbers,
+   each as [value, rank, pool size]. A rank is given only among players with
+   enough volume. rw is the word a rank reads with where "1st" alone would not
+   say which way: quickest, deepest, most. Values where lower is better already
+   rank lowest first in the pipeline, so they read naturally as "1st". */
+const TRACK_META = {
+  ngs: {
+    title: "Next Gen Stats",
+    pass: {who: "quarterbacks", vol: "attempts", rows: {
+      cpoe: {l: "Completion % over expected", u: "%", sign: true,
+             d: "Catches beyond what each throw's difficulty predicted"},
+      ttt:  {l: "Time to throw", u: "s", rw: "quickest", d: "Snap to release, on average"},
+      agg:  {l: "Tight window throws", u: "%", rw: "most", d: "Into a yard or less of separation"},
+      iay:  {l: "Average throw depth", u: " yds", rw: "deepest", d: "How far downfield his throws were aimed"},
+      ayts: {l: "Depth past the sticks", u: " yds", sign: true, rw: "deepest",
+             d: "Beyond (or short of) the first down marker"},
+    }},
+    rec: {who: "receivers", vol: "targets", rows: {
+      sep:   {l: "Separation", u: " yds", d: "From the nearest defender as the ball arrived"},
+      yacoe: {l: "Yards after catch over expected", u: " yds", sign: true, dp: 2, d: "Per catch, beyond what tracking predicted"},
+      cush:  {l: "Cushion at the snap", u: " yds", rw: "most", d: "How far off him the nearest defender lined up"},
+      share: {l: "Share of team air yards", u: "%", rw: "most", d: "Of all the yards his team's throws travelled"},
+      iay:   {l: "Average target depth", u: " yds", rw: "deepest", d: "How far downfield he was targeted"},
+    }},
+    rush: {who: "runners", vol: "carries", rows: {
+      ryoe:  {l: "Rush yards over expected", u: "", sign: true, dp: 0, d: "Beyond what his blocking and the defence predicted"},
+      ryoep: {l: "Over expected per carry", u: " yds", sign: true, dp: 2, d: "The same, per carry"},
+      roe:   {l: "Runs beating expectation", u: "%", pct: true, d: "Share of his carries that gained more than predicted"},
+      box8:  {l: "Eight-man boxes", u: "%", rw: "most", d: "Carries into eight or more defenders near the line"},
+      tlos:  {l: "Time to the line", u: "s", rw: "quickest", d: "Handoff to crossing the line of scrimmage"},
+    }},
+  },
+  ftn: {
+    title: "Charting",
+    qb: {who: "quarterbacks", vol: "dropbacks", rows: {
+      epab: {l: "Points per dropback when blitzed", u: "", sign: true, dp: 2, d: "Expected points added against extra rushers"},
+      iwr:  {l: "Interception-worthy throws", u: "%", d: "Per attempt, ones a defender should have caught. Lower is better"},
+      blz:  {l: "Blitzed", u: "%", rw: "most", d: "Dropbacks facing extra rushers"},
+      pa:   {l: "Play action", u: "%", rw: "most", d: "Dropbacks after a fake handoff"},
+      oop:  {l: "Outside the pocket", u: "%", rw: "most", d: "Dropbacks that ended on the move"},
+    }, counts: m => [
+      [m.iw, "interception-worthy throw", "interception-worthy throws"],
+      [m.ta, "throwaway", "throwaways"],
+      [m.qfs, "sack charted as his fault", "sacks charted as his fault"]]},
+    rec: {who: "receivers", vol: "targets", rows: {
+      dropr: {l: "Drop rate", u: "%", d: "Drops per catchable target. Lower is better"},
+      ccr:   {l: "Contested catch rate", u: "%", d: "Caught with a defender draped on him"},
+      cre:   {l: "Created receptions", u: "", dp: 0, d: "Catches made on difficult or off-target balls"},
+      cat:   {l: "Catchable targets", u: "%", d: "How often the ball was catchable: his quarterbacks' accuracy to him"},
+    }, counts: m => [
+      [m.drop, "drop", "drops"],
+      [m.ctg, "contested target", "contested targets"]]},
+  },
+};
+
+/* Decimals per measure: seconds to two places (2.49s against 2.94s is the
+   story), points per dropback to two, counts and yards over expected whole,
+   everything else to one. A trailing ".0" is dropped. */
+function fmtTrack(v, row){
+  if(v == null) return "\u2013";
+  const x = row.pct ? v * 100 : v;
+  const dp = row.dp != null ? row.dp : row.u === "s" ? 2 : 1;
+  let s = x.toFixed(dp);
+  if(dp === 1) s = s.replace(/\.0$/, "");
+  return (row.sign && x > 0 ? "+" : "") + s + row.u;
+}
+
+function trackSection(p, src){
+  const meta = TRACK_META[src], data = p[src];
+  const m = src === "ngs" ? DATA.ngsMeta || {} : DATA.ftnMeta || {};
+  const sec = el("div","sect k-stat trk");
+  const h3 = el("h3", null, meta.title);
+  h3.appendChild(el("span", null, data.s + (m.weeks ? " \u00b7 through week " + m.weeks : "")));
+  sec.appendChild(h3);
+  let unranked = false;
+  Object.keys(meta).filter(k => k !== "title").forEach(part=>{
+    const blk = data[part];
+    if(!blk) return;
+    const spec = meta[part];
+    const hd = el("div","trkhd");
+    hd.appendChild(el("b", null, spec.who === "quarterbacks" ? "Passing" : spec.who === "receivers" ? "Receiving" : "Rushing"));
+    hd.appendChild(el("span", null, blk.vol + " " + spec.vol));
+    sec.appendChild(hd);
+    Object.entries(spec.rows).forEach(([k, row])=>{
+      const val = (blk.m || {})[k];
+      if(!val || val[0] == null) return;
+      const [v, r, n] = val;
+      const line = el("div","trkrow");
+      const tx = el("div","trktx");
+      tx.appendChild(el("span","trkl", row.l));
+      tx.appendChild(el("span","trkd", row.d));
+      line.appendChild(tx);
+      const right = el("div","trkr");
+      right.appendChild(el("b","trkv", fmtTrack(v, row)));
+      if(r){
+        right.appendChild(el("span","trkrk", ord(r) + (row.rw ? " " + row.rw : "") + " of " + n));
+        const bar = el("i","trkbar");
+        const f = el("i");
+        f.style.width = (n > 1 ? (n - r) / (n - 1) * 100 : 100) + "%";
+        bar.appendChild(f);
+        right.appendChild(bar);
+      } else unranked = true;
+      line.appendChild(right);
+      sec.appendChild(line);
+    });
+    if(spec.counts){
+      const bits = spec.counts(Object.fromEntries(Object.entries(blk.m || {}).map(([k, v]) => [k, v[0]])))
+        .filter(([c]) => c != null).map(([c, one, many]) => c + " " + (c === 1 ? one : many));
+      if(bits.length) sec.appendChild(el("div","trkcounts", bits.join("  \u00b7  ")));
+    }
+  });
+  const need = m.need || {};
+  const note = el("div","carnote");
+  note.textContent = (src === "ngs"
+      ? "The NFL's player tracking: chips in the shoulder pads record where everyone is, ten times a second. "
+      : "Charted by people watching every play. ")
+    + "Ranked among players with enough volume so far"
+    + (src === "ngs" ? " (" + (need.pass || "?") + " attempts, " + (need.rec || "?") + " targets, " + (need.rush || "?") + " carries)"
+                     : " (" + (need.qb || "?") + " dropbacks, " + (need.rec || "?") + " targets)")
+    + (unranked ? "; below that a number shows without a rank" : "") + "."
+    + (src === "ftn" ? " Data: " + (m.credit || "FTN Data via nflverse (CC-BY-SA 4.0)") + "." : " Data: NFL Next Gen Stats via nflverse.");
+  sec.appendChild(note);
+  return sec;
+}
+
 /* ---------------- league leaders ----------------
    Rebuilt as an overview first: pick a position group and a season, and every
    leaderboard for that group appears as a card with the leader large (photo,
@@ -13068,8 +13242,10 @@ function leaderCats(mode){
 }
 
 const LEAD_POS_GROUPS = () => BUCKET_ORDER.map(b => BUCKET_LABEL[b]).filter(Boolean);
-const LEAD_OTHER = ["Madden", "X-Factors", "Abilities", "Money", "Teams"];
+const LEAD_OTHER = ["Next Gen", "Charting", "Madden", "X-Factors", "Abilities", "Money", "Teams"];
 const LEAD_OTHER_NOTE = {
+  "Next Gen": "NFL Next Gen Stats tracking, this season so far",
+  "Charting": "FTN play charting, this season so far. Data: FTN Data via nflverse (CC-BY-SA 4.0)",
   "Madden": "Madden ratings, ranked within each position",
   "X-Factors": "Every player with each Madden X-Factor",
   "Abilities": "Every player with each Madden superstar ability",
@@ -13119,7 +13295,7 @@ function leadBoardsRaw(group, year){
   const isPos = LEAD_POS_GROUPS().includes(group);
   const boards = [];
   const fromBuilt = (k, c) => ({
-    key: k, label: c.label, sub: c.sub, unit: c.unit, isTeam: !!c.isTeam,
+    key: k, label: c.label, sub: c.sub, unit: c.unit, isTeam: !!c.isTeam, word: c.word,
     rows: c.rows.map(r => c.isTeam
       ? {team: r.team, v: r.v, r: r.r}
       : {pid: r.pid, v: r.v, r: r.r}),
@@ -13263,7 +13439,7 @@ function renderLeaders(){
       if(i) row.appendChild(el("span","ldr", String(r.r)));
       row.appendChild(leadPhoto(who, i === 0 ? 160 : 96, i === 0 ? "ldph big" : "ldph"));
       const tx = el("div","ldtx");
-      if(i === 0) tx.appendChild(el("div","ldone", bd.asc ? "Fewest" : "Leader"));
+      if(i === 0) tx.appendChild(el("div","ldone", bd.word || (bd.asc ? "Fewest" : "Leader")));
       tx.appendChild(el("div","ldname", who.name));
       tx.appendChild(leadMeta(who));
       row.appendChild(tx);
@@ -13294,7 +13470,7 @@ function renderLeadList(box, bd){
   top.appendChild(back);
   top.appendChild(el("div","ldltitle", bd.label));
   const subBits = [bd.sub, bd.season ? String(bd.season) : null,
-                   bd.asc ? "fewest first" : null, bd.rows.length + " ranked"].filter(Boolean);
+                   bd.asc ? (bd.word ? bd.word.toLowerCase() + " first" : "fewest first") : null, bd.rows.length + " ranked"].filter(Boolean);
   top.appendChild(el("div","ldsub", subBits.join("  \u00b7  ")));
   box.appendChild(top);
 

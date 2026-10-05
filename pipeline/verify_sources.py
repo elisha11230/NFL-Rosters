@@ -135,6 +135,13 @@ OPTIONAL = [
     ("stats 2026", "stats_2026.csv", 2_000, "csv", _max_year("season", 2026)),
     ("injuries 2026", "injuries_2026.csv", 200, "csv", _max_year("season", 2026)),
     ("pbp 2026", "pbp2026.parquet", 10_000, "parquet", _max_year("season", 2026)),
+    # Next Gen Stats: one file per kind, every season since 2016. Current only if
+    # this season is in it. (A 404 on the old csv name once sat on disk as nine
+    # bytes reading "Not Found"; the size floor and the parse catch that now.)
+    ("ngs passing",   "ngs_passing.parquet",   100_000, "parquet", _max_year("season", 2026)),
+    ("ngs receiving", "ngs_receiving.parquet", 100_000, "parquet", _max_year("season", 2026)),
+    ("ngs rushing",   "ngs_rushing.parquet",   100_000, "parquet", _max_year("season", 2026)),
+    ("ftn 2026",      "ftn_2026.parquet",       10_000, "parquet", _max_year("season", 2026)),
 ]
 
 

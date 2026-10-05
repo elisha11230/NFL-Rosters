@@ -123,6 +123,13 @@ for k in pass rush rec def; do
 done
 optional qbr_week.csv         "$B/espn_data/qbr_week_level.csv"
 optional team_2026.csv        "$B/stats_team/stats_team_reg_2026.csv"
+# Next Gen Stats (all seasons in one file each; the build takes the current one)
+# and FTN's play charting for the current season. See build_nextgen.py and
+# build_ftn.py; FTN is CC-BY-SA 4.0 and credited in the app.
+for k in passing receiving rushing; do
+  optional "ngs_$k.parquet" "$B/nextgen_stats/ngs_$k.parquet"
+done
+optional ftn_2026.parquet     "$B/ftn_charting/ftn_charting_2026.parquet"
 
 # Madden ratings come from a committed CSV in a public repository, not from EA:
 # there is no EA ratings API, and scraping their site is fragile and a terms
