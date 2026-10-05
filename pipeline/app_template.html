@@ -2686,6 +2686,12 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 @media (max-width:440px){
   #menu > button,#menu .menuwrap > button{font-size:11.5px;letter-spacing:.03em}
 }
+/* Six buttons across a 360-pixel phone added up to 372 pixels once Draft
+   joined the menu, pushing the theme button off the edge. */
+@media (max-width:380px){
+  #menu > button,#menu .menuwrap > button{font-size:10.5px;letter-spacing:0;padding-left:2px;padding-right:2px}
+  #menu #themebtn{flex:0 0 32px;width:32px;min-width:32px}
+}
 
 /* ---------- stream player: in the feed, or floating ---------- */
 /* In the game view it is an ordinary box in the feed, so it scrolls natively. */
@@ -2856,6 +2862,27 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .trkbar i{display:block;height:100%;background:var(--team-accent);border-radius:2px}
 .trkcounts{margin:6px 0 2px;font-size:12px;color:var(--mute)}
 
+/* ---------- what a stat means ---------- */
+.hint{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-left:6px;
+  vertical-align:middle;border-radius:50%;border:1px solid var(--line);background:transparent;
+  font:italic 700 10.5px/1 Georgia,'Times New Roman',serif;color:var(--dim);text-transform:none;
+  letter-spacing:0;cursor:pointer;flex:0 0 auto;position:relative}
+/* a bigger target for a finger than the circle itself */
+.hint::after{content:"";position:absolute;inset:-10px}
+.hint:hover{color:var(--hi);border-color:var(--team-accent)}
+/* Short label columns (QBR's breakdown, Madden attributes): keep the (i) on the
+   label's line. */
+.ql{display:flex;align-items:center;white-space:nowrap;flex-basis:96px}
+.ql .hint{margin-left:4px}
+#hintbox{position:fixed;z-index:95;padding:12px 14px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--team-accent);box-shadow:0 12px 32px rgba(0,0,0,.5);color:var(--chalk);
+  font-size:13.5px;line-height:1.45;text-transform:none;letter-spacing:0}
+#hintbox[hidden]{display:none}
+#hintbox b{display:block;margin-bottom:4px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi)}
+#hintbox p{margin:0}
+#hintbox small{display:block;margin-top:7px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--team-accent)}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -3022,6 +3049,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 
 <button id="livechip" hidden><i></i><span>Back to the game</span></button>
 
+<div id="hintbox" role="tooltip" hidden></div>
 <div id="toasts" aria-live="polite"></div>
 
 <div id="drive" hidden role="dialog" aria-modal="true" aria-label="Drive">
@@ -3726,7 +3754,7 @@ function renderDetail(grp,slot,idx){
     cs.appendChild(ch);
     p.cur.items.forEach(it=>{
       const r = el("div","stat");
-      r.appendChild(el("span","l", it.l));
+      r.appendChild(hintLabel("span","l", it.l));
       r.appendChild(el("span","v", it.v.toLocaleString()));
       if(it.r){
         const pct = it.r / it.n;
@@ -3758,7 +3786,7 @@ function renderDetail(grp,slot,idx){
   if(p.st){
     p.st.items.forEach(it=>{
       const r = el("div","stat");
-      r.appendChild(el("span","l",it.l));
+      r.appendChild(hintLabel("span","l",it.l));
       r.appendChild(el("span","v", it.v.toLocaleString()));
       if(it.r){
         const pct = it.r/it.n;
@@ -3856,7 +3884,7 @@ function renderDetail(grp,slot,idx){
     if((m.attrs || []).length){
       m.attrs.forEach(a=>{
         const r = el("div","qrow");
-        r.appendChild(el("span","ql", a.l));
+        r.appendChild(hintLabel("span","ql", a.l));
         const track = el("div","qtrack");
         const fill = el("i");
         fill.style.width = a.v + "%";
@@ -3883,7 +3911,7 @@ function renderDetail(grp,slot,idx){
   if(p.qbr && p.qbr.qbr != null){
     const q = p.qbr;
     const sec = el("div","sect k-stat");
-    const h3 = el("h3", null, "Total QBR");
+    const h3 = hintLabel("h3", null, "Total QBR");
     h3.appendChild(el("span", null, (DATA.qbrMeta || {}).season + " \u00b7 "
       + q.plays + " plays"));
     sec.appendChild(h3);
@@ -3906,7 +3934,7 @@ function renderDetail(grp,slot,idx){
       const max = Math.max(...q.parts.map(x => Math.abs(x.v)), 1);
       q.parts.forEach(x=>{
         const r = el("div","qrow");
-        r.appendChild(el("span","ql", x.l));
+        r.appendChild(hintLabel("span","ql", x.l, "QBR: " + x.l));
         const track = el("div","qtrack");
         const fill = el("i", x.v < 0 ? "neg" : "");
         fill.style.width = (Math.abs(x.v) / max * 100) + "%";
@@ -4135,7 +4163,7 @@ function renderDetail(grp,slot,idx){
       p.sit.forEach(x=>{
         const r = el("div","sit");
         const lw = el("div","l");
-        lw.appendChild(el("b",null,x.l));
+        lw.appendChild(hintLabel("b",null,x.l));
         lw.appendChild(el("span",null, x.n+" plays \u00b7 "+x.sub));
         r.appendChild(lw);
         r.appendChild(el("span","v", x.v+x.u));
@@ -4199,7 +4227,7 @@ function renderDetail(grp,slot,idx){
 
     a.items.forEach(it=>{
       const r = el("div","stat");
-      r.appendChild(el("span","l",it.l));
+      r.appendChild(hintLabel("span","l",it.l));
       r.appendChild(el("span","v", it.v.toLocaleString()));
       if(it.r){
         const cls = it.r/it.n<=0.2?"good":it.r/it.n<=0.6?"mid":"low";
@@ -13085,6 +13113,190 @@ function mvPick(swapId){
 }
 
 
+
+/* ---------------- what a stat means ----------------
+   A small (i) beside a stat's name opens a box saying what it is, in plain
+   words, and which way is better where there is a better way. One glossary,
+   keyed by the label the app shows, used everywhere that label appears: the
+   player profile, the leaderboards and their full lists. A label with no entry
+   simply gets no (i). */
+const UP = "Higher is better", DOWN = "Lower is better";
+const GLOSS = {
+  // ---- box score
+  "Pass yds": {d: "Yards gained on his completed passes, from the line of scrimmage to where each play ended, including the catcher's run after the catch."},
+  "Pass TD": {d: "Touchdown passes he threw."},
+  "INT": {d: "Interceptions: passes caught by the defence. For a quarterback, ones he threw (fewer is better); for a defender, ones he caught."},
+  "Sacks": {d: "Tackling the quarterback behind the line before he can throw. For a defender, sacks he made (half credit when two share one)."},
+  "Carries": {d: "Times he ran with the ball: handoffs, designed runs and quarterback scrambles."},
+  "Rush yds": {d: "Yards gained running the ball."},
+  "Rush TD": {d: "Touchdowns scored running the ball."},
+  "Rec": {d: "Receptions: passes he caught."},
+  "Rec yds": {d: "Yards gained on his catches, including his run after the catch."},
+  "Rec TD": {d: "Touchdowns scored on catches."},
+  "Targets": {d: "Passes thrown his way, caught or not. The best simple measure of how much an offence looks for a receiver."},
+  "Solo tkl": {d: "Tackles he made on his own, without a teammate sharing the credit."},
+  "TFL": {d: "Tackles for loss: tackles behind the line of scrimmage, so the offence lost yards on the play."},
+  "QB hits": {d: "Times he hit the quarterback as he threw or just after. Sacks are counted separately."},
+  "PD": {d: "Passes defended: passes he knocked away or intercepted."},
+  "FG made": {d: "Field goals made."},
+  "FG att": {d: "Field goals attempted."},
+  "FG%": {d: "Field goals made as a share of attempts. Worth reading with distance in mind: a 55-yarder is a different kick from a 30-yarder.", b: UP},
+  "Long": {d: "His longest successful field goal, in yards."},
+  "Ret": {d: "Kickoff and punt returns."},
+  "Ret yds": {d: "Yards gained on kickoff and punt returns."},
+
+  // ---- charted (Pro Football Reference's charting)
+  "Avg depth of target": {d: "How far past the line of scrimmage, on average, the passes thrown at the receivers he covered were aimed."},
+  "Bad throws": {d: "Passes charted as off target: thrown badly enough that a catch was unlikely, whatever the receiver did.", b: DOWN},
+  "Broken tackles": {d: "Tackles he broke or made a defender miss.", b: UP},
+  "Completion % allowed": {d: "When he was the defender in coverage, the share of passes thrown at his man that were caught.", b: DOWN},
+  "Drop rate %": {d: "Catchable passes he dropped, as a share of his targets.", b: DOWN},
+  "Dropped by receivers": {d: "His passes that a receiver dropped: catchable throws that should have been completions."},
+  "Drops": {d: "Catchable passes he dropped.", b: DOWN},
+  "Hurries": {d: "Times he forced the quarterback to throw sooner or move off his spot, without hitting or sacking him."},
+  "Passer rating allowed": {d: "The passer rating quarterbacks had when throwing at the receivers he covered: the NFL's formula from completions, yards, touchdowns and interceptions, 0 to 158.3.", b: DOWN},
+  "Passer rating when targeted": {d: "Quarterbacks' passer rating on throws to him: the NFL's formula from completions, yards, touchdowns and interceptions, 0 to 158.3.", b: UP},
+  "Pressure rate %": {d: "The share of his dropbacks on which a defender hurried, hit or sacked him.", b: DOWN},
+  "Pressures": {d: "Hurries, quarterback hits and sacks added together: every time he got to the quarterback or forced him to hurry.", b: UP},
+  "TDs allowed": {d: "Touchdowns caught by the receivers he was covering.", b: DOWN},
+  "Targeted": {d: "Passes thrown at the receivers he was covering."},
+  "Times blitzed": {d: "Times he rushed the quarterback as an extra rusher on a blitz rather than dropping into coverage."},
+  "Times pressured": {d: "Dropbacks on which he was hurried, hit or sacked."},
+  "Times sacked": {d: "Times he was tackled behind the line before he could throw.", b: DOWN},
+  "Yds after contact / att": {d: "Rushing yards gained after the first defender touched him, per carry. More a measure of the runner than of his blockers.", b: UP},
+  "Yds allowed / target": {d: "Yards given up per pass thrown at the receivers he covered.", b: DOWN},
+  "Yds before contact / att": {d: "Rushing yards gained before any defender touched him, per carry. Mostly a measure of the blocking in front of him.", b: UP},
+
+  // ---- by situation (from the play-by-play)
+  "All plays": {d: "Success rate: the share of his plays that kept the offence on schedule, gaining enough on that down and distance to leave his team better placed to score than before the snap.", b: UP},
+  "Early downs": {d: "Expected points added per play on first and second down. Every down, distance and field position is worth some expected points; a play that improves that is positive, one that worsens it negative.", b: UP},
+  "Third down": {d: "The share of his third down plays that earned a first down or a touchdown.", b: UP},
+  "Red zone": {d: "The share of his plays inside the opponent's 20-yard line that ended in a touchdown.", b: UP},
+  "Third or fourth and short": {d: "The share of his plays on third or fourth down with two yards or fewer to go that earned a first down or a touchdown.", b: UP},
+
+  // ---- Next Gen Stats
+  "Next Gen Stats": {d: "The NFL's player tracking. Chips in every player's shoulder pads and in the ball record where they are ten times a second, which lets the league measure things a box score cannot: how open a receiver was, how long a quarterback held the ball, how many yards a runner should have gained."},
+  "Completion % over expected": {d: "His completion rate minus the rate the tracking model expected, given how hard each throw was: the receiver's separation, the throw's depth, the pressure on him and more. +5% means he completed five more passes in every hundred than an average quarterback would have on the same throws.", b: UP},
+  "Time to throw": {d: "Seconds from the snap to the moment he released the ball, on average. Quick isn't good or bad on its own: quick throws beat the pass rush, while holding on gives deep routes time to open."},
+  "Tight window throws": {d: "The share of his throws made with a defender within a yard of the receiver. The NFL calls it aggressiveness: high means he trusts his arm and his receivers into coverage."},
+  "Average throw depth": {d: "How far past the line of scrimmage his passes were aimed, on average, counted to where the receiver was when the ball arrived, caught or not."},
+  "Depth past the sticks": {d: "How far past the first down marker his throws were aimed, on average. Negative means he threw short of the marker on average and relied on the receiver to get the rest."},
+  "Separation": {d: "Yards between the receiver and the nearest defender when the ball arrived (or when it was thrown away from him). The purest measure of getting open.", b: UP},
+  "Yards after catch over expected": {d: "Per catch, the yards he gained after the catch beyond what the tracking model expected from where he caught it, how fast he was moving and where the defenders were.", b: UP},
+  "Cushion at the snap": {d: "How far off him the nearest defender lined up at the snap. Big cushions are respect for deep speed; small ones mean press coverage."},
+  "Share of team air yards": {d: "His share of all the yards his team's passes travelled in the air. A truer read of a receiver's role than targets, because a deep target counts for more than a screen."},
+  "Average target depth": {d: "How far past the line of scrimmage, on average, the passes thrown to him were aimed. Deep threats sit high; underneath receivers and backs low."},
+  "Rush yards over expected": {d: "His rushing yards minus what the tracking model expected from where every blocker and defender was at the handoff. Strips out the blocking, so it isolates the runner.", b: UP},
+  "Over expected per carry": {d: "Rush yards over expected divided by his carries: how many yards a carry he adds beyond what the blocking gave him.", b: UP},
+  "Runs beating expectation": {d: "The share of his carries that gained more than the tracking model expected.", b: UP},
+  "Eight-man boxes": {d: "The share of his carries into eight or more defenders near the line of scrimmage. High means defences were stacked to stop him, which makes running harder."},
+  "Time to the line": {d: "Seconds from the handoff to crossing the line of scrimmage, on average. Patient runners wait for a hole; quick ones hit it before it closes."},
+
+  // ---- FTN charting
+  "Charting": {d: "Play details recorded by FTN's charters, who watch every snap: drops, contested catches, blitzes, play action and more. Data: FTN Data via nflverse (CC-BY-SA 4.0)."},
+  "Points per dropback when blitzed": {d: "Expected points added per dropback when the defence sent extra rushers. Positive means he made the blitz pay; negative means the blitz got him.", b: UP},
+  "Interception-worthy throws": {d: "Throws a defender should have intercepted, caught or not, per attempt. A truer read of risky decisions than interceptions, which depend on whether the defender held on.", b: DOWN},
+  "Blitzed": {d: "The share of his dropbacks on which the defence sent extra rushers."},
+  "Play action": {d: "The share of dropbacks that began with a fake handoff, used to pull linebackers forward before the throw."},
+  "Outside the pocket": {d: "The share of his dropbacks that ended with him outside the protection of his blockers, by design or on the run from pressure."},
+  "Drop rate": {d: "Drops per catchable target: of the passes he should have caught, the share he dropped.", b: DOWN},
+  "Contested catch rate": {d: "Of the passes thrown to him with a defender in position to make a play, the share he caught.", b: UP},
+  "Created receptions": {d: "Catches he made on throws that weren't catchable for most receivers: off target, or tightly covered.", b: UP},
+  "Catchable targets": {d: "The share of his targets that were catchable. Mostly a read on his quarterbacks' accuracy to him rather than on him.", b: UP},
+  "Pre-snap motion": {d: "The share of plays with a player moving before the snap, used to reveal the defence's coverage and create mismatches."},
+  "No huddle": {d: "The share of plays run without a huddle, to speed up or keep the defence from substituting."},
+  "Blitz rate": {d: "The share of opponents' dropbacks on which this defence sent extra rushers."},
+
+  // ---- QBR
+  "Total QBR": {d: "ESPN's quarterback rating, 0 to 100, with 50 average. It credits every play he was involved in (passes, runs, sacks, penalties) by how much it changed his team's chance to score, adjusted for down, distance, opponent and whether the game was still in doubt.", b: UP},
+
+  // ---- team boards
+  "Points per game": {d: "Points scored per game.", b: UP},
+  "Points allowed per game": {d: "Points given up per game.", b: DOWN},
+  "Wins": {d: "Games won."},
+  "Ten-year win rate": {d: "The share of games the club won over the last ten seasons, 2016 to 2025."},
+  "Money committed": {d: "The average yearly value of every current contract on the roster added up, in millions."},
+  "Oldest roster": {d: "The average age of the players on the roster."},
+  "Homegrown share": {d: "The share of the roster this club drafted itself rather than signed or traded for."},
+
+  // ---- Madden attributes
+  "Speed": {d: "Madden's rating of top speed, 0 to 99."},
+  "Acceleration": {d: "Madden's rating of how quickly he reaches top speed."},
+  "Agility": {d: "Madden's rating of how quickly he changes direction."},
+  "Strength": {d: "Madden's rating of power in blocking, tackling and breaking tackles."},
+  "Awareness": {d: "Madden's rating of reading the play: being in the right place and making the right decision."},
+  "Carrying": {d: "Madden's rating of ball security: how well he avoids fumbling."},
+  "Catching": {d: "Madden's rating of catching a pass when he isn't being hit."},
+  "Catch in traffic": {d: "Madden's rating of catching with a defender on him or a hit coming."},
+  "Release": {d: "Madden's rating of getting off the line against press coverage."},
+  "Vision": {d: "Madden's rating of a runner seeing and choosing the right hole."},
+  "Juke": {d: "Madden's rating of side-to-side moves that make defenders miss."},
+  "Pass block": {d: "Madden's rating of protecting the quarterback."},
+  "Run block": {d: "Madden's rating of opening holes for runners."},
+  "Block shedding": {d: "Madden's rating of getting off a blocker to make a play."},
+  "Hit power": {d: "Madden's rating of tackling with force: big hits that can jar the ball loose."},
+  "Tackle": {d: "Madden's rating of wrapping up and bringing the ball carrier down."},
+  "Pursuit": {d: "Madden's rating of chasing down a ball carrier from distance."},
+  "Play recognition": {d: "Madden's rating of a defender diagnosing the play quickly."},
+  "Man coverage": {d: "Madden's rating of covering one receiver step for step."},
+  "Zone coverage": {d: "Madden's rating of covering an area and reading the quarterback."},
+  "Press": {d: "Madden's rating of jamming a receiver at the line."},
+  "Kick power": {d: "Madden's rating of a kicker's leg strength."},
+  "Kick accuracy": {d: "Madden's rating of a kicker's accuracy."},
+  "Punt power": {d: "Madden's rating of a punter's leg strength."},
+  "Punt accuracy": {d: "Madden's rating of a punter's placement."},
+};
+// QBR's breakdown has its own meanings for words used elsewhere ("Sacks" there
+// is points lost to sacks, not sacks made), so it has its own entries.
+GLOSS["QBR: Passing"] = {d: "Points QBR credits to his passing, positive or negative."};
+GLOSS["QBR: Running"] = {d: "Points QBR credits to his running, including scrambles."};
+GLOSS["QBR: Sacks"] = {d: "Points lost to sacks he took. Almost always negative; closer to zero is better."};
+GLOSS["QBR: Penalties"] = {d: "Points gained or lost through penalties on his plays."};
+
+/* Append an (i) to a label element when the glossary knows it. */
+function addHint(host, key){
+  const g = GLOSS[key];
+  if(!g || !host) return host;
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "hint";
+  b.textContent = "i";
+  b.setAttribute("aria-label", "What is " + key + "?");
+  b.onclick = ev => { ev.stopPropagation(); ev.preventDefault(); showHint(b, key); };
+  host.appendChild(b);
+  return host;
+}
+const hintLabel = (tag, cls, text, key) => addHint(el(tag, cls, text), key || text);
+
+let hintFor = null;
+function showHint(btn, key){
+  const box = document.getElementById("hintbox");
+  if(!box.hidden && hintFor === btn){ hideHint(); return; }
+  const g = GLOSS[key];
+  hintFor = btn;
+  box.innerHTML = "";
+  box.appendChild(el("b", null, key));
+  box.appendChild(el("p", null, g.d));
+  if(g.b) box.appendChild(el("small", null, g.b));
+  box.hidden = false;
+  // Beside the (i), kept on screen: below it if there is room, otherwise above.
+  const r = btn.getBoundingClientRect();
+  const w = Math.min(320, innerWidth - 16);
+  box.style.width = w + "px";
+  box.style.left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 8)) + "px";
+  const h = box.offsetHeight;
+  const below = r.bottom + 8 + h < innerHeight - 8;
+  box.style.top = (below ? r.bottom + 8 : Math.max(8, r.top - 8 - h)) + "px";
+}
+function hideHint(){
+  const box = document.getElementById("hintbox");
+  if(box) box.hidden = true;
+  hintFor = null;
+}
+document.addEventListener("click", e => { if(!e.target.closest("#hintbox, .hint")) hideHint(); }, true);
+document.addEventListener("scroll", hideHint, true);
+window.addEventListener("resize", hideHint);
+
 /* ---------------- Next Gen Stats and FTN charting ----------------
    Labels and one-line explanations live here; the pipeline sends only numbers,
    each as [value, rank, pool size]. A rank is given only among players with
@@ -13157,7 +13369,7 @@ function trackSection(p, src){
   const meta = TRACK_META[src], data = p[src];
   const m = src === "ngs" ? DATA.ngsMeta || {} : DATA.ftnMeta || {};
   const sec = el("div","sect k-stat trk");
-  const h3 = el("h3", null, meta.title);
+  const h3 = hintLabel("h3", null, meta.title);
   h3.appendChild(el("span", null, data.s + (m.weeks ? " \u00b7 through week " + m.weeks : "")));
   sec.appendChild(h3);
   let unranked = false;
@@ -13175,7 +13387,7 @@ function trackSection(p, src){
       const [v, r, n] = val;
       const line = el("div","trkrow");
       const tx = el("div","trktx");
-      tx.appendChild(el("span","trkl", row.l));
+      tx.appendChild(hintLabel("span","trkl", row.l));
       tx.appendChild(el("span","trkd", row.d));
       line.appendChild(tx);
       const right = el("div","trkr");
@@ -13427,7 +13639,7 @@ function renderLeaders(){
   boards.forEach(bd=>{
     const card = el("div","ldcard");
     const hd = el("button","ldch");
-    hd.appendChild(el("span","ldct", bd.label));
+    hd.appendChild(hintLabel("span","ldct", bd.label));
     hd.appendChild(el("span","ldcs", "Full list \u203A"));
     hd.onclick = () => { leadKey = bd.key; renderLeaders(); };
     card.appendChild(hd);
@@ -13468,7 +13680,7 @@ function renderLeadList(box, bd){
   const back = el("button","ldback", "\u2039 " + leadGroup);
   back.onclick = () => { leadKey = null; renderLeaders(); };
   top.appendChild(back);
-  top.appendChild(el("div","ldltitle", bd.label));
+  top.appendChild(hintLabel("div","ldltitle", bd.label));
   const subBits = [bd.sub, bd.season ? String(bd.season) : null,
                    bd.asc ? (bd.word ? bd.word.toLowerCase() + " first" : "fewest first") : null, bd.rows.length + " ranked"].filter(Boolean);
   top.appendChild(el("div","ldsub", subBits.join("  \u00b7  ")));
