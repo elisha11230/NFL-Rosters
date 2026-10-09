@@ -2863,17 +2863,17 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .trkcounts{margin:6px 0 2px;font-size:12px;color:var(--mute)}
 
 /* ---------- what a stat means ---------- */
-.hint{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-left:6px;
+.ihint{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-left:6px;
   vertical-align:middle;border-radius:50%;border:1px solid var(--line);background:transparent;
   font:italic 700 10.5px/1 Georgia,'Times New Roman',serif;color:var(--dim);text-transform:none;
   letter-spacing:0;cursor:pointer;flex:0 0 auto;position:relative}
 /* a bigger target for a finger than the circle itself */
-.hint::after{content:"";position:absolute;inset:-10px}
-.hint:hover{color:var(--hi);border-color:var(--team-accent)}
+.ihint::after{content:"";position:absolute;inset:-10px}
+.ihint:hover{color:var(--hi);border-color:var(--team-accent)}
 /* Short label columns (QBR's breakdown, Madden attributes): keep the (i) on the
    label's line. */
 .ql{display:flex;align-items:center;white-space:nowrap;flex-basis:96px}
-.ql .hint{margin-left:4px}
+.ql .ihint{margin-left:4px}
 #hintbox{position:fixed;z-index:95;padding:12px 14px;border-radius:12px;background:var(--panel);
   border:1px solid var(--team-accent);box-shadow:0 12px 32px rgba(0,0,0,.5);color:var(--chalk);
   font-size:13.5px;line-height:1.45;text-transform:none;letter-spacing:0}
@@ -2882,6 +2882,194 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 #hintbox p{margin:0}
 #hintbox small{display:block;margin-top:7px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
   letter-spacing:.08em;text-transform:uppercase;color:var(--team-accent)}
+
+/* ==========================================================================
+   Refreshed look, carried over from the NBA app (October 2026): team colour
+   cards with soft shadows, a podium for leaders, seed badges, rank bars and
+   a player card. Placed after the component styles it refines and before
+   the phone block, which must stay last.
+   ========================================================================== */
+
+/* ---------- main menu ---------- */
+#menu{align-items:center;gap:2px;padding:5px 8px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bar1) 86%,var(--team) 14%),var(--bar1))}
+#menu > button,#menu .menuwrap > button{border:0!important;border-radius:10px;padding:9px 14px;align-self:stretch}
+#menu .menuwrap{display:flex;align-self:stretch}
+#menu > button > span,#menu .menuwrap > button > span{display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:7px;font-size:10px;
+  background:color-mix(in srgb,var(--team-accent) 16%,transparent);color:var(--team-accent)}
+#menu > button:hover,#menu .menuwrap > button:hover,#menu button[aria-expanded="true"]{
+  background:color-mix(in srgb,var(--team) 16%,var(--hover));color:var(--hi)}
+#menu > button:active{transform:translateY(1px)}
+#menu #spbtn,#menu #themebtn{flex:0 0 38px!important;width:38px;height:38px;min-width:38px;padding:0!important;align-self:center;
+  margin:0 0 0 4px;border:1px solid var(--line)!important;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--chalk)}
+#menu #spbtn{margin-left:auto}
+#menu #spbtn svg,#menu #themebtn svg{width:19px;height:19px}
+#spbtn .eyeoff{display:none}
+#spbtn[aria-pressed="true"]{border-color:var(--brass)!important;color:var(--brass);background:color-mix(in srgb,var(--brass) 12%,transparent)}
+#spbtn[aria-pressed="true"] .eyeon{display:none}
+#spbtn[aria-pressed="true"] .eyeoff{display:block}
+#exploremenu{border-radius:12px;padding:6px;box-shadow:0 14px 34px rgba(0,0,0,.4)}
+#exploremenu button{border-radius:8px}
+#exploremenu .phonly{display:none}
+@media (max-width:640px){
+  #menu{padding:4px 6px;gap:2px}
+  #menu > button,#menu .menuwrap > button{padding:9px 4px;border-radius:9px;font-size:12.5px;letter-spacing:.08em}
+  #menu > button > span,#menu .menuwrap > button > span{display:none}
+  #menu #leadbtn,#menu #draftbtn{display:none}
+  #exploremenu .phonly{display:block}
+  #menu #spbtn,#menu #themebtn{flex-basis:36px!important;width:36px;height:36px;min-width:36px}
+}
+
+/* ---------- team header ---------- */
+#head{overflow:hidden;padding:16px 20px 14px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--team) 38%,var(--ink)) 0%,color-mix(in srgb,var(--team) 12%,var(--ink)) 45%,var(--ink) 80%)}
+#head::before{width:5px}
+#hwm{position:absolute;right:-30px;top:50%;transform:translateY(-50%) rotate(-8deg);height:230%;opacity:.08;pointer-events:none}
+#hwm:not([src]),#hlogo:not([src]){display:none}
+#hl{position:relative;z-index:1;display:flex;align-items:center;gap:14px}
+#htx{min-width:0}
+#hlogo{flex:0 0 auto;width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+#units{position:relative;z-index:1;border-radius:12px;gap:2px;padding:3px;background:color-mix(in srgb,var(--ink) 70%,transparent);border:1px solid var(--line)}
+#units button{border-radius:9px;background:transparent}
+#tname{font-size:clamp(22px,3.6vw,34px)}
+@media (max-width:640px){#hlogo{width:44px;height:44px}#hwm{height:180%}}
+
+/* ---------- profile sections ---------- */
+.sect{border-radius:14px;padding:15px 16px 16px;--kc:var(--team-accent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 94%,var(--hi) 6%),var(--panel) 90px);
+  box-shadow:0 8px 22px rgba(0,0,0,.16)}
+.sect::before{display:none}
+.sect.k-stat{--kc:var(--rise)}.sect.k-money{--kc:var(--brass)}.sect.k-rating{--kc:#E0A15B}
+.sect.k-health{--kc:#D06A6A}.sect.k-time{--kc:#6E9FD8}.sect.k-people{--kc:#A98BD0}.sect.k-news{--kc:#4FB8C4}
+.sect h3{position:relative;padding-left:16px;border-bottom:0;padding-bottom:0;margin-bottom:12px;font-size:13px}
+.sect h3::before{content:"";position:absolute;left:0;top:50%;width:8px;height:8px;margin-top:-5px;border-radius:2px;
+  background:var(--kc);box-shadow:0 0 10px color-mix(in srgb,var(--kc) 60%,transparent)}
+.stat{border-bottom-color:color-mix(in srgb,var(--rule) 70%,transparent)}
+/* rank cells: a small bar under the rank, by where he stands */
+.stat .r{position:relative;padding-bottom:7px}
+.stat .r[style]::after{content:"";position:absolute;right:0;bottom:0;width:52px;height:4px;border-radius:2px;
+  background:linear-gradient(90deg,var(--rc,var(--mute)) var(--p),color-mix(in srgb,var(--mute) 16%,transparent) var(--p))}
+.stat .r.good{--rc:var(--good-t)}.stat .r.mid{--rc:#C9A64A}.stat .r.low{--rc:var(--bad2-t)}
+
+/* ---------- player card ---------- */
+.phero{position:relative;display:grid;grid-template-columns:104px 1fr;grid-template-areas:"face info";gap:10px 14px;align-items:end;
+  margin:0 0 14px;padding:16px 16px 14px;border-radius:16px;overflow:hidden;border:1px solid color-mix(in srgb,var(--tc) 40%,var(--line));
+  background:radial-gradient(120% 120% at 0% 100%,color-mix(in srgb,var(--tcf) 55%,var(--ink)),color-mix(in srgb,var(--tcf) 18%,var(--ink)) 55%,var(--ink));
+  box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.phero.has3{grid-template-areas:"face info" "stats stats"}
+.phnum{position:absolute;right:10px;top:-14px;font-family:'Archivo Black',sans-serif;font-size:120px;line-height:1;color:#fff;opacity:.07;pointer-events:none}
+.phlogo{position:absolute;right:-24px;bottom:-24px;width:150px;height:150px;object-fit:contain;opacity:.1;pointer-events:none}
+.phero .dphoto{grid-area:face;position:relative;width:104px;height:104px;flex:none;border-radius:50%;
+  border:3px solid var(--tc);background:var(--well);box-shadow:0 8px 18px rgba(0,0,0,.35)}
+.phinfo{grid-area:info;position:relative;min-width:0;padding-bottom:4px}
+.phero .dnum{color:#fff;opacity:.75}
+.phero .dname{display:flex;flex-direction:column;margin-bottom:6px;color:#fff}
+.phfirst{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.phlast{font-size:26px;line-height:1.02;word-break:break-word}
+.phero .dpos{color:rgba(255,255,255,.75)}
+.phstats{grid-area:stats;position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.phstats div{text-align:center;padding:7px 4px 6px;border-radius:10px;background:rgba(0,0,0,.25)}
+.phstats b{display:block;font-family:'Archivo Black',sans-serif;font-weight:400;font-size:21px;line-height:1.05;color:#fff}
+.phstats span{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+
+/* light theme: a lighter wash and dark text, as the NBA card does */
+:root[data-theme="light"] .phero{background:radial-gradient(120% 120% at 0% 100%,color-mix(in srgb,var(--tcf) 30%,var(--ink)),color-mix(in srgb,var(--tcf) 10%,var(--ink)) 55%,var(--ink))}
+:root[data-theme="light"] .phero .dname,:root[data-theme="light"] .phstats b{color:var(--hi)}
+:root[data-theme="light"] .phfirst,:root[data-theme="light"] .phero .dpos,:root[data-theme="light"] .phero .dnum,
+:root[data-theme="light"] .phstats span{color:var(--mute)}
+:root[data-theme="light"] .phnum{color:var(--hi)}
+:root[data-theme="light"] .phstats div{background:rgba(255,255,255,.6)}
+:root[data-theme="light"] .sclive{color:#B02E24}
+
+/* ---------- Scores ---------- */
+.sclive{display:inline-flex;align-items:center;gap:6px;vertical-align:4px;margin-left:10px;padding:3px 10px;border-radius:12px;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:#F2B0B0;border:1px solid #D06A6A;background:color-mix(in srgb,#E0402A 12%,transparent)}
+.sclive[hidden]{display:none}
+.sclive::before{content:"";width:7px;height:7px;border-radius:50%;background:#E0402A;animation:pulse 1.4s infinite}
+.gccount{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.06em;padding:1px 8px;
+  border-radius:9px;background:var(--panel);border:1px solid var(--line);color:var(--dim)}
+.gcsec.live{color:#E86A5C}
+.gc{border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.14);transition:transform .15s,box-shadow .15s,border-color .15s;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--ac,var(--panel)) 14%,var(--panel)),var(--panel) 45%,var(--panel) 55%,color-mix(in srgb,var(--hc,var(--panel)) 14%,var(--panel)))}
+.gc::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;z-index:1;
+  background:linear-gradient(90deg,var(--ac,transparent) 50%,var(--hc,transparent) 50%);opacity:.85}
+.gc:not(.static):hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.22)}
+.gc.gc-in{border-color:color-mix(in srgb,#D06A6A 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,#D06A6A 35%,transparent),0 8px 22px rgba(224,64,42,.12)}
+.gcrow .gcstripe{border-radius:2px;top:6px;bottom:6px;left:5px;width:3px}
+.gcrow.won .gcscore::after{content:"\25C2";font-style:normal;font-size:11px;color:var(--brass);margin-left:4px;vertical-align:4px}
+.gctv{display:inline-block;max-width:100%;padding:1px 7px;border-radius:8px;border:1px solid var(--line);font-size:10.5px;letter-spacing:.08em;
+  color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+@media (hover:none){.gc:hover{transform:none}}
+
+/* ---------- lists in rounded cards (standings, power, schedule) ---------- */
+.gclist{border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.gcli .gcstripe{border-radius:2px;top:8px;bottom:8px;left:5px;width:3px}
+.gcday{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--chalk);margin:18px 2px 9px}
+.gcpos.seed{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;height:22px;margin-top:2px;
+  border-radius:6px;font-size:11px;color:var(--dim)}
+.gcpos.seed.po{background:color-mix(in srgb,var(--good-t) 22%,transparent);color:var(--good-t)}
+.gcpos.seed.wc{background:color-mix(in srgb,var(--brass) 22%,transparent);color:var(--brass)}
+.stwl{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.stbar{display:block;width:44px;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,var(--tc) var(--p),color-mix(in srgb,var(--mute) 14%,transparent) var(--p))}
+.gcli.cur{background:color-mix(in srgb,var(--team) 16%,transparent)}
+.boxtabs{border-radius:12px}
+
+/* ---------- Leaders ---------- */
+.ldcard{border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.ldtop{position:relative;overflow:hidden;border-radius:12px;
+  background:radial-gradient(120% 120% at 0% 0%,color-mix(in srgb,var(--tc,var(--team)) 34%,var(--panel)),var(--panel) 75%)}
+.ldtop .ldph.big{border:3px solid var(--tc,var(--team-accent));box-shadow:0 6px 14px rgba(0,0,0,.3)}
+.ldtop .ldone{color:var(--brass)}
+.ldwm{position:absolute;right:-16px;top:-14px;width:84px;height:84px;object-fit:contain;opacity:.12;pointer-events:none}
+.ldtop .ldtx,.ldtop .ldval{position:relative;z-index:1}
+.ldrow .ldph,.ldline .ldph{border:2px solid var(--tc,var(--line))}
+.ldrow .ldr,.ldline .ldr{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;height:22px;border-radius:50%;
+  font-size:11px;color:var(--dim)}
+.ldrow.m1 .ldr,.ldline.m1 .ldr{background:linear-gradient(135deg,#F5D76E,#C9A227);color:#0E1417}
+.ldrow.m2 .ldr,.ldline.m2 .ldr{background:#C9CED1;color:#0E1417}
+.ldrow.m3 .ldr,.ldline.m3 .ldr{background:linear-gradient(135deg,#E3A06B,#A8653A);color:#0E1417}
+.ldrow .ldbar,.ldline .ldbar{background:color-mix(in srgb,var(--mute) 14%,transparent);max-width:200px}
+.ldrow .ldbar i,.ldline .ldbar i{background:var(--tc,var(--team-accent))}
+.ldline{border-radius:8px;border-bottom-color:color-mix(in srgb,var(--rule) 70%,transparent)}
+.lpod{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 14px}
+.lpc{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 10px 12px;border-radius:16px;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--tc) 45%,var(--line));
+  background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--tc) 35%,var(--panel)),var(--panel) 75%);
+  box-shadow:0 8px 22px rgba(0,0,0,.18);transition:transform .15s}
+.lpc:not(.gone):hover{transform:translateY(-2px)}
+.lpk{position:absolute;left:10px;top:10px;z-index:1;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:12px;color:#0E1417;background:#C9CED1}
+.lpc.m1 .lpk{background:linear-gradient(135deg,#F5D76E,#C9A227)}
+.lpc.m3 .lpk{background:linear-gradient(135deg,#E3A06B,#A8653A)}
+.lpl{position:absolute;right:-14px;top:-10px;width:80px;height:80px;object-fit:contain;opacity:.12;pointer-events:none}
+.lpf{position:relative;width:78px;height:78px;flex:none;border-radius:50%;overflow:hidden;background:var(--well);
+  border:3px solid var(--tc);box-shadow:0 6px 14px rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center}
+.lpf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.lpf .ldlogo{object-fit:contain;padding:12px}
+.lpn{position:relative;margin-top:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--hi);line-height:1.1}
+.lpm{position:relative;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.05em;color:var(--dim)}
+.lpv{position:relative;margin-top:6px;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--hi)}
+@media (max-width:640px){
+  .lpod{gap:6px}.lpc{padding:12px 6px 10px}.lpf{width:56px;height:56px}.lpn{font-size:13.5px}.lpv{font-size:19px}
+  .lpm{font-size:10.5px}.lpk{width:22px;height:22px;font-size:10px;left:6px;top:6px}
+}
+@media (hover:none){.lpc:hover{transform:none}}
+
+/* ---------- Draft ---------- */
+.dpk{border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.dpk .gcstripe{border-radius:2px;top:10px;bottom:10px;left:6px;width:3px}
+.mkno{display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;height:30px;border-radius:9px;font-style:normal;
+  font-size:12.5px;color:var(--chalk);background:color-mix(in srgb,var(--mute) 12%,transparent)}
+.mkno.t1{background:linear-gradient(135deg,#F5D76E,#C9A227);color:#0E1417}
+.mkno.t2{background:color-mix(in srgb,var(--team-accent) 28%,transparent);color:var(--hi)}
+.gclist.mock .gcli:has(.mkno.t1){background:linear-gradient(90deg,color-mix(in srgb,var(--brass) 12%,transparent),transparent 70%)}
+
+/* ---------- pills and panels shared by these pages ---------- */
+.ldgroups button,.ldseasons button,.boxtabs button{border-radius:16px}
 
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
@@ -2918,14 +3106,17 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
     <button id="draftbtn"><span aria-hidden="true">&#9670;</span>Draft</button>
     <div class="menuwrap">
       <button id="explorebtn" aria-haspopup="true" aria-expanded="false"
-              aria-controls="exploremenu"><span aria-hidden="true">&#10022;</span>Explore<i aria-hidden="true">&#9662;</i></button>
+              aria-controls="exploremenu"><span aria-hidden="true">&#10022;</span>More<i aria-hidden="true">&#9662;</i></button>
       <div id="exploremenu" role="menu" hidden>
+        <button class="phonly" role="menuitem" data-go="leadbtn"><b>Leaders</b><small>League leaderboards</small></button>
+        <button class="phonly" role="menuitem" data-go="draftbtn"><b>Draft</b><small>Past drafts and next year's mock</small></button>
         <button id="conceptbtn" role="menuitem"><b>How it works</b><small>Routes, coverages and run plays, animated</small></button>
         <button id="facesbtn" role="menuitem"><b>Faces</b><small>This roster, face by face</small></button>
         <button id="gamebtn" role="menuitem"><b>Lineup</b><small>Put the starters back where they belong</small></button>
         <button id="multibtn" role="menuitem"><b>Multiview</b><small>Up to four live games at once</small></button>
       </div>
     </div>
+    <button id="spbtn" class="hidesc" aria-label="Hide or show live scores" title="Hide or show live scores"><svg class="eyeon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg><svg class="eyeoff" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <button id="themebtn" aria-label="Switch theme" title="Switch theme"></button>
   </nav>
   <div id="searchbar">
@@ -2935,11 +3126,14 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
     <button id="qclear" hidden aria-label="Clear search">&times;</button>
     <div id="results" hidden role="listbox"></div>
   </div>
-  <header id="head">
+  <header id="head"><img id="hwm" alt="" aria-hidden="true">
     <div id="hl">
-      <h1 id="tname" class="blk"></h1>
-      <div id="trec"></div>
-      <div id="tmeta"></div>
+      <img id="hlogo" alt="">
+      <div id="htx">
+        <h1 id="tname" class="blk"></h1>
+        <div id="trec"></div>
+        <div id="tmeta"></div>
+      </div>
     </div>
     <div id="units" role="group" aria-label="Unit"></div>
   </header>
@@ -3002,7 +3196,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 
 <div id="scores" hidden role="dialog" aria-modal="true" aria-label="Scores and schedule">
   <div class="lhead">
-    <h2 class="blk">Scores &amp; schedule</h2>
+    <h2 class="blk">Scores &amp; schedule<span class="sclive" id="sclive" hidden></span></h2>
     <button class="qx" id="scoresclose">Close</button>
   </div>
   <div id="scoresnav"></div>
@@ -3303,6 +3497,7 @@ function renderHead(){
   document.documentElement.style.setProperty("--team-accent-d", readableAccent(t.c1, false));
 
   $("#tname").textContent = t.name;
+  ["#hlogo", "#hwm"].forEach(k => { const im = $(k); if(im){ if(t.logo) im.src = t.logo; else im.removeAttribute("src"); } });
   const n = (DATA.depth[team]||[]).filter((r,i,a)=>a.findIndex(x=>x.pid===r.pid)===i).length;
   $("#tmeta").textContent = `${t.div} \u00b7 ${n} players on the chart`;
 
@@ -3508,6 +3703,14 @@ function slotLabel(grp, slot, abb){
   return (grp === "3WR 1TE" && abb === "WR") ? WR_SLOT[slot] || abb : abb;
 }
 
+/* A rank cell with a small bar under it: full near the top of the league,
+   coloured green, gold or red by where he stands (the NBA app's look). */
+function rankCell(cls, r, n){
+  const rr = el("span","r " + cls);
+  if(r && n) rr.style.setProperty("--p", Math.max(6, Math.round((n - r + 1) / n * 100)) + "%");
+  return rr;
+}
+
 function renderDetail(grp,slot,idx){
   const stackArr = slotsFor(grp)[slot];
   const row = stackArr[idx], p = DATA.players[row.pid];
@@ -3534,7 +3737,13 @@ function renderDetail(grp,slot,idx){
   d.appendChild(bar);
 
   // header
-  const h = el("div","dhead");
+  const h = el("div","dhead phero");
+  const homeAb = (LOCATE[p.id] || {}).team || team;
+  const ht = DATA.teams[homeAb] || DATA.teams[team] || {};
+  h.style.setProperty("--tc", stripeColor(ht));
+  h.style.setProperty("--tcf", ht.c1 || "var(--team)");
+  if(p.num != null) h.appendChild(el("div","phnum", String(p.num)));
+  if(ht.logo){ const wl = el("img","phlogo"); wl.src = ht.logo; wl.alt = ""; h.appendChild(wl); }
   const ph = el("div","dphoto");
   const pim = faceImg(p, 192, {alt: p.name, onerror: () => {
     ph.innerHTML = "";
@@ -3543,13 +3752,33 @@ function renderDetail(grp,slot,idx){
   if(pim) ph.appendChild(pim);
   else ph.appendChild(el("div","fallback", p.num ?? "\u2013"));
   h.appendChild(ph);
-  const hi = el("div");
+  const hi = el("div","phinfo");
   if(p.num!=null) hi.appendChild(el("div","dnum","No. "+p.num));
-  hi.appendChild(el("h2","dname blk",p.name));
+  const nmParts = String(p.name).split(" ");
+  const nmH = el("h2","dname blk");
+  if(nmParts.length > 1){
+    nmH.appendChild(el("span","phfirst", nmParts[0]));
+    nmH.appendChild(el("span","phlast", nmParts.slice(1).join(" ")));
+  } else nmH.textContent = p.name;
+  hi.appendChild(nmH);
   const posName = (grp === "3WR 1TE" && row.abb === "WR")
     ? `${row.name} (${WR_SLOT[slot] || "WR"})` : row.name;
   hi.appendChild(el("div","dpos", `${posName} \u00b7 ${idx===0?"Starter":"Backup "+idx}`));
   h.appendChild(hi);
+  // His three headline numbers along the bottom of the card: this season's if
+  // he has any, otherwise last season's.
+  const box3 = (p.cur && p.cur.items.length ? p.cur : p.st);
+  if(box3 && box3.items.length){
+    const st3 = el("div","phstats");
+    box3.items.slice(0, 3).forEach(it=>{
+      const c = el("div");
+      c.appendChild(el("b", null, it.v.toLocaleString()));
+      c.appendChild(el("span", null, it.l));
+      st3.appendChild(c);
+    });
+    h.appendChild(st3);
+    h.classList.add("has3");
+  }
   d.appendChild(h);
 
   // Tag row: Top 100, rookie status, and where they played last season.
@@ -3759,7 +3988,7 @@ function renderDetail(grp,slot,idx){
       if(it.r){
         const pct = it.r / it.n;
         const cls = pct <= 0.2 ? "good" : pct <= 0.6 ? "mid" : "low";
-        const rr = el("span","r " + cls);
+        const rr = rankCell(cls, it.r, it.n);
         rr.appendChild(el("b", null, ord(it.r)));
         rr.appendChild(document.createTextNode(" / " + it.n));
         r.appendChild(rr);
@@ -3791,7 +4020,7 @@ function renderDetail(grp,slot,idx){
       if(it.r){
         const pct = it.r/it.n;
         const cls = pct<=0.2?"good":pct<=0.6?"mid":"low";
-        const rr = el("span","r "+cls);
+        const rr = rankCell(cls, it.r, it.n);
         rr.appendChild(el("b",null,ord(it.r)));
         rr.appendChild(document.createTextNode(" / "+it.n));
         r.appendChild(rr);
@@ -4231,7 +4460,7 @@ function renderDetail(grp,slot,idx){
       r.appendChild(el("span","v", it.v.toLocaleString()));
       if(it.r){
         const cls = it.r/it.n<=0.2?"good":it.r/it.n<=0.6?"mid":"low";
-        const rr = el("span","r "+cls);
+        const rr = rankCell(cls, it.r, it.n);
         rr.appendChild(el("b",null,ord(it.r)));
         rr.appendChild(document.createTextNode(" / "+it.n));
         r.appendChild(rr);
@@ -10953,6 +11182,11 @@ function shortNet(n){
   return String(n).toUpperCase().slice(0, 8);
 }
 
+function netTag(n){
+  const t = shortNet(n);
+  return t ? el("span","gctv", t) : document.createTextNode("");
+}
+
 const ICON_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg>';
 const ICON_TV = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 14h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 
@@ -10969,8 +11203,9 @@ function gameCard(g, s0, big){
   card.onkeydown = e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); go(); } };
 
   const aw = s ? num(s.a) : null, hw = s ? num(s.h) : null;
-  const won = state === "post" && aw != null && hw != null && aw !== hw ? (aw > hw ? g.a : g.h) : null;
+  const won = state === "post" && !blank && aw != null && hw != null && aw !== hw ? (aw > hw ? g.a : g.h) : null;
   const standRec = ab => ((((DATA.standings || {}).teams) || {})[ab] || {}).rec || "";
+  cardColours(card, g.a, g.h);
 
   [[g.a, s && s.a, s && s.ar], [g.h, s && s.h, s && s.hr]].forEach(([ab, sc, rec])=>{
     const t = DATA.teams[ab] || {};
@@ -11006,10 +11241,10 @@ function gameCard(g, s0, big){
     const c = cell(dd);
     if(pos && pos.redZone){ c.classList.add("rz"); c.title = "Red zone"; }
   } else if(state === "post"){
-    cell(shortNet(s.net), "net");
+    cell("", "net").appendChild(netTag(s.net));
     cell(/OT/i.test(s.detail || "") ? "Final/OT" : "Final", "fin");
   } else {
-    cell(shortNet(s && s.net), "net");
+    cell("", "net").appendChild(netTag(s && s.net));
     cell(fmtKick(g), "kick");
   }
   const icons = el("span","gccell gcicons");
@@ -11033,6 +11268,13 @@ function gameCard(g, s0, big){
   return card;
 }
 
+/* A card shaded with the away colour on the left and the home colour on the
+   right, with a two-colour stripe across the top, as the NBA app's cards are. */
+function cardColours(card, a, h){
+  card.style.setProperty("--ac", stripeColor(DATA.teams[a] || {}));
+  card.style.setProperty("--hc", stripeColor(DATA.teams[h] || {}));
+}
+
 /* "2:00 - 2nd" as the NFL app writes it: "Q2 2:00". */
 function clockFromDetail(g){
   const d = g.detail || "";
@@ -11052,7 +11294,8 @@ function scoreCard(g, opts){
   const a = g.teams.find(t => !t.home) || {}, h = g.teams.find(t => t.home) || {};
   const card = el("div","gc gcbig static gc-" + (g.state || "pre"));
   const aw = num(a.score), hw = num(h.score);
-  const won = g.state === "post" && aw != null && hw != null && aw !== hw ? (aw > hw ? a.ab : h.ab) : null;
+  const won = g.state === "post" && !opts.hide && aw != null && hw != null && aw !== hw ? (aw > hw ? a.ab : h.ab) : null;
+  cardColours(card, a.ab, h.ab);
   [a, h].forEach(t=>{
     const tm = DATA.teams[t.ab] || {};
     const row = el("div","gcrow" + (won ? (won === t.ab ? " won" : " lost") : ""));
@@ -11117,10 +11360,13 @@ function drawGames(wrap, slate, scores){
   });
   const byKick = (x, y) => ((x.g.d || "") + (x.g.t || "")).localeCompare((y.g.d || "") + (y.g.t || ""));
 
-  const section = (title, cls) => {
+  const lc = $("#sclive");
+  if(lc){ lc.hidden = !live.length; lc.textContent = live.length + " live"; }
+  const section = (title, cls, count) => {
     const h = el("div","gcsec " + (cls || ""));
     if(cls === "live") h.appendChild(el("i","gclive"));
     h.appendChild(document.createTextNode(title));
+    if(count) h.appendChild(el("span","gccount", String(count)));
     if(cls === "live" && mvLiveGames().length){
       const mv = el("button","pbtn mvopen","Multiview");
       mv.onclick = () => { closeScores(); openMulti(); };
@@ -11142,13 +11388,13 @@ function drawGames(wrap, slate, scores){
   };
 
   if(live.length){
-    section("Live now", "live");
+    section("Live now", "live", live.length);
     const grid = el("div","gcgrid big");
     live.sort(byKick).forEach(({g, s}) => grid.appendChild(gameCard(g, s, true)));
     wrap.appendChild(grid);
   }
-  if(pre.length){ section(live.length || post.length ? "Upcoming games" : "Games"); byDay(pre); }
-  if(post.length){ section("Final"); byDay(post); }
+  if(pre.length){ section(live.length || post.length ? "Upcoming games" : "Games", "", pre.length); byDay(pre); }
+  if(post.length){ section("Final", "fin", post.length); byDay(post); }
 
   const n = el("div","carnote");
   n.textContent = "Times are in your time zone. Tap a game for its live feed, "
@@ -11964,9 +12210,16 @@ function renderStandings(host){
       const v = S.teams[tm];
       if(!v) return;
       // In the conference view the top seven make the postseason; a line marks it.
+      // Seeds as badges: green for a division leader's top-four seed, gold for a
+      // wild card. In the division view the leader gets the green one.
+      const pos = standView === "conf" ? v.seed : v.dpos;
+      const seedCls = standView === "conf"
+        ? (v.seed && v.seed <= 4 ? " po" : v.seed ? " wc" : "")
+        : (v.dpos === 1 && !meta.partial ? " po" : "");
       const row = teamRow(tm, (tm === team ? "cur" : "")
         + (standView === "conf" && i === 7 ? " cut" : ""),
-        el("span","gcpos", String(standView === "conf" ? (v.seed || "") : (v.dpos || ""))));
+        el("span","gcpos seed" + seedCls, String(pos || (standView === "conf" ? i + 1 : ""))));
+      row.style.setProperty("--tc", stripeColor(DATA.teams[tm] || {}));
       const mid = el("div","gcmid");
       const t = DATA.teams[tm] || {};
       const nm = el("div","gcname");
@@ -11982,7 +12235,11 @@ function renderStandings(host){
       row.appendChild(form);
       row.appendChild(el("span","gcdiff" + (v.diff > 0 ? " up" : v.diff < 0 ? " dn" : ""),
         (v.diff > 0 ? "+" : "") + v.diff));
-      row.appendChild(el("span","gcwl", v.rec));
+      const wl = el("span","gcwl stwl");
+      wl.appendChild(el("span", null, v.rec));
+      const pb = el("i","stbar"); pb.style.setProperty("--p", Math.round((v.pct || 0) * 100) + "%");
+      wl.appendChild(pb);
+      row.appendChild(wl);
       row.onclick = () => { $("#scores").hidden = true; goTeam(tm); };
       card.appendChild(row);
     });
@@ -12845,7 +13102,7 @@ function renderMock(nav, body){
   mockOrder().forEach((ab, i)=>{
     const t = DATA.teams[ab] || {};
     const st = ((DATA.standings || {}).teams || {})[ab] || {};
-    const row = teamRow(ab, ab === team ? "cur" : "", el("span","mkno", String(i + 1)));
+    const row = teamRow(ab, ab === team ? "cur" : "", el("span","mkno" + (i < 3 ? " t1" : i < 14 ? " t2" : ""), String(i + 1)));
     const mid = el("div","gcmid");
     const nm = el("div","gcname");
     nm.appendChild(el("span","nk", t.nick || ab));
@@ -13259,7 +13516,9 @@ function addHint(host, key){
   if(!g || !host) return host;
   const b = document.createElement("button");
   b.type = "button";
-  b.className = "hint";
+  // "ihint", not "hint": the label above the field already used "hint", and
+  // sharing the name squeezed that label into this button's 16-pixel circle.
+  b.className = "ihint";
   b.textContent = "i";
   b.setAttribute("aria-label", "What is " + key + "?");
   b.onclick = ev => { ev.stopPropagation(); ev.preventDefault(); showHint(b, key); };
@@ -13293,7 +13552,7 @@ function hideHint(){
   if(box) box.hidden = true;
   hintFor = null;
 }
-document.addEventListener("click", e => { if(!e.target.closest("#hintbox, .hint")) hideHint(); }, true);
+document.addEventListener("click", e => { if(!e.target.closest("#hintbox, .ihint")) hideHint(); }, true);
 document.addEventListener("scroll", hideHint, true);
 window.addEventListener("resize", hideHint);
 
@@ -13645,16 +13904,24 @@ function renderLeaders(){
     card.appendChild(hd);
     if(bd.sub) card.appendChild(el("div","ldsub", bd.sub));
 
+    const nums5 = bd.rows.slice(0, 5).map(r => typeof r.v === "number" ? Math.abs(r.v) : 0);
+    const top5 = Math.max(...nums5, 0) || 1;
     bd.rows.slice(0, 5).forEach((r, i)=>{
       const who = leadWho(r);
-      const row = el("button", i === 0 ? "ldtop" : "ldrow");
+      const row = el("button", (i === 0 ? "ldtop" : "ldrow") + medal(r.r));
+      row.style.setProperty("--tc", stripeColor(DATA.teams[who.team] || {}));
       if(i) row.appendChild(el("span","ldr", String(r.r)));
       row.appendChild(leadPhoto(who, i === 0 ? 160 : 96, i === 0 ? "ldph big" : "ldph"));
       const tx = el("div","ldtx");
       if(i === 0) tx.appendChild(el("div","ldone", bd.word || (bd.asc ? "Fewest" : "Leader")));
       tx.appendChild(el("div","ldname", who.name));
       tx.appendChild(leadMeta(who));
+      if(i && typeof r.v === "number" && !bd.asc) tx.appendChild(valueBar(Math.abs(r.v) / top5));
       row.appendChild(tx);
+      if(i === 0 && who.team && !who.isTeam){
+        const tl = DATA.teams[who.team] || {};
+        if(tl.logo){ const wm = el("img","ldwm"); wm.src = tl.logo; wm.alt = ""; wm.loading = "lazy"; row.appendChild(wm); }
+      }
       row.appendChild(el("span","ldval" + (i === 0 ? " big" : ""), fmtLeadVal(r.v, bd.unit)));
       if(r.pid || who.isTeam) row.onclick = () => leadOpen(r);
       else row.classList.add("gone");
@@ -13674,6 +13941,38 @@ function renderLeaders(){
   box.scrollTop = 0;
 }
 
+/* Gold, silver and bronze for the top three places (ties share a medal). */
+const medal = r => r === 1 ? " m1" : r === 2 ? " m2" : r === 3 ? " m3" : "";
+function valueBar(frac){
+  const bar = el("div","ldbar");
+  const fill = el("i");
+  fill.style.width = Math.max(3, Math.min(1, frac) * 100) + "%";
+  bar.appendChild(fill);
+  return bar;
+}
+
+/* The top three on a podium: big photo ringed in team colour, the team's logo
+   faded behind, a medal and the number. */
+function leadPodium(bd){
+  const pod = el("div","lpod");
+  bd.rows.slice(0, 3).forEach(r=>{
+    const who = leadWho(r);
+    const tm = DATA.teams[who.team] || {};
+    const c = el("button","lpc" + medal(r.r));
+    c.style.setProperty("--tc", stripeColor(tm));
+    if(tm.logo){ const wl = el("img","lpl"); wl.src = tm.logo; wl.alt = ""; wl.loading = "lazy"; c.appendChild(wl); }
+    c.appendChild(el("span","lpk", String(r.r)));
+    c.appendChild(leadPhoto(who, 160, "lpf"));
+    c.appendChild(el("span","lpn", who.name));
+    c.appendChild(el("span","lpm", who.isTeam ? (tm.div || "") : [who.team, who.pos].filter(Boolean).join(" \u00b7 ")));
+    c.appendChild(el("span","lpv", fmtLeadVal(r.v, bd.unit)));
+    if(r.pid || who.isTeam) c.onclick = () => leadOpen(r);
+    else c.classList.add("gone");
+    pod.appendChild(c);
+  });
+  return pod;
+}
+
 /* The full ranking for one board, with a bar for how close each is to the top. */
 function renderLeadList(box, bd){
   const top = el("div","ldlisthead");
@@ -13688,10 +13987,12 @@ function renderLeadList(box, bd){
 
   const nums = bd.rows.map(r => typeof r.v === "number" ? Math.abs(r.v) : 0);
   const max = Math.max(...nums, 0) || 1;
+  if(bd.rows.length >= 6) box.appendChild(leadPodium(bd));
   const list = el("div","ldlist");
-  bd.rows.slice(0, 60).forEach(r=>{
+  bd.rows.slice(bd.rows.length >= 6 ? 3 : 0, 60).forEach(r=>{
     const who = leadWho(r);
-    const row = el("button","ldline" + (r.r <= 3 ? " podium" : ""));
+    const row = el("button","ldline" + medal(r.r));
+    row.style.setProperty("--tc", stripeColor(DATA.teams[who.team] || {}));
     row.appendChild(el("span","ldr", String(r.r)));
     row.appendChild(leadPhoto(who, 96, "ldph"));
     const tx = el("div","ldtx");
@@ -13744,7 +14045,9 @@ function applyTheme(light){
   if(meta) meta.content = light ? "#EDF1EF" : "#0E1417";
   const b = $("#themebtn");
   // Shows where a tap will take you, as most theme switches do.
-  b.textContent = light ? "\u263E" : "\u2600";
+  b.innerHTML = light
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>';
   b.setAttribute("aria-pressed", String(light));
   b.title = light ? "Switch to dark" : "Switch to light";
   // Colours worked out in script (team accents, chart bands) need redrawing.
@@ -13793,6 +14096,10 @@ function setExplore(open){
   $("#explorebtn").setAttribute("aria-expanded", String(open));
 }
 $("#explorebtn").onclick = e => { e.stopPropagation(); setExplore($("#exploremenu").hidden); };
+// On phones Leaders and Draft live in the More menu (as in the NBA app).
+document.querySelectorAll("#exploremenu [data-go]").forEach(b => b.onclick = () => document.getElementById(b.dataset.go).click());
+$("#spbtn").onclick = () => setHideScores(!hideScores());
+$("#spbtn").setAttribute("aria-pressed", hideScores());
 $("#exploremenu").addEventListener("click", () => setExplore(false));
 document.addEventListener("click", e => {
   if(!$("#exploremenu").hidden && !e.target.closest(".menuwrap")) setExplore(false);
