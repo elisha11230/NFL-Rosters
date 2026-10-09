@@ -2874,6 +2874,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
    label's line. */
 .ql{display:flex;align-items:center;white-space:nowrap;flex-basis:96px}
 .ql .ihint{margin-left:4px}
+.sect h3 .ihint{margin-right:auto}
 #hintbox{position:fixed;z-index:95;padding:12px 14px;border-radius:12px;background:var(--panel);
   border:1px solid var(--team-accent);box-shadow:0 12px 32px rgba(0,0,0,.5);color:var(--chalk);
   font-size:13.5px;line-height:1.45;text-transform:none;letter-spacing:0}
@@ -3071,6 +3072,67 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 /* ---------- pills and panels shared by these pages ---------- */
 .ldgroups button,.ldseasons button,.boxtabs button{border-radius:16px}
 
+/* ---------- player of the game, form, rookie tracker ---------- */
+.gcpog{display:grid;grid-template-columns:30px minmax(0,1fr);grid-template-areas:"f t" "f x";column-gap:8px;align-items:center;
+  margin:6px 10px 0 12px;padding:7px 8px;border-radius:10px;background:color-mix(in srgb,var(--brass) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--brass) 28%,transparent)}
+.gcpogf{grid-area:f;width:30px;height:30px;border-radius:50%;overflow:hidden;background:var(--well);border:2px solid var(--tc)}
+.gcpogf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.gcpogt{grid-area:t;display:flex;align-items:baseline;gap:6px;min-width:0}
+.gcpogt small{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);white-space:nowrap}
+.gcpogt b{font-size:13px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcpogx{grid-area:x;font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcgrid:not(.big) .gcpogt small{display:none}
+
+.formtag{padding:2px 9px;border-radius:10px;font-weight:700!important;letter-spacing:.1em!important}
+.formtag.hot{background:color-mix(in srgb,#E8763A 20%,transparent);color:#F0995E!important}
+.formtag.cold{background:color-mix(in srgb,#5FA8E0 20%,transparent);color:#7DB8E8!important}
+:root[data-theme="light"] .formtag.hot{color:#B4501C!important}
+:root[data-theme="light"] .formtag.cold{color:#2A6FA8!important}
+.pill.form.hot{border-color:#E8763A;color:#F0995E}
+.pill.form.cold{border-color:#5FA8E0;color:#7DB8E8}
+.formbars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:4px 0 12px}
+.formbar{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;height:100%;gap:3px}
+.formbar b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:12px;color:var(--hi)}
+.formcol{flex:1 1 auto;width:100%;max-width:38px;display:flex;align-items:flex-end}
+.formcol i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--team-accent),color-mix(in srgb,var(--team-accent) 45%,transparent))}
+.formsec:has(.formtag.hot) .formcol i{background:linear-gradient(180deg,#F0995E,color-mix(in srgb,#E8763A 40%,transparent))}
+.formsec:has(.formtag.cold) .formcol i{background:linear-gradient(180deg,#7DB8E8,color-mix(in srgb,#5FA8E0 40%,transparent))}
+.formbar small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;color:var(--dim);line-height:1}
+.formbar small.fo{color:var(--mute)}
+.formrow{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid color-mix(in srgb,var(--rule) 70%,transparent);font-size:13px}
+.formrow .fw{flex:0 0 86px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.formrow .fl{color:var(--chalk);min-width:0}
+
+.rklist{display:flex;flex-direction:column}
+.rkrow{display:grid;grid-template-columns:46px 46px minmax(0,1fr) 78px;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:10px 8px;border-radius:12px;border-bottom:1px solid color-mix(in srgb,var(--rule) 70%,transparent)}
+.rkrow:hover{background:var(--hover)}
+.rkpk{display:flex;flex-direction:column;align-items:center;justify-content:center;height:44px;border-radius:10px;
+  background:color-mix(in srgb,var(--mute) 12%,transparent);font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--chalk);line-height:1}
+.rkpk small{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.rkpk.top{background:linear-gradient(135deg,#F5D76E,#C9A227);color:#0E1417}.rkpk.top small{color:#3a2f08}
+.rkpk.r1{background:color-mix(in srgb,var(--team-accent) 26%,transparent)}
+.rkf{width:46px;height:46px;border-radius:50%;overflow:hidden;background:var(--well);border:2px solid var(--tc);display:flex;align-items:flex-end;justify-content:center}
+.rkf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.rkn{min-width:0;display:flex;flex-direction:column;gap:2px}
+.rkn b{font-size:15px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkn small{display:flex;align-items:center;gap:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.04em;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkn small img{width:15px;height:15px;object-fit:contain}
+.rkn small.rkline{color:var(--chalk);font-size:12.5px}
+.rksnap{display:flex;align-items:center;gap:7px;margin-top:2px}
+.rksnapbar{flex:0 0 64px;height:4px;border-radius:2px;background:color-mix(in srgb,var(--mute) 16%,transparent);overflow:hidden}
+.rksnapbar i{display:block;height:100%;background:var(--tc);border-radius:2px}
+.rkvs{display:flex;flex-direction:column;align-items:flex-end;text-align:right;line-height:1.15}
+.rkvs b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:17px;color:var(--hi)}
+.rkvs small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.04em;color:var(--dim)}
+.rkvs small{white-space:nowrap}
+.rkvs .rkpicked{margin-top:3px;padding:1px 6px;border-radius:8px;border:1px solid var(--line)}
+.rkvs.up .rkpicked{border-color:color-mix(in srgb,var(--good-t) 60%,var(--line));color:var(--good-t)}
+.rkvs.dn .rkpicked{border-color:color-mix(in srgb,var(--bad-t) 50%,var(--line));color:var(--bad-t)}
+.rksortlab{margin-left:10px}
+@media (max-width:420px){.rkrow{grid-template-columns:40px 40px minmax(0,1fr) 66px;gap:8px;padding:9px 4px}.rkf{width:40px;height:40px}.rkpk{height:40px}}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -3110,6 +3172,7 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
       <div id="exploremenu" role="menu" hidden>
         <button class="phonly" role="menuitem" data-go="leadbtn"><b>Leaders</b><small>League leaderboards</small></button>
         <button class="phonly" role="menuitem" data-go="draftbtn"><b>Draft</b><small>Past drafts and next year's mock</small></button>
+        <button id="rookiebtn" role="menuitem"><b>Rookies</b><small>How this year's class is playing</small></button>
         <button id="conceptbtn" role="menuitem"><b>How it works</b><small>Routes, coverages and run plays, animated</small></button>
         <button id="facesbtn" role="menuitem"><b>Faces</b><small>This roster, face by face</small></button>
         <button id="gamebtn" role="menuitem"><b>Lineup</b><small>Put the starters back where they belong</small></button>
@@ -3813,6 +3876,12 @@ function renderDetail(grp,slot,idx){
     b.appendChild(el("span","sub", DATA.statsSeason));
     tags.appendChild(b);
   }
+  if(p.fm && p.fm.s){
+    const b = el("span","pill form " + p.fm.s);
+    b.appendChild(el("span", null, p.fm.s === "hot" ? "Running hot" : "Gone cold"));
+    b.appendChild(el("span","sub", p.fm.r + " pts a game lately, " + p.fm.b + " before"));
+    tags.appendChild(b);
+  }
   if(p.dnp){
     const b = el("span","pill");
     b.appendChild(el("span",null,"Did not play in "+DATA.statsSeason));
@@ -4003,6 +4072,9 @@ function renderDetail(grp,slot,idx){
     }
     d.appendChild(cs);
   }
+
+  const fsec = formSection(p);
+  if(fsec) d.appendChild(fsec);
 
   // stats
   const ss = el("div","sect k-stat");
@@ -11226,6 +11298,11 @@ function gameCard(g, s0, big){
     card.appendChild(row);
   });
 
+  if(state === "post" && !blank){
+    const pg = playerOfGame(g, s);
+    if(pg && (pg.pid || pg.name)) card.appendChild(pogLine(pg));
+  }
+
   const foot = el("div","gcfoot");
   const cell = (txt, cls) => { const c = el("span","gccell" + (cls ? " " + cls : ""), txt); foot.appendChild(c); return c; };
   if(s && s.catching){
@@ -12738,6 +12815,16 @@ function buildLeaders(){
     });
   });
 
+  // Form: who is running hot and who has gone cold. Hot first.
+  cats["Form|form:hot"] = {group: "Form", label: "Running hot", sub: "change in points a game, last 3 games", unit: " pts", word: "Hottest", rows: []};
+  cats["Form|form:cold"] = {group: "Form", label: "Gone cold", sub: "change in points a game, last 3 games", unit: " pts", word: "Coldest", rows: []};
+  Object.values(DATA.players).forEach(p=>{
+    const f = p.fm;
+    if(!f || !f.s) return;
+    const diff = Math.round((f.r - f.b) * 10) / 10;
+    if(f.s === "hot") add("Form", "form:hot", "Running hot", "change in points a game, last 3 games", p.id, diff, null, null, "", "Hottest");
+    else add("Form", "form:cold", "Gone cold", "change in points a game, last 3 games", p.id, diff, null, null, "", "Coldest");
+  });
   // Next Gen Stats and charting: every ranked measure is a board.
   Object.values(DATA.players).forEach(p=>{
     [["ngs", "Next Gen"], ["ftn", "Charting"]].forEach(([src, group])=>{
@@ -12769,6 +12856,13 @@ function buildLeaders(){
     });
   });
 
+  ["Form|form:hot", "Form|form:cold"].forEach(k=>{
+    const c = cats[k];
+    if(!c || !c.rows.length){ delete cats[k]; return; }
+    const cold = k.endsWith("cold");
+    c.rows.sort((a, b) => cold ? a.v - b.v : b.v - a.v);
+    c.rows.forEach((row, i) => { row.r = i + 1; row.n = c.rows.length; });
+  });
   /* X-Factor and ability boards are small on purpose -- only two players in the
      league have "Bazooka", and that is the interesting part. The ten-row floor
      that keeps thin statistical boards out would delete exactly the ones worth
@@ -12786,7 +12880,7 @@ function buildLeaders(){
 
   // Drop anything too thin to be a leaderboard.
   Object.keys(cats).forEach(k=>{
-    const keep = k.indexOf("X-Factors|") === 0 || k.indexOf("Abilities|") === 0;
+    const keep = k.indexOf("X-Factors|") === 0 || k.indexOf("Abilities|") === 0 || k.indexOf("Form|") === 0;
     if(!keep && cats[k].rows.length < 10) delete cats[k];
     else cats[k].rows.sort((a,b)=>a.r-b.r);
   });
@@ -12985,7 +13079,7 @@ function renderDraft(){
 
   const nav = $("#drnav"); nav.innerHTML = "";
   const yr = el("div","ldgroups");
-  [["mock", "2027 mock"], ...years.map(y => [y, String(y)])].forEach(([k, lab])=>{
+  [["mock", "2027 mock"], ["rookies", "Rookies"], ...years.map(y => [y, String(y)])].forEach(([k, lab])=>{
     const b = el("button", k === "mock" ? "alt" : null, lab);
     b.setAttribute("aria-pressed", k === draftYear);
     b.onclick = () => { draftYear = k; renderDraft(); };
@@ -12995,6 +13089,7 @@ function renderDraft(){
 
   const body = $("#drbody"); body.innerHTML = "";
   if(draftYear === "mock"){ renderMock(nav, body); body.scrollTop = 0; return; }
+  if(draftYear === "rookies"){ renderRookies(nav, body); body.scrollTop = 0; return; }
 
   // ---- a past draft
   const sub = el("div","ldseasons");
@@ -13503,6 +13598,9 @@ const GLOSS = {
   "Punt power": {d: "Madden's rating of a punter's leg strength."},
   "Punt accuracy": {d: "Madden's rating of a punter's placement."},
 };
+GLOSS["Form"] = {d: "His points game by game this season: PPR fantasy points for the offence (a point a catch, a tenth of a point a yard, six a touchdown), and a matching score for defenders (a solo tackle 1, a sack 4, an interception 6). Running hot or gone cold compares his last three games with the ten before them, reaching into last season early on; games he played under a quarter of the snaps in are left out."};
+GLOSS["Running hot"] = {d: "Players whose last three games have averaged at least a third more points than the ten games before them, and at least four points a game more."};
+GLOSS["Gone cold"] = {d: "Players whose last three games have averaged at least a third fewer points than the ten games before them, and at least four points a game fewer. Games he left early or barely played are not counted."};
 // QBR's breakdown has its own meanings for words used elsewhere ("Sacks" there
 // is points lost to sacks, not sacks made), so it has its own entries.
 GLOSS["QBR: Passing"] = {d: "Points QBR credits to his passing, positive or negative."};
@@ -13555,6 +13653,183 @@ function hideHint(){
 document.addEventListener("click", e => { if(!e.target.closest("#hintbox, .ihint")) hideHint(); }, true);
 document.addEventListener("scroll", hideHint, true);
 window.addEventListener("resize", hideHint);
+
+
+/* ---------------- this season week by week ----------------
+   Player of the game, hot and cold form, and the rookie tracker, built by
+   build_form.py from nflverse's weekly player stats. */
+let EID2PID = null;
+function pidByEid(eid){
+  if(!EID2PID){
+    EID2PID = {};
+    Object.values(DATA.players).forEach(p => { if(p.eid) EID2PID[String(p.eid)] = p.id; });
+  }
+  return eid ? EID2PID[String(eid)] : null;
+}
+function slateWeek(g){
+  for(const [w, list] of Object.entries(DATA.slate || {})) if(list.includes(g)) return w;
+  return String(scoreWeek);
+}
+
+/* The best single game in a finished game: from the build when it has the game;
+   for one that ended since, the best of the scoreboard's passing, rushing and
+   receiving leaders, scored the same way (fantasy points). */
+function playerOfGame(g, s){
+  const built = ((DATA.pog || {})[slateWeek(g)] || {})[g.a + "@" + g.h];
+  if(built) return {pid: built.pid, team: built.t, line: built.x};
+  let best = null;
+  (s && s.leaders || []).forEach(cat => (cat.rows || []).slice(0, 1).forEach(r=>{
+    const d = String(r.display || "").toUpperCase();
+    const n = re => { const m = d.match(re); return m ? +m[1] : 0; };
+    const yds = r.value != null ? r.value : n(/(-?\d+)\s*YDS/);
+    const pts = /pass/i.test(cat.key)
+      ? yds * 0.04 + n(/(\d+)\s*TD/) * 4 - n(/(\d+)\s*INT/) * 2
+      : yds * 0.1 + n(/(\d+)\s*TD/) * 6 + n(/(\d+)\s*REC/);
+    if(!best || pts > best.pts) best = {pts, pid: pidByEid(r.eid), name: r.name, team: r.team, line: String(r.display || "").toLowerCase()};
+  }));
+  return best;
+}
+
+function pogLine(pg){
+  const p = pg.pid ? DATA.players[pg.pid] : null;
+  const box = el("div","gcpog");
+  const ph = el("span","gcpogf");
+  ph.style.setProperty("--tc", stripeColor(DATA.teams[pg.team] || {}));
+  const im = p ? faceImg(p, 64, {lazy: true}) : null;
+  if(im) ph.appendChild(im);
+  box.appendChild(ph);
+  const tx = el("span","gcpogt");
+  tx.appendChild(el("small", null, "Player of the game"));
+  tx.appendChild(el("b", null, p ? shortName(p.name) : (pg.name || "")));
+  box.appendChild(tx);
+  box.appendChild(el("span","gcpogx", pg.line || ""));
+  if(p) box.onclick = e => { e.stopPropagation(); $("#scores").hidden = true; goPlayer(p.id); };
+  return box;
+}
+
+/* ---- form: his games this season, and whether he is running hot or cold */
+function formSection(p){
+  const f = p.fm;
+  if(!f || !f.w || !f.w.length) return null;
+  const sec = el("div","sect k-stat formsec");
+  const h3 = hintLabel("h3", null, "Form", "Form");
+  if(f.s) h3.appendChild(el("span","formtag " + f.s, f.s === "hot" ? "Running hot" : "Gone cold"));
+  else h3.appendChild(el("span", null, f.w.length + (f.w.length === 1 ? " game" : " games")));
+  sec.appendChild(h3);
+  const max = Math.max(...f.w.map(x => x[2]), 1);
+  const bars = el("div","formbars");
+  f.w.forEach(([wk, opp, pts])=>{
+    const c = el("div","formbar");
+    c.appendChild(el("b", null, pts % 1 ? pts.toFixed(1) : String(pts)));
+    const col = el("i");
+    col.style.height = Math.max(4, pts / max * 100) + "%";
+    c.appendChild(el("span","formcol")).appendChild(col);
+    const t = DATA.teams[opp] || {};
+    c.appendChild(el("small", null, "W" + wk));
+    c.appendChild(el("small","fo", opp));
+    bars.appendChild(c);
+  });
+  sec.appendChild(bars);
+  const list = el("div","formlist");
+  f.w.slice().reverse().forEach(([wk, opp, pts, line])=>{
+    const r = el("div","formrow");
+    r.appendChild(el("span","fw", "W" + wk + " vs " + opp));
+    r.appendChild(el("span","fl", line || "–"));
+    list.appendChild(r);
+  });
+  sec.appendChild(list);
+  const m = DATA.formMeta || {};
+  sec.appendChild(el("div","carnote", (f.r != null
+      ? "Last " + (m.recent || 3) + " games: " + f.r + " points a game, against " + f.b
+        + " over the " + f.bn + " before" + (f.s === "hot" ? " — running hot." : f.s === "cold" ? " — gone cold." : ".")
+      : "Hot or cold needs three games this season with enough of his team's snaps.")
+    + " Points are PPR fantasy points for the offence and a matching defensive score for defenders. "
+    + "Games he played less than a quarter of the snaps in are left out of the comparison."));
+  return sec;
+}
+
+/* ---- rookie tracker: how the newest class is playing, against where each was picked */
+const RK_GROUPS = ["All", "QB", "RB", "WR", "TE", "OL", "DL", "LB", "DB"];
+// Short enough for a phone's narrow column; the full words are in the note.
+const RK_SHORT = {QB:"QBs", RB:"RBs", WR:"WRs", TE:"TEs", OL:"OL", DL:"DL", LB:"LBs", DB:"DBs", K:"Ks", P:"Ps", LS:"LS"};
+const RK_PLURAL = {QB:"quarterbacks", RB:"running backs", WR:"receivers", TE:"tight ends", OL:"linemen",
+  DL:"defensive linemen", LB:"linebackers", DB:"defensive backs", K:"kickers", P:"punters", LS:"long snappers", Other:"others"};
+let rkGroup = "All", rkSort = "prod";
+function renderRookies(nav, body){
+  const sub = el("div","ldseasons");
+  RK_GROUPS.forEach(g=>{
+    const b = el("button", null, g);
+    b.setAttribute("aria-pressed", g === rkGroup);
+    b.onclick = () => { rkGroup = g; renderDraft(); };
+    sub.appendChild(b);
+  });
+  sub.appendChild(el("span","ldlab rksortlab","Sort"));
+  [["prod","Production"],["pick","Draft order"]].forEach(([k, lab])=>{
+    const b = el("button", null, lab);
+    b.setAttribute("aria-pressed", k === rkSort);
+    b.onclick = () => { rkSort = k; renderDraft(); };
+    sub.appendChild(b);
+  });
+  nav.appendChild(sub);
+
+  const yr = (DATA.formMeta || {}).season || "";
+  body.appendChild(el("div","gcsec", yr + " rookies"));
+  let rows = Object.values(DATA.players).filter(p => p.rook && p.rk && (rkGroup === "All" || p.rk.grp === rkGroup));
+  const pick = p => p.pick || 999;
+  rows.sort(rkSort === "pick" ? (a, b) => pick(a) - pick(b)
+    : (a, b) => ((a.rk.pr || 999) - (b.rk.pr || 999)) || (b.rk.pts - a.rk.pts) || (pick(a) - pick(b)));
+  if(!rows.length){ body.appendChild(el("div","carnote","No rookies here yet.")); return; }
+  const list = el("div","rklist");
+  rows.slice(0, 150).forEach(p => list.appendChild(rookieRow(p)));
+  body.appendChild(list);
+  body.appendChild(el("div","carnote",
+    "Production is fantasy points for skill players, a defensive score for defenders, and snap share "
+    + "for linemen, ranked among rookies at the same position; beside it, where he was drafted among "
+    + "them. Snap share is his average share of his side's snaps in the games he played."));
+}
+function rookieRow(p){
+  const r = p.rk, loc = LOCATE[p.id] || {}, ab = loc.team || (p.cur && p.cur.team) || "";
+  const tm = DATA.teams[ab] || {};
+  const row = el("button","rkrow");
+  row.style.setProperty("--tc", stripeColor(tm));
+  const pk = el("span","rkpk" + (p.pick && p.pick <= 10 ? " top" : p.pick && p.pick <= 32 ? " r1" : ""));
+  pk.appendChild(el("small", null, p.dr ? "Rd " + p.dr.rd : "UDFA"));
+  pk.appendChild(document.createTextNode(p.pick ? String(p.pick) : "–"));
+  row.appendChild(pk);
+  const f = el("span","rkf");
+  const im = faceImg(p, 96, {lazy: true});
+  if(im) f.appendChild(im); else f.appendChild(el("span","ldinit", p.name.split(" ").map(x => x[0]).join("").slice(0, 2)));
+  row.appendChild(f);
+  const n = el("span","rkn");
+  n.appendChild(el("b", null, p.name));
+  const s = el("small");
+  if(tm.logo){ const lg = new Image(); lg.src = tm.logo; lg.alt = ""; s.appendChild(lg); }
+  s.appendChild(document.createTextNode([ab, p.pos, p.col].filter(Boolean).join(" · ")));
+  n.appendChild(s);
+  const items = (p.cur && p.cur.items || []).filter(it => it.v).slice(0, 2)
+    .map(it => it.v.toLocaleString() + " " + it.l.toLowerCase()).join(" · ");
+  n.appendChild(el("small","rkline", r.g ? (items || (r.sn != null ? "" : "No stats yet")) : "Yet to play"));
+  if(r.g && r.sn != null){
+    const sb = el("span","rksnap");
+    const fill = el("i"); fill.style.width = r.sn + "%";
+    sb.appendChild(el("span","rksnapbar")).appendChild(fill);
+    sb.appendChild(el("small", null, r.sn + "% of snaps"));
+    sb.title = r.g + (r.g === 1 ? " game" : " games");
+    n.appendChild(sb);
+  }
+  row.appendChild(n);
+  const v = el("span","rkvs");
+  if(r.pr){
+    const gap = r.dk - r.pr;
+    v.classList.add(gap >= 3 ? "up" : gap <= -6 ? "dn" : "even");
+    v.appendChild(el("b", null, ord(r.pr)));
+    v.appendChild(el("small", null, "of " + r.n + " " + (RK_SHORT[r.grp] || "")));
+    v.appendChild(el("small","rkpicked", "picked " + ord(r.dk)));
+  }
+  row.appendChild(v);
+  row.onclick = () => { $("#draft").hidden = true; goPlayer(p.id); };
+  return row;
+}
 
 /* ---------------- Next Gen Stats and FTN charting ----------------
    Labels and one-line explanations live here; the pipeline sends only numbers,
@@ -13713,8 +13988,9 @@ function leaderCats(mode){
 }
 
 const LEAD_POS_GROUPS = () => BUCKET_ORDER.map(b => BUCKET_LABEL[b]).filter(Boolean);
-const LEAD_OTHER = ["Next Gen", "Charting", "Madden", "X-Factors", "Abilities", "Money", "Teams"];
+const LEAD_OTHER = ["Form", "Next Gen", "Charting", "Madden", "X-Factors", "Abilities", "Money", "Teams"];
 const LEAD_OTHER_NOTE = {
+  "Form": "Points a game over the last three games against the ten before them",
   "Next Gen": "NFL Next Gen Stats tracking, this season so far",
   "Charting": "FTN play charting, this season so far. Data: FTN Data via nflverse (CC-BY-SA 4.0)",
   "Madden": "Madden ratings, ranked within each position",
@@ -14099,6 +14375,7 @@ $("#explorebtn").onclick = e => { e.stopPropagation(); setExplore($("#exploremen
 // On phones Leaders and Draft live in the More menu (as in the NBA app).
 document.querySelectorAll("#exploremenu [data-go]").forEach(b => b.onclick = () => document.getElementById(b.dataset.go).click());
 $("#spbtn").onclick = () => setHideScores(!hideScores());
+$("#rookiebtn").onclick = () => { draftYear = "rookies"; openDraft(); };
 $("#spbtn").setAttribute("aria-pressed", hideScores());
 $("#exploremenu").addEventListener("click", () => setExplore(false));
 document.addEventListener("click", e => {

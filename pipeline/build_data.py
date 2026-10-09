@@ -540,6 +540,16 @@ import build_draft_board
 draft_board, draft_board_meta = build_draft_board.build(players)
 print(f"draft      {draft_board_meta['picks']} picks, {draft_board_meta['first']}-{draft_board_meta['last']}")
 
+import build_form
+form, pog, rookies, form_meta = build_form.build(players, master)
+for pid, v in form.items():
+    players[pid]["fm"] = v
+for pid, v in rookies.items():
+    players[pid]["rk"] = v
+print("form       " + (f"{form_meta['form']} players ({form_meta['hot']} hot, {form_meta['cold']} cold), "
+                       f"{form_meta['games']} players of the game, {form_meta['rookies']} rookies"
+                       if form_meta["live"] else "no weekly stats this season yet"))
+
 import build_nextgen
 ngs, ngs_meta = build_nextgen.build(set(players))
 for pid, v in ngs.items():
@@ -646,6 +656,8 @@ payload = {
     "rankMeta": rank_meta,
     "qbrMeta": qbr_meta,
     "ngsMeta": ngs_meta,
+    "formMeta": form_meta,
+    "pog": pog,
     "ftnMeta": ftn_meta,
     "ftnTeams": ftn_teams,
     "draftBoard": draft_board,
