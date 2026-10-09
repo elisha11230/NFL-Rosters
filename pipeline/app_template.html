@@ -5998,7 +5998,15 @@ function setDock(mode){
   }
 }
 
-function dockGame(){ return LIVE.games.find(x => String(x.id) === String(dockGameId)) || null; }
+/* A game opened from another week is not on today's scoreboard, and every
+   scoreboard refresh replaces that list. It is kept here instead, so a refresh
+   cannot drop it and it never shows up among today's games. */
+const OPENED = {};
+function liveGame(id){
+  if(id == null) return undefined;
+  return LIVE.games.find(x => String(x.id) === String(id)) || OPENED[String(id)];
+}
+function dockGame(){ return liveGame(dockGameId) || null; }
 function dockMatchup(g){
   const a = g && g.teams.find(t => !t.home), h = g && g.teams.find(t => t.home);
   return a && h ? a.ab + " at " + h.ab : "Live game";
@@ -6060,14 +6068,14 @@ function wireDockDrag(dock){
 /* After x during a live game, a small button stays so you can get back to it. */
 function showLiveChip(id){
   const chip = document.getElementById("livechip");
-  const g = LIVE.games.find(x => String(x.id) === String(id));
+  const g = liveGame(id);
   if(!chip || !g || g.state !== "in") return;
   chip.dataset.game = String(id);
   chip.querySelector("span").textContent = "Back to " + dockMatchup(g);
   chip.hidden = false;
   clearInterval(chipTimer);
   chipTimer = setInterval(()=>{
-    const gg = LIVE.games.find(x => String(x.id) === String(id));
+    const gg = liveGame(id);
     if(!gg || gg.state !== "in") hideLiveChip();
   }, 30000);
 }
@@ -6618,7 +6626,7 @@ let boxTeam = null;
    need not involve the team on the main page. It used to assume it did. */
 function boxGame(){
   if(watchOn && watchShown) return watchShown;
-  return LIVE.byTeam[team] || LIVE.games.find(x => x.id === LIVE.gameId);
+  return LIVE.byTeam[team] || liveGame(LIVE.gameId);
 }
 
 function openBox(){
@@ -9422,7 +9430,7 @@ function setDelay(v){
 
 function redrawDelayed(force){
   if(!watchOn) return;
-  const g = LIVE.games.find(x => String(x.id) === String(watchGame));
+  const g = liveGame(watchGame);
   if(!g) return;
   const shown = liveDelay ? delayedPlays().length : -1;
   const key = shown + "|" + (delayedLive() || {}).t + "|" + liveDelay;
@@ -10316,7 +10324,7 @@ function openWatch(gameId){
    game rather than the whole scoreboard. */
 let watchPollMs = 0;
 function retimeWatch(){
-  const g = LIVE.games.find(x => String(x.id) === String(watchGame));
+  const g = liveGame(watchGame);
   const ms = g && g.state === "in" ? 5000 : 20000;
   if(ms === watchPollMs && watchPoll) return;
   clearInterval(watchPoll);
@@ -10345,8 +10353,9 @@ function closeWatch(){
 async function refreshWatch(){
   if(!watchOn) return;
   await fetchLive();
-  const g = LIVE.games.find(x => String(x.id) === String(watchGame))
-         || LIVE.byTeam[team];
+  // Only with no game chosen does it fall back to the team's game today;
+  // otherwise a game from another week could open as a different one.
+  const g = watchGame ? liveGame(watchGame) : LIVE.byTeam[team];
   if(g){
     watchGame = String(g.id);
     LIVE.situation = g.state === "in" ? g.situation : null;
@@ -10704,12 +10713,12 @@ function jumpToPlay(p){
   // Open its quarter and expand it far enough to include the play.
   const st = pbpState(), q = p.period || 0;
   st.open[q] = true;
-  const gNow = LIVE.games.find(x => String(x.id) === String(watchGame));
+  const gNow = liveGame(watchGame);
   const ordered = gNow && gNow.state === "post" ? (LIVE.plays || []).slice().reverse() : (LIVE.plays || []);
   const inQ = ordered.filter(x => (x.period || 0) === q);
   const at = inQ.findIndex(x => playKey(x) === playKey(p));
   if(at >= 0) st.more[q] = Math.max(st.more[q] || PBP_STEP, Math.ceil((at + 1) / PBP_STEP) * PBP_STEP);
-  renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
+  renderWatch(liveGame(watchGame));
   const key = playKey(p);
   const card = [...document.querySelectorAll(".pbpc")].find(c => c.dataset.play === key);
   if(!card) return;
@@ -10841,7 +10850,7 @@ function renderPlayByPlay(host, g, a, h, idx, matches){
   [["score","Scoring Plays"],["all","All Plays"],["key","Key Plays"]].forEach(([k, lab])=>{
     const b = el("button", null, lab);
     b.setAttribute("aria-pressed", k === pbpTab);
-    b.onclick = () => { pbpTab = k; renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)) || g); };
+    b.onclick = () => { pbpTab = k; renderWatch(liveGame(watchGame) || g); };
     seg.appendChild(b);
   });
   box.appendChild(seg);
@@ -10855,7 +10864,7 @@ function renderPlayByPlay(host, g, a, h, idx, matches){
       if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; b.appendChild(im); }
       b.appendChild(document.createTextNode(t.nick || ab));
     } else b.textContent = "Both teams";
-    b.onclick = () => { pbpTeam = ab; renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)) || g); };
+    b.onclick = () => { pbpTeam = ab; renderWatch(liveGame(watchGame) || g); };
     tf.appendChild(b);
   });
   box.appendChild(tf);
@@ -11011,7 +11020,7 @@ function renderPlayByPlay(host, g, a, h, idx, matches){
         + (left > PBP_STEP ? "  \u00b7  " + left + " left" : ""));
       more.onclick = () => {
         st.more[gq.q] = Math.min(gq.plays.length, (st.more[gq.q] || PBP_STEP) + PBP_STEP);
-        renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
+        renderWatch(liveGame(watchGame));
       };
       d.appendChild(more);
     }
@@ -11649,12 +11658,10 @@ function fmtKick(g){
    in it. Put it there before anything tries to look it up. */
 function ensureLiveGame(key, g, s){
   if(!s) return;
-  if(!LIVE.games.some(x => x.id === s.id)){
-    const entry = {id: s.id, state: s.state, detail: s.detail, situation: null,
+  if(!LIVE.games.some(x => String(x.id) === String(s.id))){
+    OPENED[String(s.id)] = {id: s.id, state: s.state, detail: s.detail, situation: null,
       teams: [{ab: g.a, score: s.a, home: false},
               {ab: g.h, score: s.h, home: true}]};
-    LIVE.games.push(entry);
-    LIVE.byTeam[g.a] = LIVE.byTeam[g.h] = entry;
   }
   LIVE.gameId = s.id;
 }
@@ -14555,7 +14562,7 @@ function applyTheme(light){
   // Colours worked out in script (team accents, chart bands) need redrawing.
   renderAll();
   if(watchOn && watchGame)
-    renderWatch(LIVE.games.find(x => String(x.id) === String(watchGame)));
+    renderWatch(liveGame(watchGame));
 }
 $("#themebtn").onclick = () => applyTheme(!isLight());
 {
