@@ -19,14 +19,20 @@ disagree that disagreement is itself informative.
                time and by a fluke return.
   Differential plain net points per game. The blunt one, kept because it is
                transparent and everyone understands it.
+  nfelo        Robby Greer's Elo-style model (nfeloapp.com), read from its
+               published game file (build_nfelo.py). The only one here that
+               carries knowledge from last season and adjusts for quarterbacks,
+               so it is steadier early on. Added when the file is present.
 
-The consensus is the average of the four ranks. A team's spread across the four
+The consensus is the average of the ranks. A team's spread across the four
 is reported too, because a side ranked 4th by one measure and 20th by another is
 telling you something a single number would hide.
 """
 import os
 
 import pandas as pd
+
+import build_nfelo
 
 SEASON = 2026
 SRS_ROUNDS = 12          # iterations; converges well before this
@@ -119,6 +125,21 @@ def _epa(teams, through_week=None, path="pbp2026.parquet"):
     return {t: float(off.get(t, 0)) - float(dfn.get(t, 0)) for t in teams}
 
 
+def tiers(teams, path="pbp2026.parquet"):
+    """Offence EPA per play and defence EPA per play allowed, for a tiers chart
+    in the style of rbsdm.com. Pass and run plays only."""
+    _epa(teams, None, path)
+    p = _PBP_CACHE.get("df")
+    if p is None:
+        return None
+    p = p[p.play_type.isin(["pass", "run"]) & p.epa.notna()]
+    if p.empty:
+        return None
+    off, dfn = p.groupby("posteam").epa.mean(), p.groupby("defteam").epa.mean()
+    return {t: [round(float(off[t]), 3), round(float(dfn[t]), 3)]
+            for t in teams if t in off.index and t in dfn.index}
+
+
 def _rate(all_teams, through_week=None):
     """Ratings using only games up to and including a week. Called once per
     completed week so that movement between weeks can be shown."""
@@ -142,6 +163,9 @@ def _rate(all_teams, through_week=None):
                ("Differential", diff, "Net points per game")]
     if epa:
         methods.insert(2, ("EPA", epa, "Expected points added per play"))
+    nf = build_nfelo.ratings(set(teams), through_week)
+    if nf and all(t in nf for t in teams):
+        methods.append(("nfelo", nf, "nfelo's Elo-style model rating"))
 
     ranks = {}
     for name, vals, _desc in methods:
@@ -207,5 +231,6 @@ def build(teams):
         "unranked": sorted(t for t in teams if t not in out),
         "hasMovement": bool(prev),
         "methods": [{"name": n, "desc": d} for n, _v, d in methods],
+        "tiers": tiers(teams),
     }
     return out, out_meta

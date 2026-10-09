@@ -540,6 +540,11 @@ import build_draft_board
 draft_board, draft_board_meta = build_draft_board.build(players)
 print(f"draft      {draft_board_meta['picks']} picks, {draft_board_meta['first']}-{draft_board_meta['last']}")
 
+import build_nfelo
+nfelo_games, nfelo_meta = build_nfelo.build(set(team_meta))
+print("nfelo      " + (f"{nfelo_meta['games']} games, weeks {nfelo_meta['weeks'][0]}-{nfelo_meta['weeks'][-1]}"
+                       if nfelo_meta["live"] else "no nfelo file"))
+
 import build_form
 form, pog, rookies, form_meta = build_form.build(players, master)
 for pid, v in form.items():
@@ -657,6 +662,8 @@ payload = {
     "qbrMeta": qbr_meta,
     "ngsMeta": ngs_meta,
     "formMeta": form_meta,
+    "nfelo": nfelo_games,
+    "nfeloMeta": nfelo_meta,
     "pog": pog,
     "ftnMeta": ftn_meta,
     "ftnTeams": ftn_teams,

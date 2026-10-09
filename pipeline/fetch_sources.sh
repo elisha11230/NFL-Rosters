@@ -130,6 +130,8 @@ for k in passing receiving rushing; do
   optional "ngs_$k.parquet" "$B/nextgen_stats/ngs_$k.parquet"
 done
 optional ftn_2026.parquet     "$B/ftn_charting/ftn_charting_2026.parquet"
+# nfelo's game file: ratings, win probabilities and spreads (build_nfelo.py).
+optional nfelo_games.csv      "https://raw.githubusercontent.com/greerreNFL/nfelo/main/output_data/nfelo_games.csv"
 
 # Madden ratings come from a committed CSV in a public repository, not from EA:
 # there is no EA ratings API, and scraping their site is fragile and a terms

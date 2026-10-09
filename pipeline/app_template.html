@@ -3104,34 +3104,69 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .formrow .fw{flex:0 0 86px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .formrow .fl{color:var(--chalk);min-width:0}
 
-.rklist{display:flex;flex-direction:column}
-.rkrow{display:grid;grid-template-columns:46px 46px minmax(0,1fr) 78px;align-items:center;gap:10px;width:100%;text-align:left;
+.rclist{display:flex;flex-direction:column}
+.rcrow{display:grid;grid-template-columns:46px 46px minmax(0,1fr) 78px;align-items:center;gap:10px;width:100%;text-align:left;
   padding:10px 8px;border-radius:12px;border-bottom:1px solid color-mix(in srgb,var(--rule) 70%,transparent)}
-.rkrow:hover{background:var(--hover)}
-.rkpk{display:flex;flex-direction:column;align-items:center;justify-content:center;height:44px;border-radius:10px;
+.rcrow:hover{background:var(--hover)}
+.rcpk{display:flex;flex-direction:column;align-items:center;justify-content:center;height:44px;border-radius:10px;
   background:color-mix(in srgb,var(--mute) 12%,transparent);font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--chalk);line-height:1}
-.rkpk small{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
-.rkpk.top{background:linear-gradient(135deg,#F5D76E,#C9A227);color:#0E1417}.rkpk.top small{color:#3a2f08}
-.rkpk.r1{background:color-mix(in srgb,var(--team-accent) 26%,transparent)}
-.rkf{width:46px;height:46px;border-radius:50%;overflow:hidden;background:var(--well);border:2px solid var(--tc);display:flex;align-items:flex-end;justify-content:center}
-.rkf img{width:100%;height:100%;object-fit:cover;object-position:top center}
-.rkn{min-width:0;display:flex;flex-direction:column;gap:2px}
-.rkn b{font-size:15px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rkn small{display:flex;align-items:center;gap:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.04em;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rkn small img{width:15px;height:15px;object-fit:contain}
-.rkn small.rkline{color:var(--chalk);font-size:12.5px}
-.rksnap{display:flex;align-items:center;gap:7px;margin-top:2px}
-.rksnapbar{flex:0 0 64px;height:4px;border-radius:2px;background:color-mix(in srgb,var(--mute) 16%,transparent);overflow:hidden}
-.rksnapbar i{display:block;height:100%;background:var(--tc);border-radius:2px}
-.rkvs{display:flex;flex-direction:column;align-items:flex-end;text-align:right;line-height:1.15}
-.rkvs b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:17px;color:var(--hi)}
-.rkvs small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.04em;color:var(--dim)}
-.rkvs small{white-space:nowrap}
-.rkvs .rkpicked{margin-top:3px;padding:1px 6px;border-radius:8px;border:1px solid var(--line)}
-.rkvs.up .rkpicked{border-color:color-mix(in srgb,var(--good-t) 60%,var(--line));color:var(--good-t)}
-.rkvs.dn .rkpicked{border-color:color-mix(in srgb,var(--bad-t) 50%,var(--line));color:var(--bad-t)}
-.rksortlab{margin-left:10px}
-@media (max-width:420px){.rkrow{grid-template-columns:40px 40px minmax(0,1fr) 66px;gap:8px;padding:9px 4px}.rkf{width:40px;height:40px}.rkpk{height:40px}}
+.rcpk small{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.rcpk.top{background:linear-gradient(135deg,#F5D76E,#C9A227);color:#0E1417}.rcpk.top small{color:#3a2f08}
+.rcpk.r1{background:color-mix(in srgb,var(--team-accent) 26%,transparent)}
+.rcf{width:46px;height:46px;border-radius:50%;overflow:hidden;background:var(--well);border:2px solid var(--tc);display:flex;align-items:flex-end;justify-content:center}
+.rcf img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.rcn{min-width:0;display:flex;flex-direction:column;gap:2px}
+.rcn b{font-size:15px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcn small{display:flex;align-items:center;gap:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.04em;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcn small img{width:15px;height:15px;object-fit:contain}
+.rcn small.rcline{color:var(--chalk);font-size:12.5px}
+.rcsnap{display:flex;align-items:center;gap:7px;margin-top:2px}
+.rcsnapbar{flex:0 0 64px;height:4px;border-radius:2px;background:color-mix(in srgb,var(--mute) 16%,transparent);overflow:hidden}
+.rcsnapbar i{display:block;height:100%;background:var(--tc);border-radius:2px}
+.rcvs{display:flex;flex-direction:column;align-items:flex-end;text-align:right;line-height:1.15}
+.rcvs b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:17px;color:var(--hi)}
+.rcvs small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.04em;color:var(--dim)}
+.rcvs small{white-space:nowrap}
+.rcvs .rcpicked{margin-top:3px;padding:1px 6px;border-radius:8px;border:1px solid var(--line)}
+.rcvs.up .rcpicked{border-color:color-mix(in srgb,var(--good-t) 60%,var(--line));color:var(--good-t)}
+.rcvs.dn .rcpicked{border-color:color-mix(in srgb,var(--bad-t) 50%,var(--line));color:var(--bad-t)}
+.rcsortlab{margin-left:10px}
+@media (max-width:420px){.rcrow{grid-template-columns:40px 40px minmax(0,1fr) 66px;gap:8px;padding:9px 4px}.rcf{width:40px;height:40px}.rcpk{height:40px}}
+
+/* ---------- nfelo predictions and the tiers chart ---------- */
+.predbar{display:flex;height:5px;border-radius:3px;overflow:hidden;gap:2px;background:transparent}
+.predbar i{display:block;height:100%;border-radius:3px}
+.gcpred{display:flex;flex-direction:column;gap:4px;margin:6px 10px 0 12px}
+.gcpredt{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcpredt b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.04em;color:var(--hi)}
+.predsec{margin:12px 0 14px;padding:14px 15px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.predh{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--chalk);margin-bottom:10px}
+.predteams{display:flex;justify-content:space-between;margin-bottom:8px}
+.predteam{display:flex;align-items:center;gap:8px}
+.predteam:last-child{flex-direction:row-reverse}
+.predteam img{width:34px;height:34px;object-fit:contain}
+.predteam b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:22px;color:var(--hi)}
+.predteam small{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.predsec .predbar{height:8px;margin-bottom:12px}
+.predgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.predgrid div{padding:8px;border-radius:10px;background:color-mix(in srgb,var(--mute) 8%,transparent);text-align:center}
+.predgrid small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.predgrid b{display:block;margin-top:2px;font-size:13.5px;color:var(--hi)}
+.prednote{margin-top:10px;padding:8px 11px;border-radius:10px;border:1px solid color-mix(in srgb,var(--brass) 45%,var(--line));
+  background:color-mix(in srgb,var(--brass) 8%,transparent);font-size:13px;color:var(--chalk)}
+.tierswrap{max-width:560px;margin:6px auto 4px;padding:8px;border-radius:16px;background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 22px rgba(0,0,0,.14)}
+svg.tiers{display:block;width:100%;height:auto}
+.tiers .tbg{fill:color-mix(in srgb,var(--field) 55%,transparent)}
+.tiers .tdiag{stroke:var(--line);stroke-width:1;stroke-dasharray:4 4;opacity:.55}
+.tiers .tdiag.mid{opacity:.9}
+.tiers .tavg{stroke:var(--mute);stroke-width:1;opacity:.5}
+.tiers .tax{fill:var(--dim);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em}
+.tiers .tcorner{fill:var(--mute);font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.tiers .tpt{cursor:pointer}
+.tiers .tpt circle{fill:var(--panel);stroke-width:2}
+.tiers .tpt text{fill:var(--hi);font-size:8px;font-family:'Archivo Black',sans-serif}
+.tiers .tpt.cur circle{stroke-width:3.5;filter:drop-shadow(0 0 4px var(--team-accent))}
+.tiers .tpt:hover circle{stroke-width:3.5}
 
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
@@ -5028,11 +5063,11 @@ function sectionRating(d){
 
   const n = el("div","carnote");
   n.textContent = v.spread >= 8
-    ? "The four methods disagree about this team by " + v.spread + " places, "
+    ? "The " + numWord(((DATA.rankMeta || {}).methods || []).length) + " methods disagree about this team by " + v.spread + " places, "
       + "which usually means the record and the underlying play are telling "
       + "different stories."
-    : "Four independent methods, all computed from results rather than taken "
-      + "from a published list.";
+    : "Independent methods, computed from results or, for nfelo, taken from its published model "
+      + "rather than from a writer's list.";
   sec.appendChild(n);
   d.appendChild(sec);
 }
@@ -9481,7 +9516,8 @@ function renderRankings(host){
   const methods = meta.methods || [];
 
   const chips = el("div","wcats");
-  [{name:"Consensus", desc:"Average of the four"}, ...methods].forEach(m=>{
+  const nm = numWord(methods.length);
+  [{name:"Consensus", desc:"Average of the " + nm}, ...methods, {name:"Tiers", desc:"Offence against defence, chart"}].forEach(m=>{
     const b = el("button","wcat", m.name);
     b.setAttribute("aria-pressed", m.name === rankMethod);
     b.title = m.desc || "";
@@ -9490,10 +9526,12 @@ function renderRankings(host){
   });
   host.appendChild(chips);
 
+  if(rankMethod === "Tiers"){ tiersChart(host); return; }
   const active = rankMethod === "Consensus"
-    ? {name:"Consensus", desc:"Average of the four methods below"}
+    ? {name:"Consensus", desc:"Average of the " + nm + " methods below"}
     : (methods.find(m => m.name === rankMethod) || methods[0]);
-  host.appendChild(el("div","carnote", active.desc || ""));
+  host.appendChild(el("div","carnote", (active.desc || "")
+    + (active.name === "nfelo" ? ". From " + NFELO_CREDIT + "; the only method here that carries last season forward and adjusts for quarterbacks." : "")));
 
   const order = Object.keys(R).sort((a,b)=>{
     if(rankMethod === "Consensus") return R[a].rank - R[b].rank;
@@ -9566,7 +9604,7 @@ function renderRankings(host){
     + (meta.unranked && meta.unranked.length
        ? meta.unranked.join(" and ") + " have not played yet and cannot be rated. "
        : "")
-    + "The \u00b1 figure is how far apart the four methods are about a team: a "
+    + "The \u00b1 figure is how far apart the " + nm + " methods are about a team: a "
     + "wide one means they disagree, which is worth knowing.";
   host.appendChild(n);
 }
@@ -11333,6 +11371,10 @@ function gameCard(g, s0, big){
     card.appendChild(row);
   });
 
+  if(state === "pre"){
+    const pl = predLine(g);
+    if(pl) card.appendChild(pl);
+  }
   if(state === "post" && !blank){
     const pg = playerOfGame(g, s);
     if(pg && (pg.pid || pg.name)) card.appendChild(pogLine(pg));
@@ -11703,6 +11745,8 @@ function renderPreview(score){
     score && score.venue ? score.venue : null,
   ].filter(Boolean).join("  \u00b7  ");
   body.appendChild(when);
+  const pred = predSection(g);
+  if(pred) body.appendChild(pred);
 
   // ---- the market
   if(score && score.odds && (score.odds.line || score.odds.total != null)){
@@ -13633,6 +13677,7 @@ const GLOSS = {
   "Punt power": {d: "Madden's rating of a punter's leg strength."},
   "Punt accuracy": {d: "Madden's rating of a punter's placement."},
 };
+GLOSS["nfelo"] = {d: "nfelo is an Elo-style model by Robby Greer (nfeloapp.com). Every team has a rating that rises with wins and falls with losses, by more for a surprise; nfelo adjusts it for the quarterback starting, rest, travel and home field, and carries it over from last season. The gap between two teams' ratings becomes a win probability and a projected spread."};
 GLOSS["Form"] = {d: "His points game by game this season: PPR fantasy points for the offence (a point a catch, a tenth of a point a yard, six a touchdown), and a matching score for defenders (a solo tackle 1, a sack 4, an interception 6). Running hot or gone cold compares his last three games with the ten before them, reaching into last season early on; games he played under a quarter of the snaps in are left out."};
 GLOSS["Running hot"] = {d: "Players whose last three games have averaged at least a third more points than the ten games before them, and at least four points a game more."};
 GLOSS["Gone cold"] = {d: "Players whose last three games have averaged at least a third fewer points than the ten games before them, and at least four points a game fewer. Games he left early or barely played are not counted."};
@@ -13798,7 +13843,7 @@ function renderRookies(nav, body){
     b.onclick = () => { rkGroup = g; renderDraft(); };
     sub.appendChild(b);
   });
-  sub.appendChild(el("span","ldlab rksortlab","Sort"));
+  sub.appendChild(el("span","ldlab rcsortlab","Sort"));
   [["prod","Production"],["pick","Draft order"]].forEach(([k, lab])=>{
     const b = el("button", null, lab);
     b.setAttribute("aria-pressed", k === rkSort);
@@ -13814,7 +13859,7 @@ function renderRookies(nav, body){
   rows.sort(rkSort === "pick" ? (a, b) => pick(a) - pick(b)
     : (a, b) => ((a.rk.pr || 999) - (b.rk.pr || 999)) || (b.rk.pts - a.rk.pts) || (pick(a) - pick(b)));
   if(!rows.length){ body.appendChild(el("div","carnote","No rookies here yet.")); return; }
-  const list = el("div","rklist");
+  const list = el("div","rclist");
   rows.slice(0, 150).forEach(p => list.appendChild(rookieRow(p)));
   body.appendChild(list);
   body.appendChild(el("div","carnote",
@@ -13825,17 +13870,17 @@ function renderRookies(nav, body){
 function rookieRow(p){
   const r = p.rk, loc = LOCATE[p.id] || {}, ab = loc.team || (p.cur && p.cur.team) || "";
   const tm = DATA.teams[ab] || {};
-  const row = el("button","rkrow");
+  const row = el("button","rcrow");
   row.style.setProperty("--tc", stripeColor(tm));
-  const pk = el("span","rkpk" + (p.pick && p.pick <= 10 ? " top" : p.pick && p.pick <= 32 ? " r1" : ""));
+  const pk = el("span","rcpk" + (p.pick && p.pick <= 10 ? " top" : p.pick && p.pick <= 32 ? " r1" : ""));
   pk.appendChild(el("small", null, p.dr ? "Rd " + p.dr.rd : "UDFA"));
   pk.appendChild(document.createTextNode(p.pick ? String(p.pick) : "–"));
   row.appendChild(pk);
-  const f = el("span","rkf");
+  const f = el("span","rcf");
   const im = faceImg(p, 96, {lazy: true});
   if(im) f.appendChild(im); else f.appendChild(el("span","ldinit", p.name.split(" ").map(x => x[0]).join("").slice(0, 2)));
   row.appendChild(f);
-  const n = el("span","rkn");
+  const n = el("span","rcn");
   n.appendChild(el("b", null, p.name));
   const s = el("small");
   if(tm.logo){ const lg = new Image(); lg.src = tm.logo; lg.alt = ""; s.appendChild(lg); }
@@ -13843,27 +13888,173 @@ function rookieRow(p){
   n.appendChild(s);
   const items = (p.cur && p.cur.items || []).filter(it => it.v).slice(0, 2)
     .map(it => it.v.toLocaleString() + " " + it.l.toLowerCase()).join(" · ");
-  n.appendChild(el("small","rkline", r.g ? (items || (r.sn != null ? "" : "No stats yet")) : "Yet to play"));
+  n.appendChild(el("small","rcline", r.g ? (items || (r.sn != null ? "" : "No stats yet")) : "Yet to play"));
   if(r.g && r.sn != null){
-    const sb = el("span","rksnap");
+    const sb = el("span","rcsnap");
     const fill = el("i"); fill.style.width = r.sn + "%";
-    sb.appendChild(el("span","rksnapbar")).appendChild(fill);
+    sb.appendChild(el("span","rcsnapbar")).appendChild(fill);
     sb.appendChild(el("small", null, r.sn + "% of snaps"));
     sb.title = r.g + (r.g === 1 ? " game" : " games");
     n.appendChild(sb);
   }
   row.appendChild(n);
-  const v = el("span","rkvs");
+  const v = el("span","rcvs");
   if(r.pr){
     const gap = r.dk - r.pr;
     v.classList.add(gap >= 3 ? "up" : gap <= -6 ? "dn" : "even");
     v.appendChild(el("b", null, ord(r.pr)));
     v.appendChild(el("small", null, "of " + r.n + " " + (RK_SHORT[r.grp] || "")));
-    v.appendChild(el("small","rkpicked", "picked " + ord(r.dk)));
+    v.appendChild(el("small","rcpicked", "picked " + ord(r.dk)));
   }
   row.appendChild(v);
   row.onclick = () => { $("#draft").hidden = true; goPlayer(p.id); };
   return row;
+}
+
+
+/* ---------------- nfelo predictions and the tiers chart ----------------
+   nfelo (nfeloapp.com, by Robby Greer) publishes, for every game, both teams'
+   ratings, a win probability and a projected spread; build_nfelo.py keeps this
+   season's. Spreads are stored from the home side's view: negative means the
+   home side is favoured. */
+const NFELO_CREDIT = "nfelo (nfeloapp.com) by Robby Greer";
+const numWord = n => ["no","one","two","three","four","five","six","seven","eight"][n] || String(n);
+function nfeloFor(g){ return ((DATA.nfelo || {})[slateWeek(g)] || {})[g.a + "@" + g.h] || null; }
+/* "DAL −9.5" from a home-side spread. */
+function favLine(g, s){
+  if(s == null) return "";
+  if(s === 0) return "Pick 'em";
+  return (s < 0 ? g.h : g.a) + " −" + Math.abs(s);
+}
+function predBar(g, p){
+  const bar = el("span","predbar");
+  const a = el("i"), h = el("i");
+  a.style.width = Math.round((1 - p) * 100) + "%"; a.style.background = stripeColor(DATA.teams[g.a] || {});
+  h.style.width = Math.round(p * 100) + "%";       h.style.background = stripeColor(DATA.teams[g.h] || {});
+  bar.appendChild(a); bar.appendChild(h);
+  return bar;
+}
+/* A line for an upcoming game's card: who nfelo favours, how likely, by how much. */
+function predLine(g){
+  const n = nfeloFor(g);
+  if(!n) return null;
+  const [p, s] = n;
+  const fav = p >= 0.5 ? g.h : g.a, pct = Math.round(Math.max(p, 1 - p) * 100);
+  const box = el("div","gcpred");
+  box.appendChild(predBar(g, p));
+  const t = el("span","gcpredt");
+  t.appendChild(el("b", null, fav + " " + pct + "%"));
+  if(s != null && s !== 0) t.appendChild(document.createTextNode("  ·  " + favLine(g, s)));
+  box.appendChild(t);
+  box.title = "nfelo's win probability and projected spread";
+  return box;
+}
+/* The preview's prediction block: the bar, nfelo's line, the market's, and a
+   note when they disagree by a point and a half or more. */
+function predSection(g){
+  const n = nfeloFor(g);
+  if(!n) return null;
+  const [p, s, v] = n;
+  const sec = el("div","predsec");
+  sec.appendChild(hintLabel("div","predh","Prediction","nfelo"));
+  const top = el("div","predteams");
+  [[g.a, 1 - p], [g.h, p]].forEach(([ab, q])=>{
+    const t = DATA.teams[ab] || {};
+    const c = el("div","predteam");
+    if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; c.appendChild(im); }
+    c.appendChild(el("b", null, Math.round(q * 100) + "%"));
+    c.appendChild(el("small", null, t.nick || ab));
+    top.appendChild(c);
+  });
+  sec.appendChild(top);
+  sec.appendChild(predBar(g, p));
+  const grid = el("div","predgrid");
+  const cell = (k, val) => { const c = el("div"); c.appendChild(el("small", null, k)); c.appendChild(el("b", null, val || "–")); grid.appendChild(c); };
+  cell("nfelo line", favLine(g, s));
+  cell("Market line", favLine(g, v));
+  const R = (DATA.nfeloMeta || {}).ratings || {};
+  cell("Ratings", [g.a, g.h].map(ab => R[ab] ? ab + " " + ord(R[ab][1]) : null).filter(Boolean).join(" · "));
+  sec.appendChild(grid);
+  if(s != null && v != null && Math.abs(s - v) >= 1.5){
+    const better = s < v ? g.h : g.a;
+    sec.appendChild(el("div","prednote", "nfelo rates " + ((DATA.teams[better] || {}).nick || better)
+      + " " + Math.abs(Math.round((v - s) * 10) / 10) + " points better than the market does."));
+  }
+  sec.appendChild(el("div","carnote", "Win probability and spread from " + NFELO_CREDIT
+    + ", an Elo-style model adjusted for quarterbacks, rest and travel. The market line is the betting line it records. "
+    + "Not a recommendation."));
+  return sec;
+}
+
+/* Offence against defence in points added per play, every team as its logo:
+   rbsdm.com's tiers chart. Up and to the right is good at both. The dashed
+   diagonals join teams with the same net figure. */
+function tiersChart(host){
+  const T = (DATA.rankMeta || {}).tiers;
+  if(!T || Object.keys(T).length < 8){ host.appendChild(el("div","carnote","The tiers chart appears once games have been played.")); return; }
+  const pts = Object.entries(T).map(([ab, [o, d]]) => ({ab, x: o, y: -d}));
+  const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+  const mx = mean(pts.map(p => p.x)), my = mean(pts.map(p => p.y));
+  const pad = 0.04;
+  const x0 = Math.min(...pts.map(p => p.x)) - pad, x1 = Math.max(...pts.map(p => p.x)) + pad;
+  const y0 = Math.min(...pts.map(p => p.y)) - pad, y1 = Math.max(...pts.map(p => p.y)) + pad;
+  const W = 360, H = 360, L = 34, B = 30, R2 = 8, Tp = 8;
+  const sx = x => L + (x - x0) / (x1 - x0) * (W - L - R2), sy = y => H - B - (y - y0) / (y1 - y0) * (H - B - Tp);
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("class", "tiers");
+  const add = (tag, at, txt) => { const e = document.createElementNS(NS, tag); Object.entries(at).forEach(([k, v]) => e.setAttribute(k, v)); if(txt) e.textContent = txt; svg.appendChild(e); return e; };
+  add("rect", {x: L, y: Tp, width: W - L - R2, height: H - B - Tp, class: "tbg"});
+  add("clipPath", {id: "tclip"}).appendChild(Object.assign(document.createElementNS(NS, "rect"), {}));
+  svg.lastChild.firstChild.setAttribute("x", L); svg.lastChild.firstChild.setAttribute("y", Tp);
+  svg.lastChild.firstChild.setAttribute("width", W - L - R2); svg.lastChild.firstChild.setAttribute("height", H - B - Tp);
+  // diagonals: lines of equal net (offence + defence), every 0.1
+  const g = add("g", {"clip-path": "url(#tclip)"});
+  for(let k = -0.6; k <= 0.6001; k += 0.1){
+    const l = document.createElementNS(NS, "line");
+    // x + y = k + (mx + my): from the bottom edge to the top
+    const c = k + mx + my;
+    [["x1", sx(c - y0)], ["y1", sy(y0)], ["x2", sx(c - y1)], ["y2", sy(y1)], ["class", "tdiag" + (Math.abs(k) < 1e-9 ? " mid" : "")]]
+      .forEach(([a, v]) => l.setAttribute(a, v));
+    g.appendChild(l);
+  }
+  add("line", {x1: sx(mx), y1: Tp, x2: sx(mx), y2: H - B, class: "tavg"});
+  add("line", {x1: L, y1: sy(my), x2: W - R2, y2: sy(my), class: "tavg"});
+  add("text", {x: (L + W - R2) / 2, y: H - 8, class: "tax", "text-anchor": "middle"}, "Offence: points added per play →");
+  const yl = add("text", {x: 12, y: (Tp + H - B) / 2, class: "tax", "text-anchor": "middle", transform: "rotate(-90 12 " + ((Tp + H - B) / 2) + ")"}, "Defence → better");
+  add("text", {x: W - R2 - 4, y: Tp + 12, class: "tcorner", "text-anchor": "end"}, "Good at both");
+  add("text", {x: L + 4, y: H - B - 6, class: "tcorner"}, "Struggling at both");
+  pts.forEach(p=>{
+    const t = DATA.teams[p.ab] || {};
+    const cx = sx(p.x), cy = sy(p.y), r = 13;
+    const a = document.createElementNS(NS, "g");
+    a.setAttribute("class", "tpt" + (p.ab === team ? " cur" : ""));
+    const c = document.createElementNS(NS, "circle");
+    c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", r);
+    c.setAttribute("style", "stroke:" + stripeColor(t));
+    a.appendChild(c);
+    if(t.logo){
+      const im = document.createElementNS(NS, "image");
+      im.setAttribute("href", t.logo); im.setAttribute("x", cx - 11); im.setAttribute("y", cy - 11);
+      im.setAttribute("width", 22); im.setAttribute("height", 22);
+      a.appendChild(im);
+    } else {
+      const tx = document.createElementNS(NS, "text");
+      tx.setAttribute("x", cx); tx.setAttribute("y", cy + 3); tx.setAttribute("text-anchor", "middle"); tx.textContent = p.ab;
+      a.appendChild(tx);
+    }
+    const ti = document.createElementNS(NS, "title");
+    ti.textContent = (t.name || p.ab) + ": offence " + (p.x > 0 ? "+" : "") + p.x.toFixed(2) + ", defence " + (p.y > 0 ? "+" : "") + p.y.toFixed(2) + " per play";
+    a.appendChild(ti);
+    a.addEventListener("click", () => { $("#scores").hidden = true; goTeam(p.ab); });
+    svg.appendChild(a);
+  });
+  const wrap = el("div","tierswrap");
+  wrap.appendChild(svg);
+  host.appendChild(wrap);
+  host.appendChild(el("div","carnote", "Each team's expected points added per play on offence (left to right) and on defence "
+    + "(bottom to top, so higher means it allows less). Dashed lines join teams with the same net figure; the solid lines "
+    + "are the league average. Pass and run plays this season, in the style of rbsdm.com. Tap a logo for that team."));
 }
 
 /* ---------------- Next Gen Stats and FTN charting ----------------
