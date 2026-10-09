@@ -3149,8 +3149,16 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
   .face .fallback{font-size:13px}
   .jersey{min-width:16px;height:16px;font-size:9.5px;right:-5px;bottom:-3px}
   .t100{width:15px;height:15px;font-size:7.5px;left:-5px;top:-3px}
+  /* The NEW and up/down tags were sized for the desktop disc; on the 38px phone
+     disc they ran into the jersey number at the other bottom corner. */
+  .mv{height:14px;padding:0 3px;left:-3px;bottom:-4px;border-width:1.5px;font-size:7.5px}
+  /* NEW shrinks to an "N" disc: the five linemen are only 47px apart on a
+     360px phone, and the word sat between two neighbours' jersey numbers. */
+  .mv.newc{width:14px;padding:0;justify-content:center;font-size:0}
+  .mv.newc::before{content:"N";font-size:8px}
+  .jersey{right:-3px}
   .slotlab{font-size:9px;line-height:1.1}
-  .pname{font-size:10.5px;line-height:1.15;width:48px;max-width:48px;
+  .pname{font-size:10.5px;line-height:1.15;width:min(48px,12.4vw);max-width:min(48px,12.4vw);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .livestat{font-size:8.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
@@ -3640,11 +3648,38 @@ const FORMS_NARROW = {
   "3WR 1TE": { coords:{
     1:[7,26],   2:[17,44],  3:[24,26], 4:[37,26], 5:[50,26], 6:[63,26],
     7:[76,26],  8:[93,44],  9:[50,50], 10:[89,26], 11:[38,72], 12:[62,72] }},
+  /* Defences on a phone (October 2026): the desktop shapes staggered the edge
+     players below the line and set the nickel back beside the weak-side
+     linebacker, which on a phone put them on top of each other. Here the front
+     is one row, the corners sit just off the line outside it, the linebackers
+     share a row, the nickel is in the slot behind them, and the safeties are
+     deep. "line" lists the front left to right, so a front with a missing
+     player (a team that lists no nose tackle) closes up evenly. */
+  "Base 4-3 D": { line:[1,2,3,4], coords:{
+    1:[17,26],  2:[39,26],  3:[61,26], 4:[83,26],
+    8:[7,45],   5:[30,48],  6:[50,48], 7:[70,48], 11:[93,45],
+    12:[17,67], 9:[38,79],  10:[62,79] }},
+  "Base 3-4 D": { line:[4,1,2,3,7], coords:{
+    4:[12,26],  1:[31,26],  2:[50,26], 3:[69,26], 7:[88,26],
+    8:[7,46],   5:[37,48],  6:[63,48], 11:[93,46],
+    12:[20,67], 9:[38,79],  10:[62,79] }},
 };
 const NARROW_MAX = 740;
 const isNarrowField = () => window.innerWidth <= NARROW_MAX;
-function formCoords(grp, form){
-  return (isNarrowField() && FORMS_NARROW[grp]) ? FORMS_NARROW[grp].coords : form.coords;
+function formCoords(grp, form, by){
+  const nf = isNarrowField() && FORMS_NARROW[grp];
+  if(!nf) return form.coords;
+  const out = Object.assign({}, nf.coords);
+  // Close up a front with a gap in it, keeping its outside edges.
+  if(nf.line && by){
+    const here = nf.line.filter(s => by[s] && by[s].length);
+    if(here.length >= 2 && here.length < nf.line.length){
+      const xs = nf.line.map(s => nf.coords[s][0]);
+      const lo = Math.min(...xs), hi = Math.max(...xs), y = nf.coords[nf.line[0]][1];
+      here.forEach((s, i) => { out[s] = [lo + (hi - lo) * i / (here.length - 1), y]; });
+    }
+  }
+  return out;
 }
 // Turning a phone, or resizing a window across the line, swaps the layout.
 {
@@ -3673,7 +3708,7 @@ function renderField(){
   drawTurf();
 
   const box = $("#chips"); box.innerHTML="";
-  Object.entries(formCoords(grp, form)).forEach(([slot,[x,y]])=>{
+  Object.entries(formCoords(grp, form, by)).forEach(([slot,[x,y]])=>{
     const stackArr = by[slot]; if(!stackArr || !stackArr.length) return;
     const key = grp+"|"+slot;
     const idx = Math.min(sub[key]||0, stackArr.length-1);

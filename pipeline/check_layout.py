@@ -37,6 +37,9 @@ def load_forms(path, const="FORMS"):
 # chips: 46px wide, about 66px tall, 78px on game days with a live stat line.
 # Tested at 360px wide, a smaller phone than most, and the shortest height the
 # CSS allows there (clamp(440px, 125vw, ...) gives 450px at 360px).
+# Half width 23: names are capped at 12.4% of the screen on phones (44px at
+# 360px) and the movement tag hangs only 3px off the disc. The layouts are also
+# checked chip by chip in a real browser across all 32 teams.
 NARROW = dict(W=360, H=450, HALF_W=23, UP=39, DOWN=39)
 WIDE = dict(W=FIELD_W, H=FIELD_H, HALF_W=HALF_W, UP=UP, DOWN=DOWN)
 
