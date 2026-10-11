@@ -3293,6 +3293,30 @@ svg.tiers{display:block;width:100%;height:auto}
   .bxtop + .bxfullh{margin-top:24px}
 }
 
+/* ---------- player and team panel tabs ---------- */
+.ptabmark{height:0}
+.ptabs{display:flex;gap:3px;padding:3px;margin:4px 0 14px;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;position:sticky;top:0;z-index:5;
+  box-shadow:0 -10px 0 var(--panel);overflow-x:auto;scrollbar-width:none}
+.ptabs::-webkit-scrollbar{display:none}
+.ptabs button{flex:1 0 auto;padding:8px 6px;border-radius:9px;background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.045em;
+  text-transform:uppercase;color:var(--mute);white-space:nowrap;transition:background .15s,color .15s}
+@media (hover:hover){ .ptabs button:hover{color:var(--hi);background:var(--hover)} }
+.ptabs button[aria-pressed="true"]{background:var(--team);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#detail > .ptoff{display:none !important}
+#detail > .ptabs + .sect{margin-top:0}
+/* Under the field the page scrolls, not the panel, so the panel must not be a
+   scroll box of its own or the tab bar cannot stick. Beside the field the panel
+   scrolls inside its 20px padding, so the bar sticks at its very top edge. */
+@media (max-width:1250px){
+  #detail{overflow:visible}
+  .ptabs{box-shadow:0 -12px 0 var(--panel)}
+}
+@media (min-width:1251px){
+  .ptabs{top:-20px;box-shadow:0 -20px 0 var(--panel)}
+}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -3969,7 +3993,11 @@ function rankCell(cls, r, n){
   return rr;
 }
 
-function renderDetail(grp,slot,idx){
+function renderDetail(grp, slot, idx){
+  renderDetailBody(grp, slot, idx);
+  tabifyPanel($("#detail"), "player");
+}
+function renderDetailBody(grp,slot,idx){
   const stackArr = slotsFor(grp)[slot];
   const row = stackArr[idx], p = DATA.players[row.pid];
   const d = $("#detail"); d.innerHTML="";
@@ -4800,6 +4828,126 @@ const ord = n => n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][
 // current season has not been played yet.
 const ordSeason = n => ord(n);
 
+/* ---------------- panel tabs ----------------
+   The player and team panels are drawn as one long column of sections; this
+   sorts the finished column into tabs, as the game view has. Each section goes
+   to a tab by its heading. Whatever comes before the first section (the player
+   card, his Top 100 tag, an injury) stays above the tabs. The chosen tab is
+   kept as you move between players, or between teams, so you can flick through
+   everyone's Stats without picking the tab again. */
+const PANEL_TABS = {
+  player: [
+    ["overview", "Overview", /^(Profile|Latest news|Contract|Depth at)/i],
+    ["stats",    "Stats",    /(season$|^Form|^Last season|^Week by week|^Madden|^Against his usual)/i],
+    ["adv",      "Advanced", /(QBR|Next Gen|Charting|Where he works|By situation|^Advanced|Biggest plays)/i],
+    ["career",   "Career",   /(^Career|similar)/i],
+  ],
+  team: [
+    ["overview", "Overview", /^(Coaching|Team news|Power rating|Last season)/i],
+    ["roster",   "Roster",   /(stopped watching|Moving up|Position battles|Roster age|roster was built)/i],
+    ["schedule", "Schedule", /schedule/i],
+    ["history",  "History",  /(Last ten|seasons)/i],
+    ["money",    "Money",    /(money|cap)/i],
+  ],
+};
+const PANEL_TAB = {player: "overview", team: "overview"};
+const AUTO_OPENED = new Set();
+
+function panelTitle(node){
+  if(node.classList.contains("advt")){
+    const sp = node.querySelector("span");
+    return sp ? (sp.firstChild ? sp.firstChild.textContent : sp.textContent) : node.textContent;
+  }
+  const h = node.querySelector(":scope > h3");
+  if(!h) return null;
+  return h.firstChild ? h.firstChild.textContent : h.textContent;
+}
+
+function tabifyPanel(d, kind){
+  if(!d) return;
+  if(d._tabObs){ d._tabObs.disconnect(); d._tabObs = null; }
+  const defs = PANEL_TABS[kind];
+  const kids = [...d.children];
+  const firstSect = kids.findIndex(c => c.classList.contains("sect") || c.classList.contains("advt"));
+  if(firstSect < 0) return;
+  const head = kids.slice(0, firstSect), rest = kids.slice(firstSect);
+
+  // Each item takes the tab its heading names; anything without a heading (a
+  // fold's body, a note under a table) goes with the item before it.
+  const tabOf = (node, prev) => {
+    const t = panelTitle(node);
+    if(t){
+      const hit = defs.find(([, , re]) => re.test(t.trim()));
+      if(hit) return hit[0];
+      return node.classList.contains("advt") || node.classList.contains("sect") ? defs[0][0] : prev;
+    }
+    return prev;
+  };
+  let prev = defs[0][0];
+  const used = new Set();
+  rest.forEach(n => { prev = tabOf(n, prev); n.dataset.ptab = prev; used.add(prev); });
+  const tabs = defs.filter(([k]) => used.has(k));
+  if(tabs.length < 2) return;           // one tab is no tabs
+  if(!used.has(PANEL_TAB[kind])) PANEL_TAB[kind] = tabs[0][0];
+
+  // Folds open inside their tab: the tab already keeps the column short, and a
+  // tab holding nothing but a closed fold looks empty. Opened once each, so one
+  // you close stays closed.
+  rest.forEach(n => {
+    if(n.classList.contains("advt") && n.getAttribute("aria-expanded") === "false"){
+      const key = kind + "|" + (panelTitle(n) || "").trim();
+      if(!AUTO_OPENED.has(key)){ AUTO_OPENED.add(key); n.click(); }
+    }
+  });
+
+  const bar = el("div","ptabs");
+  bar.setAttribute("role", "tablist");
+  tabs.forEach(([k, label]) => {
+    const b = el("button", null, label);
+    b.type = "button";
+    b.dataset.pt = k;
+    b.onclick = () => { PANEL_TAB[kind] = k; show(); keepBarInView(); };
+    bar.appendChild(b);
+  });
+  const mark = el("div","ptabmark");
+  d.insertBefore(mark, rest[0]);
+  d.insertBefore(bar, rest[0]);
+
+  function show(){
+    const on = PANEL_TAB[kind];
+    bar.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.pt === on));
+    [...d.children].forEach(n => { if(n.dataset.ptab) n.classList.toggle("ptoff", n.dataset.ptab !== on); });
+    const cur = bar.querySelector('[aria-pressed="true"]');
+    if(cur && bar.scrollWidth > bar.clientWidth){
+      const l = cur.offsetLeft - bar.offsetLeft, r = l + cur.offsetWidth;
+      if(l < bar.scrollLeft) bar.scrollLeft = Math.max(0, l - 20);
+      else if(r > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = r - bar.clientWidth + 20;
+    }
+  }
+  // A new tab opens at its start. Beside the field the panel scrolls itself;
+  // under it, the page does.
+  function keepBarInView(){
+    const inside = d.scrollHeight > d.clientHeight + 1 && getComputedStyle(d).overflowY !== "visible";
+    const top = mark.getBoundingClientRect().top;
+    if(inside){
+      const off = top - d.getBoundingClientRect().top;
+      if(off < 0) d.scrollTop += off;
+    } else if(top < 0) window.scrollBy(0, top);
+  }
+  show();
+
+  // Sections that arrive after drawing join the tab of the one before them.
+  d._tabObs = new MutationObserver(muts => {
+    muts.forEach(m => m.addedNodes.forEach(n => {
+      if(n.nodeType !== 1 || n.parentNode !== d || n.dataset.ptab || n === bar || n === mark) return;
+      const before = n.previousElementSibling;
+      n.dataset.ptab = tabOf(n, (before && before.dataset.ptab) || defs[0][0]);
+      n.classList.toggle("ptoff", n.dataset.ptab !== PANEL_TAB[kind]);
+    }));
+  });
+  d._tabObs.observe(d, {childList: true});
+}
+
 /* ---------------- team overview (default panel) ---------------- */
 const tier = r => r<=8 ? "tier1" : r<=24 ? "tier2" : "tier3";
 const rcls = r => r<=8 ? "good" : r<=24 ? "mid" : "low";
@@ -5328,6 +5476,10 @@ function sectionBattles(d){
 }
 
 function renderTeam(){
+  renderTeamBody();
+  tabifyPanel($("#detail"), "team");
+}
+function renderTeamBody(){
   const d = $("#detail"); d.innerHTML = "";
   const s = DATA.season[team];
   const co = DATA.coaches ? DATA.coaches[team] : null;
