@@ -455,6 +455,9 @@ print(f"coaches    {len(coaches)} head coaches "
 
 import build_teams
 team_season = build_teams.build(set(team_meta))
+team_now, team_now_meta = build_teams.build_current(set(team_meta))
+print("team now  ", (f"{team_now_meta['teams']} teams through week {team_now_meta['week']}"
+                     if team_now_meta["live"] else "no games this season yet"))
 
 # ---------------------------------------------------------------- timeline
 import build_timeline
@@ -642,6 +645,8 @@ payload = {
     "imgAlt": IMG_ALT,
     "teams": team_meta,
     "season": team_season,
+    "seasonNow": team_now,
+    "seasonNowMeta": team_now_meta,
     "coaches": coaches,
     "careerSchema": build_career.SCHEMA,
     "posBucket": {k: v for k, v in POS_BUCKET.items() if v},

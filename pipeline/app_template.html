@@ -3318,6 +3318,8 @@ svg.tiers{display:block;width:100%;height:auto}
 }
 
 /* ---------- team panel: Overview and Roster ---------- */
+#trec .lastyr{opacity:.75}
+.tvunitseg{margin:0 0 12px}
 .tvbig{font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;color:var(--hi);letter-spacing:-.01em}
 .tvbig small{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .tvsub{font-size:12.5px;color:var(--mute);line-height:1.45;margin-top:6px}
@@ -3934,7 +3936,14 @@ function renderHead(){
 
   const s = DATA.season[team];
   const tr = $("#trec"); tr.innerHTML = "";
-  if(s){
+  const now = standNow(team);
+  if(now){
+    // This season first; last season's finish stays as a small note.
+    tr.appendChild(el("span","wl", now.rec));
+    if(now.dpos) tr.appendChild(el("span","fin" + (now.dpos === 1 ? " champ" : ""), ord(now.dpos) + " in " + now.division));
+    tr.appendChild(el("span","pts", `${now.pf} scored \u00b7 ${now.pa} allowed`));
+    if(s) tr.appendChild(el("span","pts lastyr", `${DATA.statsSeason}: ${s.record}, ${String(s.finish).toLowerCase()}`));
+  } else if(s){
     tr.appendChild(el("span","wl", s.record));
     const f = el("span","fin"+(s.champ?" champ":""), s.finish);
     tr.appendChild(f);
@@ -5019,7 +5028,7 @@ const PANEL_TABS = {
     ["career",   "Career",   /(^Career|similar)/i],
   ],
   team: [
-    ["overview", "Overview", /^(At a glance|Coaching|Team news|Power rating|Last season|\d{4} season)/i],
+    ["overview", "Overview", /^(At a glance|Coaching|Team news|Power rating|Team stats|Last season|\d{4} season)/i],
     ["roster",   "Roster",   /(Roster at a glance|stopped watching|Moving up|Position battles|Roster age|roster was built)/i],
     ["schedule", "Schedule", /schedule/i],
     ["history",  "History",  /(Last ten|seasons)/i],
@@ -5301,11 +5310,28 @@ function sectionCoach(d, co){
   d.appendChild(sec);
 }
 
-/* ---- Overview: last season's units ---- */
+/* ---- Overview: offense, defense and special teams, this season or last ---- */
+let unitsSeason = "now";
 function sectionUnits(d, s){
-  const sec = tvSect("k-stat tvunits",
-    (DATA.current || {}).live ? "Last season" : DATA.statsSeason + " season", "a game \u00b7 rank of 32");
-  s.units.forEach(u => {
+  const nowRow = (DATA.seasonNow || {})[team], meta = DATA.seasonNowMeta || {};
+  const useNow = !!nowRow && unitsSeason === "now";
+  const src = useNow ? nowRow : s;
+  if(!src || !src.units) return;
+  const sec = tvSect("k-stat tvunits", "Team stats",
+    useNow ? "through week " + meta.week + " \u00b7 rank of 32" : "a game \u00b7 rank of 32");
+  tvTeamColours(sec);
+  if(nowRow && s){
+    const seg = el("div","tvseg tvunitseg");
+    [["now", meta.season + " so far"], ["last", DATA.statsSeason + " season"]].forEach(([k, label]) => {
+      const b = el("button", null, label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", (useNow ? "now" : "last") === k);
+      b.onclick = () => { unitsSeason = k; renderTeam(); };
+      seg.appendChild(b);
+    });
+    sec.appendChild(seg);
+  }
+  src.units.forEach(u => {
     const blk = el("div","tvunit");
     const hd = el("div","tvuh");
     hd.appendChild(el("span", null, u.name));
@@ -5324,8 +5350,9 @@ function sectionUnits(d, s){
     });
     sec.appendChild(blk);
   });
-  sec.appendChild(tvNote("Offense and defense are ranked on points a game. Special teams blends "
-    + "field goal rate, return yardage, return touchdowns and blocks allowed."));
+  sec.appendChild(tvNote((useNow ? "Through " + nowRow.g + " games, so early ranks move a lot from week to week. " : "")
+    + "Offense and defense are ranked on points a game. Special teams blends field goal rate, return "
+    + "yardage, return touchdowns and blocks allowed; counts are ranked per game."));
   d.appendChild(sec);
 }
 
@@ -6216,12 +6243,27 @@ function teamFields(ab){
   const s = DATA.season[ab] || {}, rv = (DATA.roster||{})[ab] || {};
   const co = (DATA.coaches||{})[ab] || {}, sc = (DATA.schedule||{})[ab] || {};
   const f = [];
-  f.push(["Record", s.record || "\u2013", s.w]);
-  f.push(["Finish", s.finish || "\u2013", null]);
-  f.push(["Head coach", co.name || "\u2013", null]);
-  (s.units||[]).forEach(u=> f.push([u.name+" rank", ord(u.rank), -u.rank]));
-  f.push(["Points for", s.pf ?? "\u2013", s.pf]);
-  f.push(["Points against", s.pa ?? "\u2013", s.pa==null?null:-s.pa]);
+  const now = standNow(ab), nu = (DATA.seasonNow || {})[ab];
+  if(now){
+    // This season first, then last season's finish for context.
+    f.push(["Record", now.rec, now.pct]);
+    if(now.dpos) f.push(["Division", ord(now.dpos) + " " + now.division, -now.dpos]);
+    const pr = ((DATA.rankings || {})[ab] || {}).rank;
+    if(pr) f.push(["Power rank", ord(pr), -pr]);
+    ((nu || {}).units || []).forEach(u => f.push([u.name + " rank", ord(u.rank), -u.rank]));
+    f.push(["Points for", now.pf, now.pf / (now.played || 1)]);
+    f.push(["Points against", now.pa, -now.pa / (now.played || 1)]);
+    f.push([DATA.statsSeason + " record", s.record || "\u2013", s.w]);
+    f.push([DATA.statsSeason + " finish", s.finish || "\u2013", null]);
+    f.push(["Head coach", co.name || "\u2013", null]);
+  } else {
+    f.push(["Record", s.record || "\u2013", s.w]);
+    f.push(["Finish", s.finish || "\u2013", null]);
+    f.push(["Head coach", co.name || "\u2013", null]);
+    (s.units||[]).forEach(u=> f.push([u.name+" rank", ord(u.rank), -u.rank]));
+    f.push(["Points for", s.pf ?? "\u2013", s.pf]);
+    f.push(["Points against", s.pa ?? "\u2013", s.pa==null?null:-s.pa]);
+  }
   if(rv.age && rv.age.avg != null) f.push(["Avg age", rv.age.avg, -rv.age.avg]);
   if(rv.cap && rv.cap.total) f.push(["Committed", "$"+rv.cap.total.toFixed(0)+"M", null]);
   if(rv.cap && rv.cap.groups && rv.cap.groups.length){
@@ -12620,10 +12662,17 @@ function statLine(p, labels){
   }
   return null;
 }
-function unitRank(team, which){
-  const u = ((DATA.season[team] || {}).units || [])[which];
+function unitRank(team, which, now){
+  const src = now ? (DATA.seasonNow || {})[team] : DATA.season[team];
+  const u = ((src || {}).units || [])[which];
   return u ? u.rank : null;
 }
+/* This season's record and place, from the standings, once games have been played. */
+function standNow(ab){
+  const st = ((DATA.standings || {}).teams || {})[ab];
+  return (DATA.current || {}).live && st && st.played ? st : null;
+}
+const seasonLive = () => !!((DATA.seasonNowMeta || {}).live);
 
 function openPreview(key, g, score){
   prevKey = key; prevGame = g;
@@ -12734,9 +12783,22 @@ function renderPreview(score, into){
     body.appendChild(w);
   }
 
-  // ---- how they rate
-  body.appendChild(el("div","advsub","Last season"));
-  const rows = [
+  // ---- how they rate: this season once it has started, with last season's
+  // finish kept as one row for context
+  const live = seasonLive();
+  const sa = standNow(A), sh = standNow(H);
+  body.appendChild(el("div","advsub", live ? (DATA.seasonNowMeta || {}).season + " so far" : "Last season"));
+  const PR = ab => ((DATA.rankings || {})[ab] || {}).rank;
+  const rows = live ? [
+    ["Record", sa && sa.rec, sh && sh.rec, null],
+    ["Division", sa && sa.dpos ? ord(sa.dpos) : null, sh && sh.dpos ? ord(sh.dpos) : null, null],
+    ["Power rank", PR(A), PR(H), "rank"],
+    ["Offence", unitRank(A,0,true), unitRank(H,0,true), "rank"],
+    ["Defence", unitRank(A,1,true), unitRank(H,1,true), "rank"],
+    ["Special teams", unitRank(A,2,true), unitRank(H,2,true), "rank"],
+    [DATA.statsSeason + " finish", (DATA.season[A]||{}).record, (DATA.season[H]||{}).record, null],
+    ["Head coach", ((DATA.coaches||{})[A]||{}).name, ((DATA.coaches||{})[H]||{}).name, null],
+  ] : [
     ["Record", (DATA.season[A]||{}).record, (DATA.season[H]||{}).record, null],
     ["Finish", (DATA.season[A]||{}).finish, (DATA.season[H]||{}).finish, null],
     ["Offence", unitRank(A,0), unitRank(H,0), "rank"],
@@ -13892,11 +13954,18 @@ function buildLeaders(){
   };
   const S = ab => DATA.season[ab] || {};
   const R = ab => (DATA.roster||{})[ab] || {};
-  teamCat("off","Points per game","2025 offence",
-          ab=>{const u=(S(ab).units||[])[0]; return u&&u.stats[0]?u.stats[0].v:null;});
-  teamCat("def","Points allowed per game","2025 defence",
-          ab=>{const u=(S(ab).units||[])[1]; return u&&u.stats[0]?u.stats[0].v:null;},"",true);
-  teamCat("wins","Wins","2025 season", ab=>S(ab).w);
+  // This season's units once games have been played, otherwise last season's.
+  const NOW = seasonLive(), yr = NOW ? (DATA.seasonNowMeta || {}).season : DATA.statsSeason;
+  const U = ab => ((NOW ? (DATA.seasonNow || {})[ab] : S(ab)) || {}).units || [];
+  const ustat = (ab, unit, i) => { const u = U(ab)[unit]; return u && u.stats[i] ? u.stats[i].v : null; };
+  teamCat("off","Points per game", yr + " offence", ab => ustat(ab, 0, 0));
+  teamCat("def","Points allowed per game", yr + " defence", ab => ustat(ab, 1, 0), "", true);
+  teamCat("yds","Yards per game", yr + " offence", ab => ustat(ab, 0, 1));
+  teamCat("yda","Yards allowed per game", yr + " defence", ab => ustat(ab, 1, 1), "", true);
+  teamCat("sacks","Sacks", yr + " defence", ab => ustat(ab, 1, 4));
+  teamCat("take","Takeaways", yr + " defence", ab => ustat(ab, 1, 5));
+  if(NOW) teamCat("wins","Wins", yr + " so far", ab => (standNow(ab) || {}).w);
+  teamCat("wins25","Wins", DATA.statsSeason + " season", ab=>S(ab).w);
   teamCat("ten","Ten-year win rate","2016\u20132025",
           ab=>(DATA.history||{})[ab]?.pct, "%");
   teamCat("cap","Money committed","average per year",

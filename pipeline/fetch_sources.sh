@@ -123,6 +123,7 @@ for k in pass rush rec def; do
 done
 optional qbr_week.csv         "$B/espn_data/qbr_week_level.csv"
 optional team_2026.csv        "$B/stats_team/stats_team_reg_2026.csv"
+optional team_week_2026.csv   "$B/stats_team/stats_team_week_2026.csv"
 # Next Gen Stats (all seasons in one file each; the build takes the current one)
 # and FTN's play charting for the current season. See build_nextgen.py and
 # build_ftn.py; FTN is CC-BY-SA 4.0 and credited in the app.
