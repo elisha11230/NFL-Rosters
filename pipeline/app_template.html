@@ -3204,6 +3204,95 @@ svg.tiers{display:block;width:100%;height:auto}
 }
 @media (min-width:900px){ .wtlead{display:none} .wtbox{margin-top:0} }
 
+/* ---------- box score: team stats, game leaders, player tables ---------- */
+.bxh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--chalk);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.bxh::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--team-accent)}
+.tscard,.glcard{background:var(--panel);border:1px solid var(--rule);border-radius:14px;
+  padding:14px 15px 12px;margin-bottom:14px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.tshead{display:flex;justify-content:space-between;margin-bottom:6px}
+.tsteam{display:flex;align-items:center;gap:7px;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--hi)}
+.tsteam.h{flex-direction:row-reverse}
+.tsteam img{width:26px;height:26px;object-fit:contain}
+.tsrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;column-gap:10px;
+  padding:9px 0 8px;border-top:1px solid var(--rule)}
+.tsrow:first-of-type{border-top:0}
+.tsl{font-family:'Barlow Condensed',sans-serif;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);text-align:center;white-space:nowrap}
+.tsv{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--mute);font-variant-numeric:tabular-nums}
+.tsv.h{text-align:right}
+.tsv.win{color:var(--hi)}
+.tsv small{font-family:Barlow,sans-serif;font-size:11px;font-weight:600;color:var(--dim);margin:0 5px;letter-spacing:0}
+.tsbar{grid-column:1/-1;display:flex;gap:3px;height:5px;margin-top:7px}
+.tsbar i{display:block;height:100%;border-radius:3px;min-width:3px;transition:width .4s}
+.tsbar i.a{background:var(--ac)} .tsbar i.h{background:var(--hc)}
+.tsbar i.dim{opacity:.38}
+
+.glrow{display:grid;grid-template-columns:1fr 1fr;column-gap:0;border-top:1px solid var(--rule);padding:4px 0 2px}
+.glrow:nth-of-type(2){border-top:0}
+.glcat{grid-column:1/-1;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:8px 0 4px}
+.glp{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:6px 10px 10px 0;
+  text-align:left;min-width:0;border-radius:10px;color:inherit}
+.glp.h{align-items:flex-end;text-align:right;padding:6px 0 10px 10px;border-left:1px solid var(--rule)}
+.glp.a{border-right:0}
+.glp:not(:disabled){cursor:pointer}
+@media (hover:hover){ .glp:not(:disabled):hover .gln{color:var(--team-accent)} }
+.gltop{display:flex;align-items:center;gap:10px}
+.glp.h .gltop{flex-direction:row-reverse}
+.glp.a .bxface{box-shadow:0 0 0 2px var(--ac)} .glp.h .bxface{box-shadow:0 0 0 2px var(--hc)}
+.glbig{font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--hi);font-variant-numeric:tabular-nums}
+.glbig small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);margin-left:3px}
+.gln{font-size:14px;font-weight:600;color:var(--hi);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gln.none{color:var(--dim);padding-top:14px}
+.gll{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.bxface{flex:0 0 auto;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--well);
+  display:flex;align-items:center;justify-content:center;color:var(--dim);font-weight:700}
+.bxface img{width:100%;height:100%;object-fit:cover}
+
+.bxfullh{margin-top:20px}
+.bxsw{gap:6px;margin:0 0 12px}
+.bxsw button{display:inline-flex;align-items:center;gap:7px;padding:6px 14px 6px 8px}
+.bxsw button img{width:22px;height:22px;object-fit:contain}
+.bxsw button[aria-pressed="true"]{background:var(--tc);border-color:var(--tc);color:#fff}
+.bxcard{background:var(--panel);border:1px solid var(--rule);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.bxct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--team-accent);padding:10px 12px 6px}
+.bxscroll{overflow-x:auto;scrollbar-width:none}
+.bxscroll::-webkit-scrollbar{display:none}
+.bxt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.bxt th{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;
+  color:var(--dim);text-align:right;padding:4px 10px 6px;white-space:nowrap;border-bottom:1px solid var(--rule)}
+.bxt th:first-child{text-align:left;padding-left:12px}
+.bxt td{text-align:right;padding:7px 10px;font-size:13.5px;color:var(--chalk);white-space:nowrap}
+.bxt tbody tr + tr td{border-top:1px solid var(--rule)}
+.bxt td.best{color:var(--hi);font-weight:700}
+.bxt td.best::after{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--brass);margin-left:4px;vertical-align:2px}
+.bxt .bxn{text-align:left;padding-left:12px;position:sticky;left:0;z-index:1;background:var(--panel);
+  min-width:118px;max-width:190px;white-space:normal}
+.bxnw{display:flex;align-items:center;gap:8px}
+@media (max-width:640px){
+  .bxt td{padding:7px 7px;font-size:13px}
+  .bxt th{padding:4px 7px 6px}
+  .bxt .bxn{max-width:150px;padding-left:10px}
+  .bxnm small{display:block;margin:1px 0 0}
+}
+.bxt .bxn .bxface{width:28px;height:28px;font-size:11px}
+.bxt .bxn.link{cursor:pointer}
+.bxnm{font-weight:600;color:var(--hi);font-size:13.5px;line-height:1.2;min-width:0}
+.bxnm small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.08em;color:var(--dim);
+  margin-left:6px;font-weight:600}
+@media (hover:hover){ .bxt .bxn.link:hover .bxnm{color:var(--team-accent)} }
+#boxbody .tscard{margin-top:6px}
+@media (min-width:1100px){
+  .bxtop{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  .bxtop > *{margin-bottom:0}
+  .bxtop + .bxfullh{margin-top:24px}
+}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -6300,7 +6389,7 @@ async function fetchGame(gameId){
     const teamStats = ((j.boxscore || {}).teams || []).map(t=>({
       team: normTeam(((t.team || {}).abbreviation) || ""),
       stats: (t.statistics || []).map(x=>({
-        label: x.label || x.name, value: x.displayValue,
+        name: x.name || "", label: x.label || x.name, value: x.displayValue,
       })),
     }));
 
@@ -6695,42 +6784,23 @@ function renderBox(into){
     head.appendChild(scoreCard(gb, {hide: !watchOn && scoreBlank(gb.state, gb.catching, true)}));
   }
 
-  // Team totals side by side, when the feed carries them.
-  if(LIVE.teamStats && LIVE.teamStats.length === 2){
-    const [A, B] = LIVE.teamStats;
-    const labels = A.stats.map(x=>x.label)
-      .filter(l => B.stats.some(y => y.label === l));
-    if(labels.length){
-      const t = document.createElement("table");
-      t.className = "car boxteam";
-      const thead = document.createElement("thead");
-      const hr = document.createElement("tr");
-      [A.team, "", B.team].forEach((x,i)=>{
-        const th = document.createElement("th");
-        th.textContent = x;
-        if(i === 1) th.style.textAlign = "center";
-        hr.appendChild(th);
-      });
-      thead.appendChild(hr); t.appendChild(thead);
-      const tb = document.createElement("tbody");
-      labels.slice(0,14).forEach(l=>{
-        const av = (A.stats.find(x=>x.label===l)||{}).value;
-        const bv = (B.stats.find(x=>x.label===l)||{}).value;
-        const tr = document.createElement("tr");
-        const c1 = document.createElement("td"); c1.textContent = av ?? "\u2013";
-        const c2 = document.createElement("td"); c2.className = "mid"; c2.textContent = l;
-        const c3 = document.createElement("td"); c3.textContent = bv ?? "\u2013";
-        tr.append(c1, c2, c3); tb.appendChild(tr);
-      });
-      t.appendChild(tb);
-      const w = el("div","carwrap"); w.appendChild(t); body.appendChild(w);
-    }
+  // Team totals head to head; in the game view's tab they are already above.
+  if(!into){
+    const ts = teamStatsCompare((g && (g.teams.find(t => !t.home) || {}).ab) || (LIVE.box[0] || {}).team,
+                                (g && (g.teams.find(t => t.home) || {}).ab) || (LIVE.box[1] || {}).team);
+    if(ts) body.appendChild(ts);
   }
 
-  // Team switcher
-  const tabs = el("div","boxtabs");
+  // Team switcher, each side in its own colour.
+  body.appendChild(el("div","bxh bxfullh","Player stats"));
+  const tabs = el("div","boxtabs bxsw");
   LIVE.box.forEach(b=>{
-    const btn = el("button", null, (DATA.teams[b.team] || {}).nick || b.team);
+    const t = DATA.teams[b.team] || {};
+    const btn = el("button");
+    btn.type = "button";
+    btn.style.setProperty("--tc", stripeColor(t));
+    if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; im.loading = "lazy"; btn.appendChild(im); }
+    btn.appendChild(el("span", null, t.nick || b.team));
     btn.setAttribute("aria-pressed", b.team === boxTeam);
     btn.onclick = () => { boxTeam = b.team; renderBox(into); };
     tabs.appendChild(btn);
@@ -6740,15 +6810,22 @@ function renderBox(into){
   const side = LIVE.box.find(b => b.team === boxTeam);
   if(!side){ body.appendChild(el("div","carnote","No box score for that side yet.")); return; }
 
+  // Columns where the biggest figure is the best one, and is marked.
+  const GOOD = new Set(["YDS","TD","REC","CAR","TOT","SOLO","SACKS","TFL","PD","QB HIT","FG","XP","PTS","LONG"]);
+  const NAMES = {passing:"Passing", rushing:"Rushing", receiving:"Receiving", fumbles:"Fumbles",
+    defensive:"Defence", interceptions:"Interceptions", kickReturns:"Kick returns",
+    puntReturns:"Punt returns", kicking:"Kicking", punting:"Punting"};
   side.cats.forEach(cat=>{
-    body.appendChild(el("div","advsub", cat.label || cat.name));
-    const w = el("div","carwrap");
+    if(!cat.rows.length) return;
+    const card = el("div","bxcard");
+    card.appendChild(el("div","bxct", NAMES[cat.name] || cat.label || cat.name));
+    const w = el("div","bxscroll");
     const t = document.createElement("table");
-    t.className = "car";
+    t.className = "bxt";
     const thead = document.createElement("thead");
     const hr = document.createElement("tr");
     const th0 = document.createElement("th");
-    th0.textContent = "Player"; th0.style.textAlign = "left";
+    th0.textContent = "Player";
     hr.appendChild(th0);
     cat.labels.forEach(l=>{
       const th = document.createElement("th");
@@ -6756,14 +6833,26 @@ function renderBox(into){
       hr.appendChild(th);
     });
     thead.appendChild(hr); t.appendChild(thead);
+    // The best figure in each column that has one.
+    const best = cat.labels.map((l, i) => {
+      const good = GOOD.has(l.toUpperCase()) || (cat.name === "interceptions" && l.toUpperCase() === "INT");
+      if(!good || cat.rows.length < 2) return null;
+      const vals = cat.rows.map(r => num(r.stats[i])).filter(v => v != null);
+      const m = vals.length ? Math.max(...vals) : null;
+      return m && vals.filter(v => v === m).length === 1 ? m : null;
+    });
     const tb = document.createElement("tbody");
     cat.rows.forEach(r=>{
       const tr = document.createElement("tr");
       const nameCell = document.createElement("td");
-      nameCell.className = "tm bxname";
-      // Only link players we actually hold; the rest are plain text.
-      const mine = r.eid && Object.values(DATA.players).find(p => p.eid === r.eid);
-      nameCell.textContent = r.name + (r.pos ? "  " + r.pos : "");
+      nameCell.className = "bxn";
+      const mine = playerFor(r.eid);
+      const nw = el("div","bxnw");
+      nw.appendChild(boxFace(r, mine, 64));
+      const nm = el("span","bxnm", r.name);
+      if(r.pos) nm.appendChild(el("small", null, r.pos));
+      nw.appendChild(nm);
+      nameCell.appendChild(nw);
       if(mine){
         nameCell.classList.add("link");
         nameCell.onclick = () => { closeBox(); if(into) closeWatch(); goPlayer(mine.id); };
@@ -6771,17 +6860,19 @@ function renderBox(into){
       tr.appendChild(nameCell);
       cat.labels.forEach((_l,i)=>{
         const td = document.createElement("td");
-        td.textContent = r.stats[i] ?? "\u2013";
+        td.textContent = r.stats[i] ?? "–";
+        if(best[i] != null && num(r.stats[i]) === best[i]) td.className = "best";
         tr.appendChild(td);
       });
       tb.appendChild(tr);
     });
-    t.appendChild(tb); w.appendChild(t); body.appendChild(w);
+    t.appendChild(tb); w.appendChild(t); card.appendChild(w); body.appendChild(card);
   });
 
   const n = el("div","carnote");
-  n.textContent = "Live from ESPN. Names in white are on a depth chart in this "
-    + "app \u2014 tap one to open his profile.";
+  n.textContent = "Live from ESPN. The best figure in each column is marked. "
+    + "Players with a headshot are on a depth chart here \u2014 tap one to open "
+    + "his profile.";
   body.appendChild(n);
   if(!into) body.scrollTop = 0;
 }
@@ -8386,6 +8477,184 @@ function pickCols(cat, wanted){
   }).filter(c => c.i >= 0);
 }
 
+/* ---------------- box score: team stats, game leaders ----------------
+   ESPN names each team stat (totalYards) and labels it ("Total Yards"); the
+   labels have changed spelling over the years ("1st Downs" against "First
+   Downs"), so a stat is found by its name first and any known label after. */
+const TEAM_ROWS = [
+  {k:"totalYards",          l:"Total yards",    alt:["Total Yards"]},
+  {k:"netPassingYards",     l:"Passing yards",  alt:["Passing"]},
+  {k:"rushingYards",        l:"Rushing yards",  alt:["Rushing"]},
+  {k:"firstDowns",          l:"First downs",    alt:["1st Downs", "First Downs"]},
+  {k:"yardsPerPlay",        l:"Yards per play", alt:["Yards per Play"]},
+  {k:"thirdDownEff",        l:"Third down",     alt:["3rd down efficiency"], eff:true, short:"3rd down"},
+  {k:"fourthDownEff",       l:"Fourth down",    alt:["4th down efficiency"], eff:true},
+  {k:"redZoneAttempts",     l:"Red zone",       alt:["Red Zone (Made-Att)"], eff:true},
+  {k:"sacksYardsLost",      l:"Sacks allowed",  alt:["Sacks-Yards Lost"], low:true, lead:true},
+  {k:"totalPenaltiesYards", l:"Penalties",      alt:["Penalties"], low:true, lead:true},
+  {k:"turnovers",           l:"Turnovers",      alt:["Turnovers"], low:true},
+  {k:"possessionTime",      l:"Possession",     alt:["Possession"], clock:true},
+];
+function teamStat(side, def){
+  if(!side) return null;
+  const hit = side.stats.find(x => x.name === def.k)
+    || side.stats.find(x => def.alt.some(a => String(x.label).toLowerCase() === a.toLowerCase()));
+  return hit && hit.value != null && hit.value !== "" ? String(hit.value) : null;
+}
+/* The number a row is compared on: a rate for "4-11", the count for "6-45",
+   seconds for "31:24". */
+function teamStatValue(v, def){
+  if(v == null) return null;
+  if(def.eff){ const m = v.match(/(\d+)\s*-\s*(\d+)/); return m ? (+m[2] ? +m[1] / +m[2] : 0) : null; }
+  if(def.clock){ const m = v.match(/(\d+):(\d+)/); return m ? +m[1] * 60 + +m[2] : null; }
+  return num(v);
+}
+function teamStatShown(v, def){
+  if(v == null) return "–";
+  if(def.eff){
+    const m = v.match(/(\d+)\s*-\s*(\d+)/);
+    if(m) return m[1] + "/" + m[2];
+  }
+  return v;
+}
+
+/* Both teams' totals head to head: the figures either side of the label, and a
+   bar split between them in the two teams' colours. The better side's figure is
+   bright; for turnovers, penalties and sacks that is the lower one. */
+function teamStatsCompare(aAb, hAb){
+  const ts = LIVE.teamStats || [];
+  if(ts.length !== 2) return null;
+  const A = ts.find(x => x.team === aAb) || ts[0], H = ts.find(x => x.team === hAb) || ts[1];
+  const rows = TEAM_ROWS.map(def => ({def, a: teamStat(A, def), h: teamStat(H, def)}))
+    .filter(r => r.a != null || r.h != null);
+  if(!rows.length) return null;
+  const ta = DATA.teams[A.team] || {}, th = DATA.teams[H.team] || {};
+  const ca = stripeColor(ta), ch = stripeColor(th);
+
+  const card = el("div","tscard");
+  card.style.setProperty("--ac", ca); card.style.setProperty("--hc", ch);
+  card.appendChild(el("div","bxh","Team stats"));
+  const hd = el("div","tshead");
+  [[A.team, ta, "a"], [H.team, th, "h"]].forEach(([ab, t, side]) => {
+    const c = el("div","tsteam " + side);
+    if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; im.loading = "lazy"; c.appendChild(im); }
+    c.appendChild(el("span", null, t.nick || ab));
+    hd.appendChild(c);
+  });
+  card.appendChild(hd);
+
+  rows.forEach(({def, a, h}) => {
+    const va = teamStatValue(a, def), vh = teamStatValue(h, def);
+    const row = el("div","tsrow");
+    let win = null;
+    if(va != null && vh != null && va !== vh) win = (def.low ? va < vh : va > vh) ? "a" : "h";
+    const fig = (v, side) => {
+      const c = el("div","tsv " + side + (win === side ? " win" : ""));
+      c.appendChild(document.createTextNode(teamStatShown(v, def)));
+      if(def.eff && v != null){
+        const r = teamStatValue(v, def);
+        if(r != null) c.appendChild(el("small", null, Math.round(r * 100) + "%"));
+      }
+      // "6-45": six penalties for 45 yards; "2-14": two sacks for 14.
+      if(def.lead && v && /-/.test(v)){
+        const [n1, n2] = v.split("-").map(x => x.trim());
+        c.textContent = n1;
+        c.appendChild(el("small", null, n2 + " yds"));
+      }
+      return c;
+    };
+    row.appendChild(fig(a, "a"));
+    row.appendChild(el("div","tsl", def.l));
+    row.appendChild(fig(h, "h"));
+    const bar = el("div","tsbar");
+    const x = Math.max(0, va || 0), y = Math.max(0, vh || 0);
+    const sa = x + y > 0 ? x / (x + y) : 0.5;
+    const ia = el("i","a"), ih = el("i","h");
+    ia.style.width = (sa * 100).toFixed(1) + "%";
+    ih.style.width = ((1 - sa) * 100).toFixed(1) + "%";
+    if(win === "h") ia.classList.add("dim");
+    if(win === "a") ih.classList.add("dim");
+    bar.append(ia, ih);
+    row.appendChild(bar);
+    card.appendChild(row);
+  });
+  return card;
+}
+
+/* The best player on each side in each category, side by side, as ESPN's game
+   leaders: the headline figure large, the rest of his line under his name. */
+const LEAD_VIEWS = [
+  {key:"passing",   name:"Passing",   big:"YDS", unit:"yds", cols:["C/ATT","TD","INT"]},
+  {key:"rushing",   name:"Rushing",   big:"YDS", unit:"yds", cols:["CAR","TD"]},
+  {key:"receiving", name:"Receiving", big:"YDS", unit:"yds", cols:["REC","TD"]},
+  {key:"defensive", name:"Defence",   big:"TOT", unit:"tkl", cols:["SACKS","TFL"]},
+];
+function boxCat(side, key){
+  return side && side.cats.find(c => (c.name || "").toLowerCase() === key
+    || (key === "defensive" && /def/i.test(c.name || "")));
+}
+function playerFor(eid){
+  return eid ? Object.values(DATA.players).find(p => p.eid === eid) : null;
+}
+function boxFace(r, mine, size){
+  const f = el("div","bxface");
+  const im = mine ? faceImg(mine, size, {lazy: true}) : null;
+  if(im) f.appendChild(im);
+  else f.appendChild(el("span", null, (r.name || "?").slice(0, 1)));
+  return f;
+}
+function gameLeaders(aAb, hAb){
+  const sideA = LIVE.box.find(b => b.team === aAb), sideH = LIVE.box.find(b => b.team === hAb);
+  if(!sideA && !sideH) return null;
+  const card = el("div","glcard");
+  card.style.setProperty("--ac", stripeColor(DATA.teams[aAb] || {}));
+  card.style.setProperty("--hc", stripeColor(DATA.teams[hAb] || {}));
+  card.appendChild(el("div","bxh","Game leaders"));
+  let any = false;
+  LEAD_VIEWS.forEach(v => {
+    const pick = side => {
+      const cat = boxCat(side, v.key);
+      if(!cat) return null;
+      const r = rankRows(cat, v.key)[0];
+      if(!r || !r.stats.some(x => num(x))) return null;
+      return {cat, r};
+    };
+    const L = pick(sideA), R = pick(sideH);
+    if(!L && !R) return;
+    any = true;
+    const row = el("div","glrow");
+    row.appendChild(el("div","glcat", v.name));
+    [[L, "a"], [R, "h"]].forEach(([hit, side]) => {
+      const cell = el("button","glp " + side);
+      cell.type = "button";
+      if(!hit){ cell.disabled = true; cell.appendChild(el("div","gln none","–")); row.appendChild(cell); return; }
+      const {cat, r} = hit;
+      const mine = playerFor(r.eid);
+      const bi = cat.labels.findIndex(l => l.toUpperCase() === v.big);
+      const top = el("div","gltop");
+      top.appendChild(boxFace(r, mine, 96));
+      const big = el("div","glbig", bi >= 0 ? (r.stats[bi] ?? "–") : "–");
+      big.appendChild(el("small", null, v.unit));
+      top.appendChild(big);
+      cell.appendChild(top);
+      cell.appendChild(el("div","gln", r.name));
+      const bits = pickCols(cat, v.cols).map(c => {
+        const val = r.stats[c.i];
+        if(val == null || val === "") return null;
+        if(c.label === "C/ATT") return val;
+        if(num(val) === 0 && c.label !== "TD") return null;
+        return val + " " + c.label.toLowerCase().replace("sacks", "sk");
+      }).filter(Boolean);
+      cell.appendChild(el("div","gll", bits.join(" · ")));
+      if(mine) cell.onclick = () => { closeBox(); if(watchOn) closeWatch(); goPlayer(mine.id); };
+      else cell.disabled = true;
+      row.appendChild(cell);
+    });
+    card.appendChild(row);
+  });
+  return any ? card : null;
+}
+
 /* Rank within a category by the number that actually matters there, so the two
    names shown are the two worth showing. */
 function rankRows(cat, key){
@@ -8410,12 +8679,11 @@ function renderLiveBox(host, teamsInGame){
   // Team totals as a header strip: the shape of the game in four numbers.
   if(LIVE.teamStats && LIVE.teamStats.length === 2){
     const [A, B] = LIVE.teamStats;
-    const want = ["Total Yards", "First Downs", "3rd down efficiency", "Turnovers"];
-    const rows = want.map(l=>({
-      l,
-      a: (A.stats.find(x => x.label === l) || {}).value,
-      b: (B.stats.find(x => x.label === l) || {}).value,
-    })).filter(r => r.a != null || r.b != null);
+    const want = ["totalYards", "firstDowns", "thirdDownEff", "turnovers"];
+    const rows = want.map(k=>{
+      const def = TEAM_ROWS.find(d => d.k === k);
+      return {l: def.short || def.l, a: teamStat(A, def), b: teamStat(B, def)};
+    }).filter(r => r.a != null || r.b != null);
     if(rows.length){
       const grid = el("div","btot");
       const hd = el("div","btrow bthd");
@@ -8426,7 +8694,7 @@ function renderLiveBox(host, teamsInGame){
       rows.forEach(r=>{
         const row = el("div","btrow");
         row.appendChild(el("span","bta", r.a ?? "\u2013"));
-        row.appendChild(el("span","btl", r.l.replace(" efficiency","")));
+        row.appendChild(el("span","btl", r.l));
         row.appendChild(el("span","btb", r.b ?? "\u2013"));
         grid.appendChild(row);
       });
@@ -9915,16 +10183,33 @@ function demoSummary(id){
   return {
     boxscore: {
       teams: [
+        // Shaped as ESPN sends them: a key, a label and a display value.
         {team:{abbreviation:f.a}, statistics:[
-          {label:"Total Yards", displayValue:String(180 + n * 4)},
-          {label:"First Downs", displayValue:String(8 + Math.floor(n/4))},
-          {label:"3rd down efficiency", displayValue:"5-11"},
-          {label:"Turnovers", displayValue:"1"}]},
+          {name:"firstDowns", label:"1st Downs", displayValue:String(8 + Math.floor(n/4))},
+          {name:"thirdDownEff", label:"3rd down efficiency", displayValue:"5-11"},
+          {name:"fourthDownEff", label:"4th down efficiency", displayValue:"1-1"},
+          {name:"totalYards", label:"Total Yards", displayValue:String(180 + n * 4)},
+          {name:"yardsPerPlay", label:"Yards per Play", displayValue:"5.6"},
+          {name:"netPassingYards", label:"Passing", displayValue:String(120 + n * 3)},
+          {name:"sacksYardsLost", label:"Sacks-Yards Lost", displayValue:"2-14"},
+          {name:"rushingYards", label:"Rushing", displayValue:String(60 + n)},
+          {name:"redZoneAttempts", label:"Red Zone (Made-Att)", displayValue:"2-3"},
+          {name:"totalPenaltiesYards", label:"Penalties", displayValue:"6-45"},
+          {name:"turnovers", label:"Turnovers", displayValue:"1"},
+          {name:"possessionTime", label:"Possession", displayValue:"17:42"}]},
         {team:{abbreviation:f.h}, statistics:[
-          {label:"Total Yards", displayValue:String(150 + n * 3)},
-          {label:"First Downs", displayValue:String(7 + Math.floor(n/5))},
-          {label:"3rd down efficiency", displayValue:"4-10"},
-          {label:"Turnovers", displayValue:"0"}]},
+          {name:"firstDowns", label:"1st Downs", displayValue:String(7 + Math.floor(n/5))},
+          {name:"thirdDownEff", label:"3rd down efficiency", displayValue:"4-10"},
+          {name:"fourthDownEff", label:"4th down efficiency", displayValue:"0-1"},
+          {name:"totalYards", label:"Total Yards", displayValue:String(150 + n * 3)},
+          {name:"yardsPerPlay", label:"Yards per Play", displayValue:"4.9"},
+          {name:"netPassingYards", label:"Passing", displayValue:String(100 + n * 2)},
+          {name:"sacksYardsLost", label:"Sacks-Yards Lost", displayValue:"1-7"},
+          {name:"rushingYards", label:"Rushing", displayValue:String(50 + n)},
+          {name:"redZoneAttempts", label:"Red Zone (Made-Att)", displayValue:"1-3"},
+          {name:"totalPenaltiesYards", label:"Penalties", displayValue:"4-30"},
+          {name:"turnovers", label:"Turnovers", displayValue:"0"},
+          {name:"possessionTime", label:"Possession", displayValue:"15:03"}]},
       ],
       players: [
         {team:{abbreviation:f.a}, statistics:[
@@ -10601,14 +10886,13 @@ function renderWatchBody(gRaw){
   else if(wTab === "box"){
     if(!have || !LIVE.box || !LIVE.box.length) waiting("The box score fills in");
     else {
-      // Leaders first on a phone, where there is no column beside the tabs
-      // holding them; the full box score follows.
-      const lead = el("div","wtlead");
-      lead.appendChild(el("div","wsub","Leaders"));
-      const lh = el("div","wboxwrap");
-      lead.appendChild(lh);
-      renderLiveBox(lh, [a.ab, h.ab].filter(Boolean));
-      body.appendChild(lead);
+      // Side by side on a wide screen, stacked on a phone.
+      const top = el("div","bxtop");
+      const ts = teamStatsCompare(a.ab, h.ab);
+      if(ts) top.appendChild(ts);
+      const gl = gameLeaders(a.ab, h.ab);
+      if(gl) top.appendChild(gl);
+      body.appendChild(top);
       pickBoxTeam();
       const full = el("div","wtbox");
       body.appendChild(full);
