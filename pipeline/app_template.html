@@ -3916,7 +3916,7 @@ function renderField(){
     // the field at once. Live stats stay in the player panel and box score.
     if(stackArr.length>1) c.appendChild(el("div","stack", `+${stackArr.length-1}`));
 
-    c.onclick = () => { sel=p.id; renderDetail(grp,slot,idx); paintSel(); syncHash(); };
+    c.onclick = () => { sel=p.id; renderDetail(grp,slot,idx); paintSel(); revealDetail(); syncHash(); };
     attachHold(c, grp, slot, stackArr);
     box.appendChild(c);
   });
@@ -5607,6 +5607,18 @@ function goTeam(ab, unitKey){
   renderAll(); syncHash();
 }
 
+/* Opening a player brings his panel into view, as the NBA app does: below
+   1250px the panel sits under the field, so the page scrolls down to it; beside
+   the field it starts again from his card at the top. */
+function revealDetail(){
+  const d = document.getElementById("detail");
+  if(!d) return;
+  if(matchMedia("(max-width:1250px)").matches){
+    // After the panel has been drawn and laid out, so the target is final.
+    requestAnimationFrame(() => d.scrollIntoView({behavior: "smooth", block: "start"}));
+  } else d.scrollTop = 0;
+}
+
 function goPlayer(pid){
   const loc = LOCATE[pid];
   if(!loc) return;
@@ -5619,7 +5631,14 @@ function goPlayer(pid){
   renderRail(); renderHead(); renderField(); renderTeam();
   if(idx >= 0){ renderDetail(loc.grp, loc.slot, Math.max(idx,0)); paintSel(); }
   const chip = document.querySelector(`.chip[data-pid="${CSS.escape(pid)}"]`);
-  if(chip) chip.scrollIntoView({block:"nearest", inline:"center"});
+  // Centre him sideways on a field that pans, without moving the page down to it.
+  if(chip){
+    const f = chip.closest("#fieldwrap");
+    if(f && f.scrollWidth > f.clientWidth)
+      f.scrollLeft += chip.getBoundingClientRect().left - f.getBoundingClientRect().left
+        - (f.clientWidth - chip.offsetWidth) / 2;
+  }
+  revealDetail();
   syncHash();
 }
 
