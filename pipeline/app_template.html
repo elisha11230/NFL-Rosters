@@ -3317,6 +3317,182 @@ svg.tiers{display:block;width:100%;height:auto}
   .ptabs{top:-20px;box-shadow:0 -20px 0 var(--panel)}
 }
 
+/* ---------- team panel: Overview and Roster ---------- */
+.tvbig{font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;color:var(--hi);letter-spacing:-.01em}
+.tvbig small{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.tvsub{font-size:12.5px;color:var(--mute);line-height:1.45;margin-top:6px}
+.tvsub b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--chalk);font-weight:700}
+.tvnote{font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:12px}
+.tvsubh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin:16px 0 8px}
+.tvtiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.tvtiles.three{grid-template-columns:repeat(3,1fr)}
+.tvtile{padding:10px 11px 9px;border-radius:11px;background:color-mix(in srgb,var(--hi) 5%,transparent);
+  border:1px solid color-mix(in srgb,var(--rule) 80%,transparent);min-width:0}
+.tvtile b{display:block;font-family:'Archivo Black',sans-serif;font-weight:400;font-size:19px;color:var(--hi);line-height:1.1}
+.tvtile small{display:block;margin-top:4px;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);line-height:1.25}
+.tvtile.up b{color:var(--good-t)} .tvtile.dn b{color:var(--bad2-t)} .tvtile.gold b{color:var(--brass)}
+
+/* at a glance */
+.tvglance{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--tcf) 38%,var(--panel)),var(--panel) 62%);
+  border:1px solid color-mix(in srgb,var(--tc) 30%,var(--rule))}
+.tvrec{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.tvrec .tvbig{font-size:40px}
+.tvformw{text-align:right}
+.tvformw small{display:block;margin-top:5px;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tvform{display:flex;gap:4px;justify-content:flex-end}
+.tvf{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:#fff}
+.tvf.w{background:#2E8B57} .tvf.l{background:#B24A4A} .tvf.t{background:#6B7A72}
+.tvnext{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:10px 12px;border-radius:12px;
+  background:color-mix(in srgb,var(--ink) 55%,transparent);border:1px solid var(--rule);text-align:left;color:inherit;cursor:pointer}
+@media (hover:hover){ .tvnext:hover{border-color:var(--tc)} }
+.tvnl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.tvnext img{width:30px;height:30px;object-fit:contain}
+.tvnm{flex:1 1 auto;min-width:0}
+.tvnm b{display:block;font-size:14.5px;color:var(--hi);font-weight:700}
+.tvnm small{display:block;font-size:11.5px;color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tvodds{text-align:right;flex:0 0 auto}
+.tvodds b{display:block;font-family:'Archivo Black',sans-serif;font-weight:400;font-size:17px;line-height:1}
+.tvodds small{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.tvodds.up b{color:var(--good-t)} .tvodds.dn b{color:var(--bad2-t)}
+
+/* coaches */
+.tvhc{display:flex;align-items:center;gap:12px}
+.tvmono{flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--tcf) 80%,#fff 20%),color-mix(in srgb,var(--tc) 75%,#000));
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--tc) 55%,var(--hi) 15%)}
+.tvmono.sm{width:30px;height:30px;font-size:11px;box-shadow:none;opacity:.9}
+.tvhcn{font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--hi);line-height:1.15}
+.tvhct{font-size:12px;color:var(--mute);margin-top:3px}
+.tvstaff{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--rule)}
+.tvcoach .tvtiles + .tvstaff{margin-top:12px}
+.tvstaff > div{flex:1 1 auto;min-width:0}
+.tvsn{font-size:14px;font-weight:600;color:var(--hi)}
+.tvsr{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:1px}
+.tvten{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.06em;color:var(--mute);
+  padding:3px 8px;border-radius:10px;background:color-mix(in srgb,var(--hi) 6%,transparent);white-space:nowrap}
+.tvten.new{color:#1A1405;background:var(--brass)}
+
+/* rows with a rank bar */
+.tvrow{display:grid;grid-template-columns:minmax(0,1fr) auto 64px 34px;align-items:center;gap:10px;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--rule) 75%,transparent)}
+.tvrow .l{font-size:13px;color:var(--chalk);min-width:0}
+.tvrow .l small{display:block;font-size:11px;color:var(--dim);margin-top:1px}
+.tvrow .v{font-weight:700;color:var(--hi);font-variant-numeric:tabular-nums;font-size:13.5px}
+.tvrow .o{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;text-align:right}
+.tvrow .o.good{color:var(--good-t)} .tvrow .o.mid{color:#C9A64A} .tvrow .o.low{color:var(--bad2-t)}
+.tvrating .tvrow{grid-template-columns:minmax(0,1fr) 80px 34px}
+.tvunit .tvrow{grid-template-columns:minmax(0,1fr) auto 44px 32px;gap:8px}
+.tvunit .tvrow .l{font-size:12.5px}
+.tvbar{display:block;height:5px;border-radius:3px;background:color-mix(in srgb,var(--mute) 16%,transparent);overflow:hidden}
+.tvbar i{display:block;height:100%;border-radius:3px}
+.tvbar.good i{background:var(--good-t)} .tvbar.mid i{background:#C9A64A} .tvbar.low i{background:var(--bad2-t)}
+.tvdtop{display:flex;align-items:flex-start;gap:14px}
+.tvdtop .tvsub{margin-top:2px}
+.tvmv{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;padding:2px 7px;border-radius:8px;
+  background:color-mix(in srgb,var(--hi) 7%,transparent);color:var(--mute)}
+.tvmv.up{color:var(--good-t);background:color-mix(in srgb,var(--good-t) 14%,transparent)}
+.tvmv.dn{color:var(--bad2-t);background:color-mix(in srgb,var(--bad2-t) 14%,transparent)}
+.tvavg{font-size:11.5px;color:var(--dim);margin-top:5px}
+.tvchart{margin:12px 0 0}
+.tvchart svg{display:block;width:100%;height:auto;overflow:visible}
+.tvchart .g{stroke:var(--rule);stroke-width:1;stroke-dasharray:2 3}
+.tvchart text{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;fill:var(--dim)}
+.tvchart .ln{fill:none;stroke:var(--tc);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.tvchart circle{fill:var(--panel);stroke:var(--tc);stroke-width:2}
+.tvchart circle.last{fill:var(--brass);stroke:var(--brass)}
+
+/* units */
+.tvunit{margin-top:12px;padding:4px 12px 2px;border-radius:12px;background:color-mix(in srgb,var(--hi) 3%,transparent);border:1px solid color-mix(in srgb,var(--rule) 70%,transparent)}
+.tvunit:first-of-type{margin-top:0}
+.tvuh{display:flex;align-items:center;justify-content:space-between;padding:8px 0 6px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--chalk)}
+.tvunit .tvrow:nth-child(2){border-top:0}
+.tvpill{padding:2px 9px;border-radius:10px;font-size:12.5px;letter-spacing:.04em}
+.tvpill.good{background:color-mix(in srgb,var(--good-t) 18%,transparent);color:var(--good-t)}
+.tvpill.mid{background:color-mix(in srgb,#C9A64A 18%,transparent);color:#C9A64A}
+.tvpill.low{background:color-mix(in srgb,var(--bad2-t) 18%,transparent);color:var(--bad2-t)}
+
+/* roster */
+.tvrglance{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--tcf) 30%,var(--panel)),var(--panel) 62%);
+  border:1px solid color-mix(in srgb,var(--tc) 26%,var(--rule))}
+.tvrglance .tvtiles{margin-top:0}
+.tvseglab{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.tvseg{display:flex;gap:3px;padding:3px;border-radius:11px;background:color-mix(in srgb,var(--ink) 60%,transparent);border:1px solid var(--rule)}
+.tvseg button{flex:1 1 0;padding:7px 4px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;
+  letter-spacing:.06em;color:var(--mute);background:transparent}
+.tvseg button[aria-pressed="true"]{background:var(--tc);color:#fff}
+.tvprog{margin-top:14px}
+.tvprogt{font-size:13px;color:var(--mute)}
+.tvprogt b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:24px;color:var(--hi);margin-right:2px}
+.tvprogb{height:7px;border-radius:4px;margin-top:8px;background:color-mix(in srgb,var(--mute) 16%,transparent);overflow:hidden}
+.tvprogb i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--tc),var(--brass))}
+.tvface{flex:0 0 auto;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--well);display:flex;align-items:center;justify-content:center}
+.tvface img{width:100%;height:100%;object-fit:cover}
+.tvface i{font-style:normal;font-weight:700;color:var(--dim);font-size:13px}
+.tvpgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.tvpcard{position:relative;display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:11px;text-align:left;color:inherit;
+  background:color-mix(in srgb,var(--hi) 4%,transparent);border:1px solid color-mix(in srgb,var(--rule) 80%,transparent);min-width:0;cursor:pointer}
+@media (hover:hover){ .tvpcard:hover,.tvchip:hover,.tvprow:not(:disabled):hover,.tvbman:hover{border-color:var(--team-accent)} }
+.tvpcw{min-width:0}
+.tvpcw b{display:block;font-size:13px;font-weight:600;color:var(--hi);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tvpcw small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;color:var(--dim);margin-top:2px}
+.tvt100{position:absolute;top:-5px;right:-4px;min-width:20px;height:16px;padding:0 4px;border-radius:8px;background:var(--brass);color:#1A1405;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;display:flex;align-items:center;justify-content:center}
+.tvchips{display:flex;flex-wrap:wrap;gap:6px}
+.tvchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 3px;border-radius:16px;color:var(--chalk);
+  background:color-mix(in srgb,var(--hi) 4%,transparent);border:1px solid color-mix(in srgb,var(--rule) 80%,transparent);font-size:12.5px;cursor:pointer}
+.tvchip .tvface{width:24px;height:24px}
+.tvchip small{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;color:var(--dim);letter-spacing:.06em}
+.tvprow{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;margin-top:5px;border-radius:11px;text-align:left;color:inherit;
+  border:1px solid transparent;background:color-mix(in srgb,var(--hi) 3%,transparent)}
+.tvarw{flex:0 0 auto;min-width:38px;text-align:center;padding:3px 6px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+  color:var(--good-t);background:color-mix(in srgb,var(--good-t) 14%,transparent)}
+.tvarw.newc{color:#1A1405;background:var(--brass);text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.tvpn{flex:1 1 auto;font-size:13.5px;font-weight:600;color:var(--hi);min-width:0}
+.tvpp{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;color:var(--dim)}
+.tvbat{margin-top:10px;padding:10px 11px 6px;border-radius:12px;background:color-mix(in srgb,var(--hi) 3%,transparent);border:1px solid color-mix(in srgb,var(--rule) 75%,transparent)}
+.tvbattles h3 + .tvbat{margin-top:0}
+.tvbh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.tvbp{font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--hi);padding:2px 9px;border-radius:8px;background:color-mix(in srgb,var(--hi) 8%,transparent)}
+.tvbm{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.tvbm.hot{color:var(--brass)}
+.tvbman{display:flex;align-items:center;gap:9px;width:100%;padding:6px 4px;border-radius:9px;text-align:left;color:inherit;border:1px solid transparent;background:transparent}
+.tvbman .tvface{width:28px;height:28px}
+.tvbi{flex:0 0 auto;width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;
+  color:var(--dim);background:color-mix(in srgb,var(--hi) 6%,transparent)}
+.tvbman.lead .tvbi{background:var(--team-accent);color:#0E1417}
+.tvbw{flex:1 1 auto;min-width:0}
+.tvbw b{display:block;font-size:13px;font-weight:600;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tvbbar{display:block;height:4px;margin-top:5px;border-radius:2px;background:color-mix(in srgb,var(--mute) 14%,transparent);overflow:hidden}
+.tvbbar i{display:block;height:100%;border-radius:2px;background:var(--team-accent)}
+.tvbman.lead .tvbbar i{background:var(--brass)}
+.tvbs{flex:0 0 auto;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.04em;color:var(--dim);min-width:62px;text-align:right}
+.tvstack{display:flex;gap:2px;height:14px;margin-top:14px;border-radius:7px;overflow:hidden}
+.tvstack i{display:block;height:100%}
+.tvkey{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}
+.tvkey span{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:9px;background:color-mix(in srgb,var(--hi) 4%,transparent);min-width:0}
+.tvkey i{flex:0 0 auto;width:9px;height:9px;border-radius:3px}
+.tvkey b{font-size:13px;color:var(--hi)}
+.tvkey small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.04em;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tvagerow{display:grid;grid-template-columns:96px minmax(0,1fr) 36px;align-items:center;gap:10px;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--rule) 75%,transparent)}
+.tvage .tvdtop + .tvagerow{margin-top:12px}
+.tvagerow .l{font-size:12.5px;color:var(--chalk)}
+.tvagerow .v{font-weight:700;color:var(--hi);text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+.tvtrack{position:relative;height:16px}
+.tvtrack::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;border-radius:1px;background:color-mix(in srgb,var(--mute) 20%,transparent)}
+.tvtrack .avg{position:absolute;top:2px;width:1px;height:12px;background:var(--dim)}
+.tvtrack b{position:absolute;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--team-accent);box-shadow:0 0 0 3px var(--panel)}
+.tvtrack b.old{background:#D9A25B} .tvtrack b.young{background:var(--good-t)}
+.tvscale{display:flex;justify-content:space-between;padding-left:106px;padding-right:46px;margin-top:2px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.06em;color:var(--dim)}
+/* The light theme's gold is darker, so white reads better on it. */
+html[data-theme="light"] .tvten.new,html[data-theme="light"] .tvarw.newc,html[data-theme="light"] .tvt100{color:#fff}
+html[data-theme="light"] .tvnext{background:color-mix(in srgb,#fff 70%,transparent)}
+@media (max-width:420px){ .tvkey{grid-template-columns:repeat(3,minmax(0,1fr))} .tvagerow{grid-template-columns:84px minmax(0,1fr) 34px} .tvscale{padding-left:94px;padding-right:44px} }
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -4843,8 +5019,8 @@ const PANEL_TABS = {
     ["career",   "Career",   /(^Career|similar)/i],
   ],
   team: [
-    ["overview", "Overview", /^(Coaching|Team news|Power rating|Last season)/i],
-    ["roster",   "Roster",   /(stopped watching|Moving up|Position battles|Roster age|roster was built)/i],
+    ["overview", "Overview", /^(At a glance|Coaching|Team news|Power rating|Last season|\d{4} season)/i],
+    ["roster",   "Roster",   /(Roster at a glance|stopped watching|Moving up|Position battles|Roster age|roster was built)/i],
     ["schedule", "Schedule", /schedule/i],
     ["history",  "History",  /(Last ten|seasons)/i],
     ["money",    "Money",    /(money|cap)/i],
@@ -4979,26 +5155,222 @@ function disclose(parent, key, label, note, fill){
 const RDCOLS = ["#5FBF8A","#6E8FA8","#A88C5F","#8A7BA8","#5F9E8A","#A87B7B","#7B93A8"];
 const CAPCOLS = ["#4A7C6F","#6E8FA8","#A88C5F","#8A7BA8","#5F9E8A","#A87B7B","#7B93A8","#6B7A72"];
 
+/* ---------------- team panel building blocks ----------------
+   One look for the Overview and Roster tabs: cards, stat tiles, and a short
+   bar for any league rank, coloured by tier. */
+function tvTier(r, n){ n = n || 32; return r <= Math.ceil(n / 4) ? "good" : r <= Math.ceil(n * 3 / 4) ? "mid" : "low"; }
+function tvRankBar(r, n){
+  n = n || 32;
+  const w = el("span","tvbar " + tvTier(r, n));
+  const i = el("i");
+  i.style.width = Math.max(5, Math.round((n - r + 1) / n * 100)) + "%";
+  w.appendChild(i);
+  return w;
+}
+function tvTiles(items){
+  const box = el("div","tvtiles" + (items.length === 3 ? " three" : ""));
+  items.forEach(([v, l, cls]) => {
+    if(v == null) return;
+    const c = el("div","tvtile" + (cls ? " " + cls : ""));
+    c.appendChild(el("b", null, String(v)));
+    c.appendChild(el("small", null, l));
+    box.appendChild(c);
+  });
+  return box;
+}
+function tvSect(kind, title, sub){
+  const sec = el("div","sect " + kind);
+  const h = el("h3", null, title);
+  if(sub) h.appendChild(el("span", null, sub));
+  sec.appendChild(h);
+  return sec;
+}
+function tvTeamColours(node){
+  const t = DATA.teams[team] || {};
+  node.style.setProperty("--tc", stripeColor(t));
+  node.style.setProperty("--tcf", t.c1 || "#4A7C6F");
+}
+function tvFace(p, size){
+  const f = el("span","tvface");
+  const im = p ? faceImg(p, size || 96, {lazy: true}) : null;
+  if(im) f.appendChild(im);
+  else f.appendChild(el("i", null, ((p && p.name) || "?").slice(0, 1)));
+  return f;
+}
+function tvNote(text){ return el("div","tvnote", text); }
+const tvInitials = n => String(n || "").split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase();
+
+/* The team's next fixture still to be played, from the schedule. */
+function nextFixture(ab){
+  const now = Date.now() - 4 * 3600e3;
+  const all = Object.keys(DATA.slate || {}).map(Number).sort((a, b) => a - b)
+    .flatMap(w => (DATA.slate[w] || []).map(g => Object.assign({wk: w}, g)));
+  return all.find(g => (g.a === ab || g.h === ab) && g.d
+    && new Date(g.d + "T" + (g.t || "13:00") + ":00-04:00").getTime() >= now) || null;
+}
+
+/* ---- Overview: the season so far in one card ---- */
+function sectionGlance(d){
+  const st = ((DATA.standings || {}).teams || {})[team];
+  if(!st || !(DATA.current || {}).live || !st.played) return;
+  const sec = tvSect("k-stat tvglance", "At a glance", (DATA.current || {}).season + " season");
+  tvTeamColours(sec);
+
+  const top = el("div","tvrec");
+  const L = el("div");
+  L.appendChild(el("div","tvbig", st.rec));
+  L.appendChild(el("div","tvsub", [st.dpos ? ord(st.dpos) + " in the " + st.division : null,
+    st.cpos ? ord(st.cpos) + " in the " + st.conf_name : null].filter(Boolean).join(" · ")));
+  top.appendChild(L);
+  const form = el("div","tvform");
+  (st.form || []).slice(-5).forEach(r => form.appendChild(el("span","tvf " + (r === "W" ? "w" : r === "L" ? "l" : "t"), r)));
+  if(form.children.length){
+    const fw = el("div","tvformw");
+    fw.appendChild(form);
+    fw.appendChild(el("small", null, "Last " + form.children.length));
+    top.appendChild(fw);
+  }
+  sec.appendChild(top);
+
+  const g = st.played || 1, R = (DATA.rankings || {})[team];
+  sec.appendChild(tvTiles([
+    [(st.pf / g).toFixed(1), "Scored a game"],
+    [(st.pa / g).toFixed(1), "Allowed a game"],
+    [(st.diff > 0 ? "+" : "") + st.diff, "Point margin", st.diff > 0 ? "up" : st.diff < 0 ? "dn" : ""],
+    R ? [ord(R.rank), "Power rank", R.move > 0 ? "up" : R.move < 0 ? "dn" : ""] : [null],
+  ]));
+
+  const nx = nextFixture(team);
+  if(nx){
+    const home = nx.h === team, opp = home ? nx.a : nx.h, ot = DATA.teams[opp] || {};
+    const row = el("button","tvnext");
+    row.type = "button";
+    row.appendChild(el("span","tvnl", "Next"));
+    if(ot.logo){ const im = new Image(); im.src = ot.logo; im.alt = ""; im.loading = "lazy"; row.appendChild(im); }
+    const mid = el("span","tvnm");
+    mid.appendChild(el("b", null, (home ? "vs " : "at ") + (ot.nick || opp)));
+    const dt = nx.d ? new Date(nx.d + "T12:00:00Z") : null;
+    mid.appendChild(el("small", null, ["Week " + nx.wk,
+      dt ? dt.toLocaleDateString(undefined, {weekday: "short", month: "short", day: "numeric"}) : null,
+      fmtKick(nx)].filter(Boolean).join(" · ")));
+    row.appendChild(mid);
+    const n = nfeloFor(nx);
+    if(n && n[0] != null){
+      const pr = Math.round((home ? n[0] : 1 - n[0]) * 100);
+      const c = el("span","tvodds " + (pr >= 50 ? "up" : "dn"));
+      c.appendChild(el("b", null, pr + "%"));
+      c.appendChild(el("small", null, "to win"));
+      row.appendChild(c);
+    }
+    row.onclick = () => openPreview(nx.a + "@" + nx.h, nx, null);
+    sec.appendChild(row);
+  }
+  d.appendChild(sec);
+}
+
+/* ---- Overview: the coaches ---- */
+function sectionCoach(d, co){
+  const sec = tvSect("k-people tvcoach", "Coaching staff");
+  tvTeamColours(sec);
+  const hc = el("div","tvhc");
+  hc.appendChild(el("span","tvmono", tvInitials(co.name)));
+  const who = el("div");
+  who.appendChild(el("div","tvhcn", co.name));
+  who.appendChild(el("div","tvhct", "Head coach · " + (co.rookie
+    ? "first season with the " + ((DATA.teams[team] || {}).nick || team)
+    : ordSeason(co.years) + " season, since " + co.since)));
+  hc.appendChild(who);
+  sec.appendChild(hc);
+  if(co.rookie) sec.appendChild(tvNote("Hired this offseason, so he has no record with the club yet."));
+  else sec.appendChild(tvTiles([
+    [co.record, "Regular season"],
+    [co.playoffs || 0, co.playoffs === 1 ? "Playoff trip" : "Playoff trips"],
+    [co.titles || 0, co.titles === 1 ? "Super Bowl" : "Super Bowls", co.titles ? "gold" : ""],
+  ]));
+  (co.staff || []).forEach(x => {
+    const r = el("div","tvstaff");
+    r.appendChild(el("span","tvmono sm", tvInitials(x.name)));
+    const w = el("div");
+    w.appendChild(el("div","tvsn", x.name));
+    w.appendChild(el("div","tvsr", x.role));
+    r.appendChild(w);
+    const isNew = x.years === 1;
+    r.appendChild(el("span","tvten" + (isNew ? " new" : ""), isNew ? "New" : ordSeason(x.years) + " yr"));
+    sec.appendChild(r);
+  });
+  d.appendChild(sec);
+}
+
+/* ---- Overview: last season's units ---- */
+function sectionUnits(d, s){
+  const sec = tvSect("k-stat tvunits",
+    (DATA.current || {}).live ? "Last season" : DATA.statsSeason + " season", "a game \u00b7 rank of 32");
+  s.units.forEach(u => {
+    const blk = el("div","tvunit");
+    const hd = el("div","tvuh");
+    hd.appendChild(el("span", null, u.name));
+    const pill = el("span","tvpill " + tvTier(u.rank));
+    pill.appendChild(el("b", null, ord(u.rank)));
+    hd.appendChild(pill);
+    blk.appendChild(hd);
+    u.stats.forEach(x => {
+      const r = el("div","tvrow");
+      // "Total yds allowed / game" says per game on every row; "a game" once is enough.
+      r.appendChild(el("span","l", String(x.l).replace(/\s*\/\s*game$/i, "").replace(/ yds/i, " yards")));
+      r.appendChild(el("span","v", x.v.toLocaleString()));
+      r.appendChild(tvRankBar(x.r));
+      r.appendChild(el("span","o " + tvTier(x.r), ord(x.r)));
+      blk.appendChild(r);
+    });
+    sec.appendChild(blk);
+  });
+  sec.appendChild(tvNote("Offense and defense are ranked on points a game. Special teams blends "
+    + "field goal rate, return yardage, return touchdowns and blocks allowed."));
+  d.appendChild(sec);
+}
+
+/* ---- Roster: the starters on the chart, and who is new since a given year ---- */
+function chartStarters(){
+  const best = {};
+  (DATA.depth[team] || []).forEach(r => {
+    const k = r.grp + "|" + r.slot;
+    if(!best[k] || r.rank < best[k].rank) best[k] = r;
+  });
+  return Object.values(best).map(r => ({r, p: DATA.players[r.pid]})).filter(x => x.p);
+}
+function sectionRosterGlance(d){
+  const st = chartStarters();
+  const fresh = st.filter(x => x.p.first && x.p.first > catchUpYear).length;
+  const rv = (DATA.roster || {})[team], dr = (DATA.draft || {})[team], bs = (DATA.battles || {})[team] || [];
+  const items = [];
+  if(st.length) items.push([fresh + "/" + st.length, "Starters new since " + catchUpYear]);
+  if(rv && rv.age && rv.age.avg != null) items.push([rv.age.avg, "Average age" + (rv.age.rank ? ", " + ord(rv.age.rank) + " youngest" : "")]);
+  if(dr && dr.own_pct != null) items.push([dr.own_pct + "%", "Homegrown" + (dr.own_rank ? ", " + ord(dr.own_rank) + " most" : "")]);
+  if(bs.length) items.push([bs.length, bs.length === 1 ? "Position battle" : "Position battles"]);
+  if(items.length < 2) return;
+  const sec = tvSect("k-time tvrglance", "Roster at a glance");
+  tvTeamColours(sec);
+  sec.appendChild(tvTiles(items));
+  d.appendChild(sec);
+}
+
 function sectionMovement(d){
   const rs = (DATA.risers || {})[team];
   if(!rs || !rs.length) return;
-  const h = el("div","sect k-time");
-  const hh = el("h3",null,"Moving up the chart");
-  hh.appendChild(el("span",null,"since March"));
-  h.appendChild(hh);
-  rs.forEach(r=>{
-    const row = el("div","mrow");
-    row.appendChild(el("span","arw"+(r.new?" newc":""), r.new?"NEW":"\u25B2"+r.d));
-    row.appendChild(el("span","nm", r.name));
-    row.appendChild(el("span","pp", r.pos));
-    h.appendChild(row);
+  const sec = tvSect("k-time tvmove", "Moving up the chart", "since March");
+  rs.forEach(r => {
+    const row = el("button","tvprow");
+    row.type = "button";
+    row.appendChild(el("span","tvarw" + (r.new ? " newc" : ""), r.new ? "New" : "▲ " + r.d));
+    row.appendChild(tvFace(DATA.players[r.pid], 64));
+    row.appendChild(el("span","tvpn", r.name));
+    row.appendChild(el("span","tvpp", r.pos));
+    if(DATA.players[r.pid]) row.onclick = () => goPlayer(r.pid); else row.disabled = true;
+    sec.appendChild(row);
   });
-  const n = el("div");
-  n.style.cssText="margin-top:9px;font-size:12px;color:var(--dim);line-height:1.5";
-  n.textContent = "Compares today's depth chart against 132 snapshots taken since "
-    + "March. Useful in camp, when the order actually moves.";
-  h.appendChild(n);
-  d.appendChild(h);
+  sec.appendChild(tvNote("Against 132 snapshots of the depth chart taken since March. "
+    + "New means he was not a starter in March at all."));
+  d.appendChild(sec);
 }
 
 function sectionCap(d){
@@ -5039,35 +5411,40 @@ function sectionAge(d){
   const rv = (DATA.roster || {})[team];
   if(!rv || rv.age.avg == null) return;
   const a = rv.age;
-  const s = el("div","sect k-time");
-  s.appendChild(el("h3",null,"Roster age"));
-  const box = el("div","agebox");
-  const left = el("div");
-  left.appendChild(el("div","big", a.avg));
-  left.appendChild(el("div","lab","Average years"));
-  box.appendChild(left);
-  if(a.rank){
-    const rk = el("div","rk");
-    rk.appendChild(el("b",null,ord(a.rank)));
-    rk.appendChild(document.createTextNode("youngest of "+a.n_teams));
-    box.appendChild(rk);
-  }
-  s.appendChild(box);
-  a.units.forEach(u=>{
-    const row = el("div","caprow");
-    row.appendChild(el("span","g", u.g));
-    row.appendChild(el("span","m", u.a));
-    row.appendChild(el("span","p","yrs"));
-    s.appendChild(row);
+  const sec = tvSect("k-time tvage", "Roster age");
+  const top = el("div","tvdtop");
+  top.appendChild(el("div","tvbig", String(a.avg)));
+  const t = el("div","tvsub");
+  t.appendChild(el("b", null, "Average age"));
+  if(a.rank) t.appendChild(document.createTextNode(ord(a.rank) + " youngest of " + a.n_teams));
+  top.appendChild(t);
+  sec.appendChild(top);
+  // Each group on one scale, so the old and young rooms stand out.
+  const ages = a.units.map(u => +u.a).filter(Number.isFinite);
+  const lo = Math.floor(Math.min(24, ...ages)), hi = Math.ceil(Math.max(30, ...ages));
+  const pos = v => ((v - lo) / (hi - lo) * 100).toFixed(1) + "%";
+  a.units.forEach(u => {
+    const r = el("div","tvagerow");
+    r.appendChild(el("span","l", u.g));
+    const tr = el("span","tvtrack");
+    const avg = el("i","avg"); avg.style.left = pos(a.avg); tr.appendChild(avg);
+    const dot = el("b", (+u.a > a.avg + 0.8 ? "old" : +u.a < a.avg - 0.8 ? "young" : ""));
+    dot.style.left = pos(+u.a);
+    tr.appendChild(dot);
+    r.appendChild(tr);
+    r.appendChild(el("span","v", String(u.a)));
+    sec.appendChild(r);
   });
-  if(a.oldest && a.youngest){
-    const n = el("div");
-    n.style.cssText="margin-top:9px;font-size:12px;color:var(--dim);line-height:1.5";
-    n.textContent = "Oldest "+a.oldest.name+" ("+a.oldest.age+"), youngest "
-      + a.youngest.name+" ("+a.youngest.age+"). Ages as of 1 September.";
-    s.appendChild(n);
-  }
-  d.appendChild(s);
+  const sc = el("div","tvscale");
+  sc.appendChild(el("span", null, lo + " yrs"));
+  sc.appendChild(el("span", null, "team average " + a.avg));
+  sc.appendChild(el("span", null, hi + " yrs"));
+  sec.appendChild(sc);
+  if(a.oldest && a.youngest) sec.appendChild(tvTiles([
+    [a.youngest.age, "Youngest: " + a.youngest.name],
+    [a.oldest.age, "Oldest: " + a.oldest.name],
+  ]));
+  d.appendChild(sec);
 }
 
 function sectionSchedule(d){
@@ -5137,56 +5514,41 @@ function sectionSchedule(d){
 function sectionDraft(d){
   const dr = (DATA.draft || {})[team];
   if(!dr || !dr.rounds.length) return;
-  disclose(d, "draft", "How the roster was built",
-           dr.own_pct + "% homegrown", body=>{
-    const total = dr.total;
-    const bar = el("div","rdbar");
-    dr.rounds.forEach(r=>{
-      const i = el("i");
-      i.style.width = (r.n/total*100)+"%";
-      i.style.background = RDCOLS[Math.min(r.r,7)-1];
-      i.title = "Round "+r.r+": "+r.n;
-      bar.appendChild(i);
-    });
-    if(dr.udfa){
-      const i = el("i");
-      i.style.width = (dr.udfa/total*100)+"%";
-      i.style.background = "#3A464C";
-      i.title = "Undrafted: "+dr.udfa;
-      bar.appendChild(i);
-    }
-    body.appendChild(bar);
-
-    const key = el("div","rdkey");
-    dr.rounds.forEach(r=>{
-      const sp = el("span");
-      const i = el("i"); i.style.background = RDCOLS[Math.min(r.r,7)-1];
-      sp.appendChild(i);
-      sp.appendChild(document.createTextNode("Rd "+r.r+" \u00b7 "+r.n));
-      key.appendChild(sp);
-    });
-    if(dr.udfa){
-      const sp = el("span");
-      const i = el("i"); i.style.background = "#3A464C";
-      sp.appendChild(i);
-      sp.appendChild(document.createTextNode("Undrafted \u00b7 "+dr.udfa));
-      key.appendChild(sp);
-    }
-    body.appendChild(key);
-
-    const line = el("div","drafted");
-    line.appendChild(el("b",null, dr.own+" of "+dr.total));
-    line.appendChild(document.createTextNode(" drafted by this club \u00b7 "));
-    const o = el("span","own"); o.textContent = ord(dr.own_rank)+" most homegrown";
-    line.appendChild(o);
-    body.appendChild(line);
-
-    const n = el("div","carnote");
-    n.textContent = "Counts everyone on the depth chart. Undrafted players are "
-      + "counted as acquired, since signing one is a different act from spending "
-      + "a pick.";
-    body.appendChild(n);
+  const sec = tvSect("k-money tvdraft", "How the roster was built", "everyone on the chart");
+  const top = el("div","tvdtop");
+  const b = el("div","tvbig");
+  b.appendChild(document.createTextNode(dr.own_pct + "%"));
+  top.appendChild(b);
+  const t = el("div","tvsub");
+  t.appendChild(el("b", null, "Homegrown"));
+  t.appendChild(document.createTextNode(dr.own + " of " + dr.total + " drafted here · " + ord(dr.own_rank) + " most in the NFL"));
+  top.appendChild(t);
+  sec.appendChild(top);
+  const total = dr.total;
+  const bar = el("div","tvstack");
+  const segs = dr.rounds.map(r => ["Rd " + r.r, r.n, RDCOLS[Math.min(r.r, 7) - 1]]);
+  if(dr.udfa) segs.push(["Undrafted", dr.udfa, "#56636A"]);
+  segs.forEach(([l, n, c]) => {
+    const i = el("i");
+    i.style.width = (n / total * 100) + "%";
+    i.style.background = c;
+    i.title = l + ": " + n;
+    bar.appendChild(i);
   });
+  sec.appendChild(bar);
+  const key = el("div","tvkey");
+  segs.forEach(([l, n, c]) => {
+    const k = el("span");
+    const dot = el("i"); dot.style.background = c;
+    k.appendChild(dot);
+    k.appendChild(el("b", null, String(n)));
+    k.appendChild(el("small", null, l));
+    key.appendChild(k);
+  });
+  sec.appendChild(key);
+  sec.appendChild(tvNote("Drafted by this club, by round. Undrafted players count as acquired, "
+    + "since signing one is a different act from spending a pick."));
+  d.appendChild(sec);
 }
 
 function sectionHistory(d){
@@ -5282,66 +5644,72 @@ function sectionHistory(d){
 function sectionRating(d){
   const v = (DATA.rankings || {})[team];
   if(!v) return;
-  const meta = DATA.rankMeta || {};
-  const sec = el("div","sect k-rating");
-  const h = el("h3", null, "Power rating");
-  h.appendChild(el("span", null, "through " + meta.games + " games"));
-  sec.appendChild(h);
+  const meta = DATA.rankMeta || {}, N = meta.ranked || 32;
+  const sec = tvSect("k-rating tvrating", "Power rating", "through " + meta.games + " games");
+  tvTeamColours(sec);
+  const top = el("div","tvdtop");
+  const big = el("div","tvbig");
+  big.appendChild(document.createTextNode(ord(v.rank)));
+  big.appendChild(el("small", null, " of " + N));
+  top.appendChild(big);
+  const t = el("div","tvsub");
+  if(v.new) t.appendChild(el("b", null, "First rating of the season"));
+  else if(v.move != null){
+    t.appendChild(el("span","tvmv " + (v.move > 0 ? "up" : v.move < 0 ? "dn" : ""),
+      v.move === 0 ? "No change" : (v.move > 0 ? "▲ " : "▼ ") + Math.abs(v.move)));
+    t.appendChild(document.createTextNode(v.move === 0 ? " from last week" : " from " + ord(v.was) + " last week"));
+  }
+  t.appendChild(el("div","tvavg", "Average placing " + v.avg.toFixed(1)));
+  top.appendChild(t);
+  sec.appendChild(top);
 
-  const box = el("div","agebox");
-  const left = el("div");
-  left.appendChild(el("div","big", ord(v.rank)));
-  left.appendChild(el("div","lab", "of " + (meta.ranked || 32)));
-  box.appendChild(left);
-  const rk = el("div","rk");
-  rk.appendChild(el("b", null, v.avg.toFixed(1)));
-  rk.appendChild(document.createTextNode("average placing"));
-  box.appendChild(rk);
-  sec.appendChild(box);
-
-  if(v.move != null || v.new){
-    const mv = el("div","rkmoveline");
-    mv.textContent = v.new ? "First rating of the season"
-      : v.move === 0 ? "Unchanged from last week"
-      : (v.move > 0 ? "Up " : "Down ") + Math.abs(v.move)
-        + " from " + ord(v.was) + " last week";
-    mv.className += v.move > 0 ? " up" : v.move < 0 ? " dn" : "";
-    sec.appendChild(mv);
+  // The season so far, best at the top.
+  const H = v.history || [];
+  if(H.length > 1){
+    const W = 300, Ht = 96, L = 22, R = 8, T = 8, B = 18;
+    const x = i => L + i / (H.length - 1) * (W - L - R);
+    const y = r => T + ((r - 1) / (N - 1)) * (Ht - T - B);
+    const pts = H.map((r, i) => [x(i), y(r)]);
+    const line = pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+    const area = "M" + x(0).toFixed(1) + "," + (Ht - B) + " L" + line.replace(/ /g, " L") + " L" + x(H.length - 1).toFixed(1) + "," + (Ht - B) + " Z";
+    const grid = [1, Math.round(N / 2), N].map(r =>
+      '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(r).toFixed(1) + '" y2="' + y(r).toFixed(1) + '" class="g"/>'
+      + '<text x="' + (L - 5) + '" y="' + (y(r) + 3).toFixed(1) + '" text-anchor="end">' + r + '</text>').join("");
+    const wk = H.map((_, i) => '<text x="' + x(i).toFixed(1) + '" y="' + (Ht - 4) + '" text-anchor="middle">W' + (i + 1) + '</text>').join("");
+    const dots = pts.map((p, i) => '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + (i === pts.length - 1 ? 4.2 : 2.6) + '"'
+      + (i === pts.length - 1 ? ' class="last"' : '') + '/>').join("");
+    const wrap = el("div","tvchart");
+    wrap.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + Ht + '" role="img" aria-label="Power rank by week">'
+      + '<defs><linearGradient id="tvgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--tc)" stop-opacity=".35"/>'
+      + '<stop offset="1" stop-color="var(--tc)" stop-opacity="0"/></linearGradient></defs>'
+      + grid + '<path d="' + area + '" fill="url(#tvgr)"/><polyline points="' + line + '" class="ln"/>' + dots + wk + '</svg>';
+    sec.appendChild(wrap);
   }
 
-  // The season so far as a line, since a rank on its own has no direction.
-  if((v.history || []).length > 2){
-    const H = v.history, W = 300, Ht = 64, P = 4;
-    const x = i => P + i / (H.length - 1) * (W - P * 2);
-    const y = r => P + ((r - 1) / 31) * (Ht - P * 2);
-    const pts = H.map((r, i) => x(i).toFixed(1) + "," + y(r).toFixed(1)).join(" ");
-    const wrap = el("div");
-    wrap.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + Ht + '" class="rkspark"'
-      + ' role="img" aria-label="Rating by week">'
-      + '<polyline points="' + pts + '" fill="none" stroke="var(--team-accent)"'
-      + ' stroke-width="2" stroke-linejoin="round"/>'
-      + '<circle cx="' + x(H.length - 1).toFixed(1) + '" cy="'
-      + y(H[H.length - 1]).toFixed(1) + '" r="3.2" fill="var(--brass)"/></svg>';
-    sec.appendChild(wrap.firstElementChild);
-    sec.appendChild(el("div","chartnote","Placing by week \u00b7 higher is better"));
-  }
-
-  v.methods.forEach(m=>{
-    const r = el("div","caprow");
-    r.appendChild(el("span","g", m.name));
-    r.appendChild(el("span","m", String(m.value)));
-    r.appendChild(el("span","p", ord(m.rank)));
+  sec.appendChild(el("div","tvsubh","By method"));
+  const fmt = (name, val) => {
+    if(val == null) return "";
+    if(/pyth/i.test(name)) return Math.round(val * 100) + "% expected";
+    if(/nfelo/i.test(name)) return Math.round(val) + " rating";
+    if(/epa/i.test(name)) return (val > 0 ? "+" : "") + val.toFixed(2) + " a play";
+    if(/diff/i.test(name)) return (val > 0 ? "+" : "") + val.toFixed(1) + " a game";
+    if(/srs/i.test(name)) return (val > 0 ? "+" : "") + val.toFixed(1) + " pts";
+    return String(val);
+  };
+  v.methods.forEach(m => {
+    const r = el("div","tvrow");
+    const l = el("span","l", m.name);
+    l.appendChild(el("small", null, fmt(m.name, m.value)));
+    r.appendChild(l);
+    r.appendChild(tvRankBar(m.rank, N));
+    r.appendChild(el("span","o " + tvTier(m.rank, N), ord(m.rank)));
     sec.appendChild(r);
   });
-
-  const n = el("div","carnote");
-  n.textContent = v.spread >= 8
-    ? "The " + numWord(((DATA.rankMeta || {}).methods || []).length) + " methods disagree about this team by " + v.spread + " places, "
-      + "which usually means the record and the underlying play are telling "
-      + "different stories."
-    : "Independent methods, computed from results or, for nfelo, taken from its published model "
-      + "rather than from a writer's list.";
-  sec.appendChild(n);
+  sec.appendChild(tvNote(v.spread >= 8
+    ? "The " + numWord((meta.methods || []).length) + " methods disagree about this team by " + v.spread
+      + " places, which usually means the record and the underlying play are telling different stories."
+    : "Independent methods, computed from results or, for nfelo, taken from its published model rather "
+      + "than from a writer's list."));
   d.appendChild(sec);
 }
 
@@ -5378,101 +5746,108 @@ function sectionTrending(d){
 
 function sectionCatchUp(d){
   const yr = catchUpYear;
-  const rows = (DATA.depth[team] || []);
-  const best = {};
-  rows.forEach(r=>{
-    const k = r.grp + "|" + r.slot;
-    if(!best[k] || r.rank < best[k].rank) best[k] = r;
-  });
-  const starters = Object.values(best)
-    .map(r => ({r, p: DATA.players[r.pid]}))
-    .filter(x => x.p);
+  const starters = chartStarters();
   if(!starters.length) return;
-
   const fresh = starters.filter(x => x.p.first && x.p.first > yr);
   const known = starters.filter(x => x.p.first && x.p.first <= yr);
+  const sec = tvSect("k-people tvcatch", "If you stopped watching", fresh.length + " new starters");
+  tvTeamColours(sec);
 
-  disclose(d, "catchup", "If you stopped watching",
-           fresh.length + " new starters", body=>{
-    const pick = el("div","yrpick");
-    [2018,2020,2021,2022,2023].forEach(y=>{
-      const b = el("button", null, "after " + y);
-      b.setAttribute("aria-pressed", y === yr);
-      b.onclick = () => { catchUpYear = y; renderTeam(); openSections.catchup = true; };
-      pick.appendChild(b);
-    });
-    body.appendChild(pick);
-
-    const head = el("div","cuhead");
-    const left = el("div");
-    left.appendChild(el("div","big", fresh.length + " of " + starters.length));
-    left.appendChild(el("div","lab", "starters you have never seen"));
-    head.appendChild(left);
-    body.appendChild(head);
-
-    const list = (label, arr, showYear) => {
-      if(!arr.length) return;
-      const h = el("div","advsub", label);
-      body.appendChild(h);
-      arr.sort((a,b)=> (a.p.t100||999) - (b.p.t100||999)
-                    || (a.p.first||0) - (b.p.first||0));
-      arr.slice(0,12).forEach(x=>{
-        const row = el("button","curow");
-        const f = el("div","cf");
-        const im = faceImg(x.p, 96, {lazy: true});
-        if(im) f.appendChild(im);
-        row.appendChild(f);
-        row.appendChild(el("span","cn", x.p.name));
-        row.appendChild(el("span","cp", x.r.abb));
-        if(showYear && x.p.first) row.appendChild(el("span","cy", "'" + String(x.p.first).slice(-2)));
-        row.onclick = () => { $("#quiz").hidden = true; goPlayer(x.p.id); };
-        body.appendChild(row);
-      });
-    };
-
-    list("New since then", fresh, true);
-    list("Still here from before", known, false);
-
-    const n = el("div","carnote");
-    n.textContent = "Debut year comes from career stats where available, otherwise "
-      + "from years of experience. The second list is your anchor \u2014 you know "
-      + "more of this roster than it feels like.";
-    body.appendChild(n);
+  const pick = el("div","tvseg");
+  [2018, 2020, 2021, 2022, 2023].forEach(y => {
+    const b = el("button", null, String(y));
+    b.type = "button";
+    b.setAttribute("aria-pressed", y === yr);
+    b.onclick = () => { catchUpYear = y; renderTeam(); };
+    pick.appendChild(b);
   });
+  sec.appendChild(el("div","tvseglab","Stopped watching after"));
+  sec.appendChild(pick);
+
+  const pr = el("div","tvprog");
+  const big = el("div","tvprogt");
+  big.appendChild(el("b", null, String(fresh.length)));
+  big.appendChild(document.createTextNode(" of " + starters.length + " starters are new to you"));
+  pr.appendChild(big);
+  const bar = el("div","tvprogb");
+  const i = el("i"); i.style.width = Math.round(fresh.length / starters.length * 100) + "%";
+  bar.appendChild(i);
+  pr.appendChild(bar);
+  sec.appendChild(pr);
+
+  const order = arr => arr.sort((a, b) => (a.p.t100 || 999) - (b.p.t100 || 999) || (a.p.first || 0) - (b.p.first || 0));
+  if(fresh.length){
+    sec.appendChild(el("div","tvsubh","New since " + yr));
+    const grid = el("div","tvpgrid");
+    order(fresh).forEach(x => {
+      const c = el("button","tvpcard");
+      c.type = "button";
+      c.appendChild(tvFace(x.p, 96));
+      const w = el("span","tvpcw");
+      w.appendChild(el("b", null, x.p.name));
+      w.appendChild(el("small", null, x.r.abb + (x.p.first ? " · since '" + String(x.p.first).slice(-2) : "")));
+      c.appendChild(w);
+      if(x.p.t100) c.appendChild(el("span","tvt100", x.p.t100));
+      c.onclick = () => { $("#quiz").hidden = true; goPlayer(x.p.id); };
+      grid.appendChild(c);
+    });
+    sec.appendChild(grid);
+  }
+  if(known.length){
+    sec.appendChild(el("div","tvsubh","Still here from before"));
+    const chips = el("div","tvchips");
+    order(known).forEach(x => {
+      const c = el("button","tvchip");
+      c.type = "button";
+      c.appendChild(tvFace(x.p, 64));
+      c.appendChild(el("span", null, x.p.name.split(" ").slice(1).join(" ") || x.p.name));
+      c.appendChild(el("small", null, x.r.abb));
+      c.onclick = () => { $("#quiz").hidden = true; goPlayer(x.p.id); };
+      chips.appendChild(c);
+    });
+    sec.appendChild(chips);
+  }
+  sec.appendChild(tvNote("Debut year comes from career stats where available, otherwise from years "
+    + "of experience. The second list is your anchor: you know more of this roster than it feels like."));
+  d.appendChild(sec);
 }
 
 function sectionBattles(d){
   const bs = (DATA.battles || {})[team];
   if(!bs || !bs.length) return;
-  const hot = bs.filter(b=>b.days <= 21).length;
-  disclose(d, "battles", "Position battles",
-           bs.length + (hot ? " \u00b7 "+hot+" moved recently" : ""), body=>{
-    bs.forEach(b=>{
-      const box = el("div","bat");
-      const h = el("div","bh");
-      h.appendChild(el("span","bp", b.pos));
-      const recent = b.days <= 21;
-      h.appendChild(el("span","bm"+(recent?" hot":""),
-        b.flips ? (b.flips===1?"lead changed once":"lead changed "+b.flips+"\u00d7")
-                : "order unsettled"));
-      box.appendChild(h);
-      b.men.forEach((m,i)=>{
-        const r = el("button","batman");
-        r.appendChild(el("span","bi", i+1));
-        r.appendChild(el("span","bn", m.name + (m.num!=null ? "  #"+m.num : "")));
-        r.appendChild(el("span","bs", m.held ? m.held+" days on top" : "never led"));
-        r.onclick = () => goPlayer(m.pid);
-        box.appendChild(r);
-      });
-      body.appendChild(box);
+  const hot = bs.filter(b => b.days <= 21).length;
+  const sec = tvSect("k-rating tvbattles", "Position battles",
+    bs.length + (hot ? " · " + hot + " moved recently" : ""));
+  bs.forEach(b => {
+    const box = el("div","tvbat");
+    const h = el("div","tvbh");
+    h.appendChild(el("span","tvbp", b.pos));
+    const recent = b.days <= 21;
+    h.appendChild(el("span","tvbm" + (recent ? " hot" : ""),
+      b.flips ? (b.flips === 1 ? "Lead changed once" : "Lead changed " + b.flips + "×") : "Order unsettled"));
+    box.appendChild(h);
+    const most = Math.max(1, ...b.men.map(m => m.held || 0));
+    b.men.forEach((m, i) => {
+      const r = el("button","tvbman" + (i === 0 ? " lead" : ""));
+      r.type = "button";
+      r.appendChild(el("span","tvbi", i + 1));
+      r.appendChild(tvFace(DATA.players[m.pid], 64));
+      const w = el("span","tvbw");
+      w.appendChild(el("b", null, m.name + (m.num != null ? "  #" + m.num : "")));
+      const bar = el("span","tvbbar");
+      const f = el("i"); f.style.width = (m.held ? Math.max(4, m.held / most * 100) : 0) + "%";
+      bar.appendChild(f);
+      w.appendChild(bar);
+      r.appendChild(w);
+      r.appendChild(el("span","tvbs", m.held ? m.held + "d on top" : "Never led"));
+      r.onclick = () => goPlayer(m.pid);
+      box.appendChild(r);
     });
-    const n = el("div");
-    n.style.cssText="margin-top:4px;font-size:12px;color:var(--dim);line-height:1.5";
-    n.textContent = "Spots where the order has moved since minicamp. A job can be "
-      + "contested without the starter ever changing, so reshuffling behind the "
-      + "top man counts too.";
-    body.appendChild(n);
+    sec.appendChild(box);
   });
+  sec.appendChild(tvNote("Spots where the order has moved since minicamp. Bars show days spent as the "
+    + "starter. A job can be contested without the starter changing, so reshuffling behind him counts too."));
+  d.appendChild(sec);
 }
 
 function renderTeam(){
@@ -5484,53 +5859,8 @@ function renderTeamBody(){
   const s = DATA.season[team];
   const co = DATA.coaches ? DATA.coaches[team] : null;
 
-  if(co){
-    const h = el("div","sect k-people");
-    h.style.marginTop = "0";
-    h.appendChild(el("h3",null,"Coaching staff"));
-    d.appendChild(h);
-    // Inside the section, not beside it: added beside, it left an empty headed
-    // box with the card floating separately underneath.
-
-    const box = el("div","coach");
-    box.appendChild(el("div","nm", co.name));
-    box.appendChild(el("div","ten",
-      co.rookie ? "First season with the "+DATA.teams[team].nick
-                : ordSeason(co.years)+" season \u00b7 since "+co.since));
-
-    if(co.rookie){
-      box.appendChild(el("div","first",
-        "Hired this offseason, so he has no record with the club yet."));
-    } else {
-      const rec = el("div","rec");
-      const add = (v, label, gold) => {
-        const w = el("span", gold ? "gold" : null);
-        w.appendChild(el("b",null,v));
-        w.appendChild(document.createTextNode(label));
-        rec.appendChild(w);
-      };
-      add(co.record, "regular season");
-      if(co.playoffs) add(co.playoffs, co.playoffs===1?"playoff trip":"playoff trips");
-      if(co.titles) add(co.titles, co.titles===1?"Super Bowl":"Super Bowls", true);
-      box.appendChild(rec);
-    }
-
-    if(co.staff && co.staff.length){
-      const sw = el("div","staff");
-      co.staff.forEach(s=>{
-        const r = el("div","srow");
-        r.appendChild(el("span","role", s.role));
-        r.appendChild(el("span","who", s.name));
-        const isNew = s.years === 1;
-        r.appendChild(el("span","yrs"+(isNew?" new":""),
-          isNew ? "1st season" : ordSeason(s.years)+" \u00b7 "+s.since));
-        sw.appendChild(r);
-      });
-      box.appendChild(sw);
-    }
-    h.appendChild(box);
-  }
-
+  if(s) sectionGlance(d);
+  if(co) sectionCoach(d, co);
   if(!s){
     sectionMovement(d);
     d.appendChild(el("div","sect", "No "+DATA.statsSeason+" season data for this team."));
@@ -5541,48 +5871,14 @@ function renderTeamBody(){
   d.appendChild(newsSection("Team news", "ESPN",
     () => teamNews(team), (DATA.teams[team] || {}).logo, 4));
   sectionRating(d);
+  sectionUnits(d, s);
   sectionTrending(d);
+  sectionRosterGlance(d);
   sectionCatchUp(d);
   sectionMovement(d);
   sectionBattles(d);
   sectionHistory(d);
   sectionDraft(d);
-
-  const h = el("div","sect k-stat");
-  const hh = el("h3", null,
-    ((DATA.current || {}).live ? "Last season" : DATA.statsSeason + " season"));
-  hh.appendChild(el("span",null,"League rank of 32"));
-  h.appendChild(hh);
-  d.appendChild(h);
-
-  s.units.forEach(u=>{
-    const box = el("div","unit");
-    const head = el("div","unit-h");
-    head.appendChild(el("span","n",u.name));
-    const rk = el("span","rk "+tier(u.rank));
-    rk.appendChild(el("b",null,ord(u.rank)));
-    rk.appendChild(el("span",null,"in NFL"));
-    head.appendChild(rk);
-    box.appendChild(head);
-
-    const body = el("div","unit-b");
-    u.stats.forEach(st=>{
-      const row = el("div","urow");
-      row.appendChild(el("span","l",st.l));
-      row.appendChild(el("span","v", st.v.toLocaleString()));
-      row.appendChild(el("span","r "+rcls(st.r), ord(st.r)));
-      body.appendChild(row);
-    });
-    box.appendChild(body);
-    d.appendChild(box);
-  });
-
-  const note = el("div");
-  note.style.cssText="font-size:11.5px;color:var(--dim);line-height:1.5";
-  note.textContent = "Offense and defense are ranked on points per game. Special "
-    + "teams blends field goal rate, return yardage, return touchdowns and blocks "
-    + "allowed. Tap a player on the field for individual numbers.";
-  d.appendChild(note);
 
   sectionAge(d);
   sectionCap(d);
