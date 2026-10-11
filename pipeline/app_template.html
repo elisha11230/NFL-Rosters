@@ -5740,36 +5740,6 @@ function sectionRating(d){
   d.appendChild(sec);
 }
 
-function sectionTrending(d){
-  const host = el("div","sect k-people");
-  host.appendChild(el("h3", null, "People are picking up"));
-  const body = el("div");
-  body.appendChild(el("div","carnote","Checking\u2026"));
-  host.appendChild(body);
-  d.appendChild(host);
-
-  fetchTrending("add").then(rows=>{
-    body.innerHTML = "";
-    if(!rows || !rows.length){ host.remove(); return; }
-    rows.slice(0, 8).forEach(x=>{
-      const r = el("button","curow");
-      const f = el("div","cf");
-      const im = faceImg(x.p, 96, {lazy: true});
-      if(im) f.appendChild(im);
-      r.appendChild(f);
-      r.appendChild(el("span","cn", x.p.name));
-      const loc = LOCATE[x.p.id];
-      r.appendChild(el("span","cp", (loc ? loc.team + " \u00b7 " : "") + x.p.pos));
-      r.appendChild(el("span","trn", "+" + x.n.toLocaleString()));
-      r.onclick = () => goPlayer(x.p.id);
-      body.appendChild(r);
-    });
-    const n = el("div","carnote");
-    n.textContent = "Most added across Sleeper fantasy leagues in the last day. "
-      + "A name climbing fast usually means something happened worth knowing about.";
-    body.appendChild(n);
-  });
-}
 
 function sectionCatchUp(d){
   const yr = catchUpYear;
@@ -5899,7 +5869,6 @@ function renderTeamBody(){
     () => teamNews(team), (DATA.teams[team] || {}).logo, 4));
   sectionRating(d);
   sectionUnits(d, s);
-  sectionTrending(d);
   sectionRosterGlance(d);
   sectionCatchUp(d);
   sectionMovement(d);
@@ -7228,26 +7197,6 @@ function sectionGame(d){
 
   d.appendChild(sec);
 
-  // Drives
-  if(LIVE.drives.length){
-    disclose(d, "drives", "Drives", LIVE.drives.length + " shown", body=>{
-      LIVE.drives.forEach(dv=>{
-        const row = el("button","drv" + (dv.scoring ? " score" : ""));
-        if(dv.detail && dv.detail.length) row.onclick = () => openDrive(dv);
-        row.appendChild(el("span","dt", dv.team));
-        row.appendChild(el("span","dr2", dv.result || "\u2013"));
-        const bits = [];
-        if(dv.plays) bits.push(dv.plays + " pl");
-        if(dv.yards != null) bits.push(dv.yards + " yds");
-        if(dv.time) bits.push(dv.time);
-        row.appendChild(el("span","dm", bits.join(" \u00b7 ")));
-        body.appendChild(row);
-      });
-      const n = el("div","carnote");
-      n.textContent = "Most recent first.";
-      body.appendChild(n);
-    });
-  }
 }
 
 /* ---------------- full box score ----------------
@@ -12040,30 +11989,6 @@ function weatherNote(w){
   if(w.rain >= 60) rough.push("rain favours the run");
   if(w.temp <= 25) rough.push("cold enough to matter");
   return rough.length ? rough.join(", ") : null;
-}
-
-/* ---------------- trending players ----------------
-   Sleeper's public feed, no key. Counts how many fantasy managers added or
-   dropped a player in the last day, across millions of leagues. That is a crowd
-   noticing something, which is a different signal from anything computable here
-   and a good breakout detector. */
-const TREND = {add: null, drop: null, at: 0};
-
-async function fetchTrending(kind){
-  if(TREND[kind] && Date.now() - TREND.at < 9e5) return TREND[kind];
-  try {
-    const r = await fetch("https://api.sleeper.app/v1/players/nfl/trending/"
-      + kind + "?lookback_hours=24&limit=40");
-    if(!r.ok) throw new Error(r.status);
-    const rows = await r.json();
-    const bySid = {};
-    Object.values(DATA.players).forEach(p => { if(p.sid) bySid[p.sid] = p; });
-    TREND[kind] = rows
-      .map(x => ({p: bySid[String(x.player_id)], n: x.count}))
-      .filter(x => x.p);
-    TREND.at = Date.now();
-  } catch(e){ TREND[kind] = null; }
-  return TREND[kind];
 }
 
 /* ---------------- line movement ----------------
