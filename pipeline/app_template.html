@@ -3146,7 +3146,9 @@ html[data-theme="light"] .gsfoot.hot{color:#C22B20}
 .predteam:last-child{flex-direction:row-reverse}
 .predteam img{width:34px;height:34px;object-fit:contain}
 .predteam b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:22px;color:var(--hi)}
-.predteam small{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.predteam small{display:block;margin-top:2px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.predtx{line-height:1}
+.predteam:last-child .predtx{text-align:right}
 .predsec .predbar{height:8px;margin-bottom:12px}
 .predgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .predgrid div{padding:8px;border-radius:10px;background:color-mix(in srgb,var(--mute) 8%,transparent);text-align:center}
@@ -3167,6 +3169,40 @@ svg.tiers{display:block;width:100%;height:auto}
 .tiers .tpt text{fill:var(--hi);font-size:8px;font-family:'Archivo Black',sans-serif}
 .tiers .tpt.cur circle{stroke-width:3.5;filter:drop-shadow(0 0 4px var(--team-accent))}
 .tiers .tpt:hover circle{stroke-width:3.5}
+
+/* ---------- game view tabs, as in the NBA app ---------- */
+.wtabmark{height:0}
+.wtabs{display:flex;gap:3px;padding:3px;margin:14px 0 12px;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;position:sticky;top:0;z-index:4;
+  box-shadow:0 -12px 0 var(--ink)}
+.wtabs button{flex:1 1 0;min-width:0;padding:9px 8px;border-radius:9px;background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mute);white-space:nowrap;transition:background .15s,color .15s;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px}
+@media (hover:hover){ .wtabs button:hover{color:var(--hi);background:var(--hover)} }
+.wtabbody .pbphd{display:none}
+.wtabs button[aria-pressed="true"]{background:var(--team);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.wtabs .wtn{font-size:10.5px;letter-spacing:0;padding:0 5px;border-radius:8px;line-height:15px;
+  background:color-mix(in srgb,currentColor 18%,transparent)}
+.wtabbody{min-height:200px}
+.wtabbody > .wsub:first-child,.wtabbody > .hlwrap > .wsub:first-child,
+.wtabbody > .wtlead > .wsub:first-child{margin-top:2px}
+.wtwait{padding:22px 4px;text-align:center}
+.wtbox{margin-top:16px}
+.wtprev > .lsub:first-child{margin-top:0}
+/* Highlights get the whole tab, so a grid rather than a sideways rail. */
+.wtabbody .hlrail{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  overflow:visible;gap:12px}
+.wtabbody .hlcard{flex:none;min-width:0}
+/* The leaders beside the tabs are for a wide screen only; on a phone the Box
+   score tab carries them. */
+@media (max-width:899px){
+  #watchaside{display:none}
+  .wtabs{overflow-x:auto;scrollbar-width:none}
+  .wtabs::-webkit-scrollbar{display:none}
+  .wtabs button{flex:0 0 auto;padding:9px 12px}
+}
+@media (min-width:900px){ .wtlead{display:none} .wtbox{margin-top:0} }
 
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
@@ -6632,6 +6668,10 @@ function boxGame(){
 function openBox(){
   if(!LIVE.box || !LIVE.box.length) return;
   $("#box").hidden = false;
+  pickBoxTeam();
+  renderBox();
+}
+function pickBoxTeam(){
   const g = boxGame();
   const inGame = ab => LIVE.box.some(b => b.team === ab);
   // The team on the main page if it is in this game, else the away side.
@@ -6639,16 +6679,18 @@ function openBox(){
     const away = g && (g.teams.find(t => !t.home) || {}).ab;
     boxTeam = inGame(team) ? team : (inGame(away) ? away : LIVE.box[0].team);
   }
-  renderBox();
 }
 function closeBox(){ $("#box").hidden = true; }
 
-function renderBox(){
+/* With `into`, drawn inside the game view's Box score tab instead of the
+   pop up, without the score card the tab already sits under. */
+function renderBox(into){
   const g = boxGame();
-  const head = $("#boxhead"), body = $("#boxbody");
-  head.innerHTML = ""; body.innerHTML = "";
+  const head = into ? null : $("#boxhead"), body = into || $("#boxbody");
+  if(head) head.innerHTML = "";
+  body.innerHTML = "";
 
-  if(g){
+  if(g && head){
     const gb = watchOn ? g : viewLive(g);
     head.appendChild(scoreCard(gb, {hide: !watchOn && scoreBlank(gb.state, gb.catching, true)}));
   }
@@ -6690,7 +6732,7 @@ function renderBox(){
   LIVE.box.forEach(b=>{
     const btn = el("button", null, (DATA.teams[b.team] || {}).nick || b.team);
     btn.setAttribute("aria-pressed", b.team === boxTeam);
-    btn.onclick = () => { boxTeam = b.team; renderBox(); };
+    btn.onclick = () => { boxTeam = b.team; renderBox(into); };
     tabs.appendChild(btn);
   });
   body.appendChild(tabs);
@@ -6724,7 +6766,7 @@ function renderBox(){
       nameCell.textContent = r.name + (r.pos ? "  " + r.pos : "");
       if(mine){
         nameCell.classList.add("link");
-        nameCell.onclick = () => { closeBox(); goPlayer(mine.id); };
+        nameCell.onclick = () => { closeBox(); if(into) closeWatch(); goPlayer(mine.id); };
       }
       tr.appendChild(nameCell);
       cat.labels.forEach((_l,i)=>{
@@ -6741,7 +6783,7 @@ function renderBox(){
   n.textContent = "Live from ESPN. Names in white are on a depth chart in this "
     + "app \u2014 tap one to open his profile.";
   body.appendChild(n);
-  body.scrollTop = 0;
+  if(!into) body.scrollTop = 0;
 }
 
 /* ---------------- play impact ----------------
@@ -10128,6 +10170,7 @@ function renderGameStrip(){
 function switchGame(id){
   if(String(id) === String(watchGame)) return;
   watchGame = String(id);
+  wTab = null; wTabFor = String(id);
   liveHistory = [];
   stopStream();
   const host = document.getElementById("playerhost");
@@ -10302,6 +10345,9 @@ function toast(title, sub, gameId, strong){
    Built to sit next to a television. Everything else in this app is for reading;
    this is for glancing at, so it is large, sparse, and refreshes itself. */
 let watchOn = false, watchPoll = null, watchGame = null;
+// Which tab of the game view is open, and for which game. A new game starts on
+// Preview before kickoff and Play by play after it, as the NBA app does.
+let wTab = null, wTabFor = null;
 // The game exactly as watch mode last drew it, broadcast delay included. The box
 // score reads this, so its score line cannot run ahead of a delayed view.
 let watchShown = null;
@@ -10309,6 +10355,7 @@ let watchShown = null;
 function openWatch(gameId){
   watchGame = gameId || (LIVE.byTeam[team] || {}).id || LIVE.gameId;
   if(!watchGame) return;
+  if(String(watchGame) !== String(wTabFor)){ wTab = null; wTabFor = String(watchGame); }
   watchOn = true;
   hideLiveChip();
   $("#watch").classList.remove("bg");
@@ -10388,7 +10435,7 @@ async function refreshWatch(){
    refresh waits while you are scrolling or swiping and runs a moment after you
    stop, and every sideways row keeps its position through a rebuild. Taps
    are not held: switching a tab still redraws at once. */
-const H_ROWS = ".gsrail, .hlrail, .wkstrip, .boxtabs, .ldgroups";
+const H_ROWS = ".gsrail, .hlrail, .wkstrip, .boxtabs, .ldgroups, .wtabs";
 const TOUCHED = {};
 function watchInteraction(id){
   const r = document.getElementById(id);
@@ -10502,7 +10549,131 @@ function renderWatchBody(gRaw){
       b.appendChild(el("div","lastplay", sit.lastPlay.text));
   }
 
+  // Data fetched for this game, not left over from another one or from before
+  // kickoff.
+  const have = g.state !== "pre" && String(LIVE.gameId) === String(g.id);
+  const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
+  // Which clip shows which play, worked out once and used by both the
+  // highlights and the play by play, so they always agree.
+  const clipMatches = have ? matchClipsToPlays(LIVE.plays || [], LIVE.videos || [], idx)
+                           : {byClip: new Map(), byPlay: new Map()};
+  const fixture = (DATA.slate && Object.values(DATA.slate).flat()
+    .find(x => x.a === a.ab && x.h === h.ab)) || {a: a.ab, h: h.ab};
+
+  // ---- the tabs, as in the NBA app
+  if(!wTab) wTab = g.state === "pre" ? "preview" : "pbp";
+  const nClips = have ? (LIVE.videos || []).length : 0;
+  const TABS = [["preview", "Preview"], ["pbp", "Play by play"],
+                ["hl", "Highlights", nClips], ["box", "Box score"], ["flow", "Game flow"]];
+  const mark = el("div","wtabmark");
+  b.appendChild(mark);
+  const bar = el("div","wtabs");
+  TABS.forEach(([k, label, n]) => {
+    const t = el("button", null, label);
+    t.type = "button";
+    t.dataset.wt = k;
+    t.setAttribute("aria-pressed", wTab === k);
+    if(n) t.appendChild(el("span","wtn", String(n)));
+    t.onclick = () => setWatchTab(k);
+    bar.appendChild(t);
+  });
+  b.appendChild(bar);
+  // On a phone the bar scrolls sideways; the chosen tab is brought into view
+  // once it is laid out (a refresh restores the bar's own position after this).
+  requestAnimationFrame(() => {
+    const on = bar.querySelector('[aria-pressed="true"]');
+    if(!on || bar.scrollWidth <= bar.clientWidth) return;
+    const l = on.offsetLeft - bar.offsetLeft, r = l + on.offsetWidth;
+    if(l < bar.scrollLeft) bar.scrollLeft = Math.max(0, l - 24);
+    else if(r > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = r - bar.clientWidth + 24;
+  });
+  const body = el("div","wtabbody");
+  b.appendChild(body);
+  const waiting = what => body.appendChild(el("div","carnote wtwait",
+    what + " once the game kicks off" + (g.detail ? " (" + g.detail + ")" : "") + "."));
+
+  if(wTab === "preview") body.appendChild(watchPreview(g, a, h, fixture));
+  else if(wTab === "pbp"){
+    if(!have) waiting("Plays appear here");
+    else renderPlayByPlay(body, g, a, h, idx, clipMatches);
+  }
+  else if(wTab === "hl") body.appendChild(highlightsBlock(g, a, h, fixture, have, clipMatches));
+  else if(wTab === "box"){
+    if(!have || !LIVE.box || !LIVE.box.length) waiting("The box score fills in");
+    else {
+      // Leaders first on a phone, where there is no column beside the tabs
+      // holding them; the full box score follows.
+      const lead = el("div","wtlead");
+      lead.appendChild(el("div","wsub","Leaders"));
+      const lh = el("div","wboxwrap");
+      lead.appendChild(lh);
+      renderLiveBox(lh, [a.ab, h.ab].filter(Boolean));
+      body.appendChild(lead);
+      pickBoxTeam();
+      const full = el("div","wtbox");
+      body.appendChild(full);
+      renderBox(full);
+    }
+  }
+  else if(wTab === "flow"){
+    if(!have) waiting("Win probability, the biggest swings and every drive appear here");
+    else gameFlow(body, g, a, h, idx);
+  }
+
+  // ---- beside the tabs on a wide screen: the leaders, which is what you
+  // glance at between plays. Hidden on a phone, where the Box score tab has them.
+  if(have){
+    const boxHd = el("div","wsub","Leaders");
+    const full = el("button","boxfull","Full");
+    full.onclick = () => setWatchTab("box");
+    boxHd.appendChild(full);
+    aside.appendChild(boxHd);
+    const boxHost = el("div","wboxwrap");
+    aside.appendChild(boxHost);
+    renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
+  }
+}
+
+/* Switching tabs redraws at once. If the tab bar had stuck to the top, the new
+   tab opens at its own start rather than partway down. */
+function setWatchTab(k){
+  wTab = k;
+  renderWatch(liveGame(watchGame));
+  const outer = document.getElementById("watchbody");
+  const mark = outer && outer.querySelector(".wtabmark");
+  if(!mark) return;
+  const off = mark.getBoundingClientRect().top - outer.getBoundingClientRect().top;
+  if(off < 0) outer.scrollTop += off;
+}
+
+/* The Preview tab: the same matchup preview as an upcoming game's, built once
+   per game and kept, so a refresh every few seconds neither refetches the
+   weather and inactives nor makes the tab jump. */
+let PREV_TAB = {key: null, node: null};
+function watchPreview(g, a, h, fixture){
+  const key = String(g.id);
+  if(PREV_TAB.key === key && PREV_TAB.node) return PREV_TAB.node;
+  const host = el("div","wtprev");
+  if(!fixture.d && !DATA.teams[a.ab]){
+    host.appendChild(el("div","carnote","No preview for this game."));
+    return host;
+  }
+  let score = null;
+  Object.values(scoreCache).forEach(wk => Object.values(wk || {}).forEach(x => {
+    if(x && String(x.id) === key) score = x;
+  }));
+  prevKey = a.ab + "@" + h.ab; prevGame = fixture;
+  try { renderPreview(score, host); }
+  catch(e){ host.appendChild(el("div","carnote","Preview unavailable for this game.")); }
+  PREV_TAB = {key, node: host};
+  return host;
+}
+
+/* The Game flow tab: how the game has gone, rather than what is happening now. */
+function gameFlow(b, g, a, h, idx){
+  let any = false;
   if(LIVE.wp){
+    any = true;
     b.appendChild(el("div","wsub","Win probability"));
     const chart = winChart(h.ab, a.ab, LIVE.wp.series, LIVE.wp.home);
     if(chart) b.appendChild(chart);
@@ -10513,11 +10684,17 @@ function renderWatchBody(gRaw){
         + (home ? LIVE.wp.home : 100 - LIVE.wp.home) + "% to win"));
     }
   }
-
+  const sw = biggestSwings(idx, 4);
+  if(sw){
+    any = true;
+    b.appendChild(el("div","wsub","Biggest swings"));
+    b.appendChild(sw);
+  }
   if(LIVE.drives && LIVE.drives.length){
-    aside.appendChild(el("div","wsub","Drives"));
+    any = true;
+    b.appendChild(el("div","wsub","Drives"));
     const dl = el("div","wdrives");
-    LIVE.drives.slice(0, 10).forEach(dv=>{
+    LIVE.drives.forEach(dv=>{
       const row = el("button","drv" + (dv.scoring ? " score" : ""));
       row.appendChild(el("span","dt", dv.team));
       row.appendChild(el("span","dr2", dv.result || "\u2013"));
@@ -10529,30 +10706,15 @@ function renderWatchBody(gRaw){
       else row.disabled = true;
       dl.appendChild(row);
     });
-    aside.appendChild(dl);
-    aside.appendChild(el("div","carnote","Tap a drive to watch it play out."));
+    b.appendChild(dl);
+    b.appendChild(el("div","carnote","Tap a drive to watch it play out."));
   }
+  if(!any) b.appendChild(el("div","carnote","Nothing from ESPN for this game yet."));
+}
 
-  const boxHd = el("div","wsub","Box score");
-  // The panel below is leaders only, which is what you want between plays. The
-  // full thing, every player and every column, is one tap away.
-  const full = el("button","boxfull","Full");
-  full.onclick = () => { boxTeam = null; openBox(); };
-  boxHd.appendChild(full);
-  aside.appendChild(boxHd);
-  const boxHost = el("div","wboxwrap");
-  aside.appendChild(boxHost);
-  renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
-
-  const idx = buildFeedIndex([a.ab, h.ab].filter(Boolean));
-  // Which clip shows which play, worked out once and used by both the strip and
-  // the play by play, so they always agree.
-  const clipMatches = matchClipsToPlays(LIVE.plays || [], LIVE.videos || [], idx);
-
-  // Highlights: ESPN's clips, then the two outside sources as links.
-  const fixture = (DATA.slate && Object.values(DATA.slate).flat()
-    .find(x => x.a === a.ab && x.h === h.ab)) || {a: a.ab, h: h.ab};
-  const vids = LIVE.videos || [];
+/* The Highlights tab: ESPN's clips, the NFL's, then links out. */
+function highlightsBlock(g, a, h, fixture, have, clipMatches){
+  const vids = have ? (LIVE.videos || []) : [];
   const hl = el("div","hlwrap");
   const hlHead = el("div","wsub","Highlights");
   if(vids.length) hlHead.appendChild(el("span","hlcount", vids.length + " clips"));
@@ -10622,19 +10784,7 @@ function renderWatchBody(gRaw){
   addLink("YouTube", youtubeUrl(fixture),
     g.state === "post" ? "full game highlights" : "full highlights after the game");
   hl.appendChild(links);
-  b.appendChild(hl);
-
-  // No separate Scoring list: it is the first tab of the play by play below.
-
-
-  const sw = biggestSwings(idx, 4);
-  if(sw){
-    b.appendChild(el("div","wsub","Biggest swings"));
-    b.appendChild(sw);
-  }
-
-  // the feed
-  renderPlayByPlay(b, g, a, h, idx, clipMatches);
+  return hl;
 }
 
 /* ---------------- play by play ----------------
@@ -10709,7 +10859,7 @@ const playKey = p => p.id || [p.period, p.clock, String(p.text || "").slice(0, 4
 /* From a clip to its play: open All Plays so the card is certainly shown, then
    scroll it into view and flash it. */
 function jumpToPlay(p){
-  pbpTab = "all"; pbpTeam = null;
+  pbpTab = "all"; pbpTeam = null; wTab = "pbp";
   // Open its quarter and expand it far enough to include the play.
   const st = pbpState(), q = p.period || 0;
   st.open[q] = true;
@@ -11669,8 +11819,8 @@ function ensureLiveGame(key, g, s){
 async function pickGame(key, g){
   const cached = scoreCache[scoreWeek] || {};
   const s = cached[key];
-  if(!s || s.state === "pre"){
-    // No score exists yet, so show what can be known beforehand instead.
+  if(!s || !s.id){
+    // Nothing on ESPN's scoreboard for it yet: the standalone preview.
     openPreview(key, g, s);
     return;
   }
@@ -11731,11 +11881,16 @@ function openPreview(key, g, score){
 }
 function closePreview(){ $("#prev").hidden = true; }
 
-function renderPreview(score){
+/* Leaving the preview for a player page closes whichever view it was in. */
+function leavePreview(){ closePreview(); if(watchOn) closeWatch(); }
+
+function renderPreview(score, into){
   const g = prevGame;
   const A = g.a, H = g.h;
   const ta = DATA.teams[A] || {}, th = DATA.teams[H] || {};
-  const head = $("#prevhead"), body = $("#prevbody");
+  // In the game view's Preview tab the score card is already above it, so the
+  // header line is built and left out.
+  const head = into ? el("div") : $("#prevhead"), body = into || $("#prevbody");
   head.innerHTML = ""; body.innerHTML = "";
 
   const line = el("div","boxscore-line");
@@ -11909,7 +12064,7 @@ function renderPreview(score){
         } else if(p.t100){
           c.appendChild(el("span","mut100", "#" + p.t100));
         }
-        c.onclick = () => { closePreview(); $("#scores").hidden = true; goPlayer(p.id); };
+        c.onclick = () => { leavePreview(); $("#scores").hidden = true; goPlayer(p.id); };
         return c;
       };
       row.appendChild(side(m.a, m.aStat, false));
@@ -11936,7 +12091,7 @@ function renderPreview(score){
         r.appendChild(el("span","ip", x.team));
         r.appendChild(el("span","is", x.detail || "Inactive"));
         const mine = x.eid && Object.values(DATA.players).find(p => p.eid === x.eid);
-        if(mine) r.onclick = () => { closePreview(); $("#scores").hidden = true; goPlayer(mine.id); };
+        if(mine) r.onclick = () => { leavePreview(); $("#scores").hidden = true; goPlayer(mine.id); };
         inact.appendChild(r);
       });
     });
@@ -11963,7 +12118,7 @@ function renderPreview(score){
         r.appendChild(el("span","is",
           x.label + (x.detail ? " \u00b7 " + x.detail : "")));
         if(DATA.players[x.pid])
-          r.onclick = () => { closePreview(); $("#scores").hidden = true; goPlayer(x.pid); };
+          r.onclick = () => { leavePreview(); $("#scores").hidden = true; goPlayer(x.pid); };
         col.appendChild(r);
       });
       grid.appendChild(col);
@@ -12002,7 +12157,7 @@ function renderPreview(score){
         r.appendChild(el("span","lmv " + (d2>0?"up":d2<0?"dn":""),
           d2 > 0 ? "\u25B2 " + d2 : d2 < 0 ? "\u25BC " + Math.abs(d2) : "\u2013"));
       } else r.appendChild(el("span","lmv new","new"));
-      r.onclick = () => { closePreview(); $("#scores").hidden = true; goPlayer(p.id); };
+      r.onclick = () => { leavePreview(); $("#scores").hidden = true; goPlayer(p.id); };
       body.appendChild(r);
     });
   }
@@ -13969,8 +14124,10 @@ function predSection(g){
     const t = DATA.teams[ab] || {};
     const c = el("div","predteam");
     if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; c.appendChild(im); }
-    c.appendChild(el("b", null, Math.round(q * 100) + "%"));
-    c.appendChild(el("small", null, t.nick || ab));
+    const tx = el("div","predtx");
+    tx.appendChild(el("b", null, Math.round(q * 100) + "%"));
+    tx.appendChild(el("small", null, t.nick || ab));
+    c.appendChild(tx);
     top.appendChild(c);
   });
   sec.appendChild(top);
