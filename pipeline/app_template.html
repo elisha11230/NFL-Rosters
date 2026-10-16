@@ -1307,7 +1307,10 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
 /* Stacked on a phone; on a desktop the player sits beside the box score rather
    than above everything, which is the only way it gets a sensible size. Full
    width at 16:9 in a 1360px column is 765px tall -- the whole viewport. */
-#watchbody{display:block}
+#watchbody{display:flex;flex-direction:column}
+#wcolL,#wcolR{display:contents}
+#watchbody > * , #wcolL > *, #wcolR > *{flex:0 0 auto}
+#striphost{order:-1}
 #striphost,#playerhost,#watchmain,#watchaside{width:100%;max-width:660px;
   margin:0 auto}
 #playerhost{margin-bottom:14px}
@@ -1320,34 +1323,34 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
      the left column is as long as it needs to be and the box score stays put
      beside it. */
   /* The page: a header with the score across the top, then two columns,
-     45/55, with a slim ticker of the other games heading the right one. The left holds what you watch (the
+     48/52, with a slim ticker of the other games heading the right one. The left holds what you watch (the
      stream at exactly 16:9, its controls, the play on the field and points by
      quarter) and never scrolls away; the right holds the tabs and scrolls on
      its own. On a short window the left column narrows instead of the stream
      letterboxing, by as much as it takes for the rest to stay in view. */
   #watchbody{
     display:grid;overflow:hidden;
-    grid-template-columns:minmax(0,max(360px,min(45%,calc((100dvh - 482px) * 16 / 9)))) minmax(0,1fr);
-    grid-template-areas:
-      "player strip"
-      "player main"
-      "delay  main"
-      "aside  main";
-    grid-template-rows:auto auto auto minmax(0,1fr);
+    grid-template-columns:minmax(0,max(360px,min(48%,calc((100dvh - 470px) * 16 / 9)))) minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr);
     column-gap:22px;
-    max-width:1700px;margin:0 auto;width:100%;
+    max-width:1760px;margin:0 auto;width:100%;
   }
-  #striphost{grid-area:strip;max-width:none;margin:0 0 12px}
-  #playerhost{grid-area:player}
-  #delayhost{grid-area:delay}
-  #watchmain{grid-area:main;overflow-y:auto;min-height:0;padding-right:6px;scrollbar-width:thin}
-  #watchaside{grid-area:aside;overflow-y:auto;min-height:0;scrollbar-width:thin;
+  #wcolL,#wcolR{display:flex;flex-direction:column;min-height:0;min-width:0}
+  #wcolL > *,#wcolR > *{flex:0 0 auto}
+  #striphost{order:0;max-width:none;margin:0 0 12px}
+  #watchmain{flex:1 1 auto;overflow-y:auto;min-height:0;padding-right:6px;scrollbar-width:thin}
+  #watchaside{flex:1 1 auto;overflow-y:auto;min-height:0;scrollbar-width:thin;
     display:flex;flex-direction:column;gap:10px;padding:10px 2px 8px 0}
+  #playerhost:empty + #delayhost[hidden] + #watchaside{padding-top:0}
   #playerhost,#watchmain,#watchaside{max-width:none;margin:0}
   #watchmain::-webkit-scrollbar,#watchaside::-webkit-scrollbar{width:4px}
   #watchmain::-webkit-scrollbar-thumb,#watchaside::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
   #watchaside > *{margin-top:0;margin-bottom:0;flex:0 0 auto}
-  #watchmain .wtabs{margin-top:0}
+  #watchmain .wtabs{margin-top:0;overflow-x:auto;scrollbar-width:none}
+  #watchmain .wtabs::-webkit-scrollbar{display:none}
+  /* Each tab keeps its label's width; when the column is too narrow for all
+     seven the bar scrolls sideways instead of the labels running together. */
+  #watchmain .wtabs button{flex:1 0 auto;padding:9px 10px;letter-spacing:.07em}
   .wleft .mfield{height:62px}
 
   /* The stream with its controls in one strip underneath. */
@@ -11480,11 +11483,18 @@ function renderWatchBody(gRaw){
   let asideHost = document.getElementById("watchaside");
   if(!sHost || !pHost || !mainHost || !asideHost){
     outer.innerHTML = "";
-    sHost = el("div"); sHost.id = "striphost"; outer.appendChild(sHost);
-    pHost = el("div"); pHost.id = "playerhost"; outer.appendChild(pHost);
-    const dHost = el("div"); dHost.id = "delayhost"; outer.appendChild(dHost);
-    mainHost = el("div"); mainHost.id = "watchmain"; outer.appendChild(mainHost);
-    asideHost = el("div"); asideHost.id = "watchaside"; outer.appendChild(asideHost);
+    // Two columns, each stacking on its own, so an empty ticker on the right
+    // or a missing stream on the left leaves no gap in the other. On a phone
+    // both containers dissolve (display: contents) into one column. Built once,
+    // before the stream exists, because moving an iframe reloads it.
+    const colL = el("div"); colL.id = "wcolL";
+    const colR = el("div"); colR.id = "wcolR";
+    outer.append(colL, colR);
+    sHost = el("div"); sHost.id = "striphost"; colR.appendChild(sHost);
+    pHost = el("div"); pHost.id = "playerhost"; colL.appendChild(pHost);
+    const dHost = el("div"); dHost.id = "delayhost"; colL.appendChild(dHost);
+    mainHost = el("div"); mainHost.id = "watchmain"; colR.appendChild(mainHost);
+    asideHost = el("div"); asideHost.id = "watchaside"; colL.appendChild(asideHost);
   }
   renderGameStrip();
   mainHost.innerHTML = ""; asideHost.innerHTML = "";
