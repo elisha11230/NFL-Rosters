@@ -3701,6 +3701,41 @@ html[data-theme="light"] .tvnext{background:color-mix(in srgb,#fff 70%,transpare
   #trec{margin-top:6px}
 }
 
+/* ---------- player panel: folds as cards, ranked numbers as tiles ---------- */
+#detail .pfold{padding:14px 15px 14px;border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 94%,var(--hi) 6%),var(--panel) 90px);
+  border:1px solid var(--line);box-shadow:0 8px 22px rgba(0,0,0,.16);--kc:var(--team-accent)}
+#detail .pfold > .advt{margin:0;padding:0 0 0 16px;border:0;position:relative;color:var(--chalk);
+  font-weight:700;font-size:13px;letter-spacing:.14em}
+#detail .pfold > .advt::before{content:"";position:absolute;left:0;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:2px;
+  background:var(--kc);box-shadow:0 0 10px color-mix(in srgb,var(--kc) 60%,transparent)}
+#detail .pfold > .advt > span:first-child > span{font-weight:600;letter-spacing:.08em;font-size:11px}
+#detail .pfold > .advt[aria-expanded="false"]{padding-bottom:0}
+#detail .pfold > .advb{padding-top:12px}
+#detail .pfold .advb > .advsub:first-child{margin-top:0}
+#detail .pfold .carwrap{border:1px solid var(--rule);border-radius:10px;overflow:auto}
+#detail .pfold .carwrap table{margin:0}
+#detail .pfold .car tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--hi) 3%,transparent)}
+
+.statgrid{display:grid !important;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;align-content:start}
+.statgrid > :not(.stat){grid-column:1/-1}
+.statgrid > h3{margin-bottom:4px}
+.statgrid > .stat{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:10px 11px 9px;border:1px solid color-mix(in srgb,var(--rule) 80%,transparent);
+  border-radius:11px;background:color-mix(in srgb,var(--hi) 4%,transparent);min-width:0}
+.statgrid > .stat .v{order:-1;text-align:left;min-width:0;font-size:20px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.statgrid > .stat .l{flex:none;font-size:11px;letter-spacing:.08em;line-height:1.25;display:flex;align-items:center;gap:4px}
+.statgrid > .stat .r{flex:none;align-self:stretch;text-align:left;font-size:11px;margin-top:3px;padding-bottom:8px;min-width:0}
+.statgrid > .stat .r:empty{display:none}
+.statgrid > .stat .r[style]::after{left:0;right:auto;width:100%}
+.statgrid > .stat .r:not([style])::after{display:none}
+/* the profile's facts as tiles too */
+#detail .bio{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+#detail .bio div{flex-direction:column-reverse;align-items:flex-start;justify-content:flex-end;gap:3px;padding:9px 11px;border-radius:11px;
+  background:color-mix(in srgb,var(--hi) 4%,transparent);border:1px solid color-mix(in srgb,var(--rule) 80%,transparent)}
+#detail .bio dd{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--hi);line-height:1.15}
+#detail .bio dt{font-size:11px}
+/* the contract's lines are words more than numbers */
+.sect.k-money.statgrid > .stat .v{font-size:15px;white-space:normal}
+
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
    compact chips never touch.
@@ -5316,7 +5351,13 @@ function tabifyPanel(d, kind){
       grp.dataset.ptab = n.dataset.ptab;
       pbody.appendChild(grp);
     }
+    // A fold (its button and body) is drawn as a card like the sections.
+    if(n.classList.contains("advt")){ grp.classList.add("pfold"); grp.classList.add(...[...n.classList].filter(c => /^k-/.test(c))); }
     grp.appendChild(n);
+  });
+  // Lists of three or more ranked numbers read better as tiles.
+  pbody.querySelectorAll(".sect, .advb").forEach(box => {
+    if([...box.children].filter(c => c.classList.contains("stat")).length >= 3) box.classList.add("statgrid");
   });
 
   function show(){
