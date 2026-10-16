@@ -1319,14 +1319,19 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
      over -- about 290px on a laptop, which is not enough to read anything. Now
      the left column is as long as it needs to be and the box score stays put
      beside it. */
-  /* Two columns, 40/60. The left holds what you watch: the stream, the delay
+  /* Two columns, 45/55. The left holds what you watch: the stream, the delay
      control, the score, points by quarter, the current play and the field, and
-     it never scrolls away. The right holds the tabs and scrolls on its own. */
+     it never scrolls away. The right holds the tabs and scrolls on its own.
+     The stream is always exactly 16:9 at the column's width, so there are no
+     black bars; on a short window the left column narrows instead, by as much
+     as it takes for everything under the stream to stay in view. */
   #watchbody{
     display:grid;overflow:hidden;
-    grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+    grid-template-columns:minmax(0,max(360px,min(45%,calc((100dvh - 430px) * 16 / 9)))) minmax(0,1fr);
+    /* The row of today's games sits over the right column, so the left starts
+       at the top with the stream. */
     grid-template-areas:
-      "strip  strip"
+      "player strip"
       "player main"
       "delay  main"
       "aside  main";
@@ -1344,7 +1349,7 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   #playerhost{margin-bottom:8px}
   /* 16:9 when there is room; on a short window it gives up height (the video
      letterboxes) so the scoreboard below still fits. */
-  #playerhost #streamdock.docked{max-height:max(170px,calc(100dvh - 575px))}
+  #playerhost #streamdock.docked{max-height:none;aspect-ratio:16/9}
   /* The delay control on one line under the stream. */
   #delayhost .dlbar{flex-wrap:nowrap}
   #delayhost .dlylab{display:none}
