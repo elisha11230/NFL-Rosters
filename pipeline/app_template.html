@@ -1319,34 +1319,43 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
      over -- about 290px on a laptop, which is not enough to read anything. Now
      the left column is as long as it needs to be and the box score stays put
      beside it. */
+  /* Two columns, 40/60. The left holds what you watch: the stream, the delay
+     control, the score, points by quarter, the current play and the field, and
+     it never scrolls away. The right holds the tabs and scrolls on its own. */
   #watchbody{
-    display:grid;overflow-y:auto;
-    grid-template-columns:minmax(0,1fr) minmax(320px,390px);
+    display:grid;overflow:hidden;
+    grid-template-columns:minmax(0,2fr) minmax(0,3fr);
     grid-template-areas:
       "strip  strip"
-      "player aside"
-      "delay  aside"
-      "main   aside";
-    grid-template-rows:auto auto auto 1fr;
-    column-gap:24px;
-    max-width:1500px;margin:0 auto;width:100%;
+      "player main"
+      "delay  main"
+      "aside  main";
+    grid-template-rows:auto auto auto minmax(0,1fr);
+    column-gap:22px;
+    max-width:1700px;margin:0 auto;width:100%;
   }
   #striphost{grid-area:strip}
   #playerhost{grid-area:player}
   #delayhost{grid-area:delay}
-  #watchmain{grid-area:main}
-  #watchaside{grid-area:aside}
+  #watchmain{grid-area:main;overflow-y:auto;min-height:0;padding-right:6px;scrollbar-width:thin}
+  #watchaside{grid-area:aside;overflow-y:auto;min-height:0;scrollbar-width:thin;
+    display:flex;flex-direction:column;gap:8px;padding:0 2px 8px 0}
   #striphost,#playerhost,#watchmain,#watchaside{max-width:none;margin:0}
-  #playerhost{margin-bottom:14px}
-  #playerhost .pframe{width:100%;height:auto;aspect-ratio:16/9;max-height:46vh}
-  /* Follows you down the page instead of scrolling away, and scrolls inside
-     itself if it is taller than the window. */
-  #watchaside{position:sticky;top:0;align-self:start;max-height:100vh;
-    overflow-y:auto;padding-right:6px;scrollbar-width:thin}
-  #watchaside::-webkit-scrollbar{width:4px}
-  #watchaside::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
-  #watchaside .wsub{position:sticky;top:0;background:var(--ink);z-index:2;
-    padding-bottom:6px;margin-top:0}
+  #playerhost{margin-bottom:8px}
+  /* 16:9 when there is room; on a short window it gives up height (the video
+     letterboxes) so the scoreboard below still fits. */
+  #playerhost #streamdock.docked{max-height:max(170px,calc(100dvh - 575px))}
+  /* The delay control on one line under the stream. */
+  #delayhost .dlbar{flex-wrap:nowrap}
+  #delayhost .dlylab{display:none}
+  #delayhost .dlrow{flex:1 1 auto;min-width:70px}
+  #delayhost .dlrange{min-width:40px}
+  #delayhost .pbtn{white-space:nowrap}
+  #watchmain::-webkit-scrollbar,#watchaside::-webkit-scrollbar{width:4px}
+  #watchmain::-webkit-scrollbar-thumb,#watchaside::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+  #watchaside > *{margin-top:0;margin-bottom:0;flex:0 0 auto}
+  #watchmain .wtabs{margin-top:0}
+  .wleft .mfield{height:58px}
 }
 
 /* There is room to breathe on a wide screen, so use it. */
@@ -3170,6 +3179,31 @@ svg.tiers{display:block;width:100%;height:auto}
 .tiers .tpt.cur circle{stroke-width:3.5;filter:drop-shadow(0 0 4px var(--team-accent))}
 .tiers .tpt:hover circle{stroke-width:3.5}
 
+/* ---------- game view: the scoreboard column on a desktop ---------- */
+.wbug{border-radius:14px;background:var(--panel);border:1px solid var(--rule);padding:9px 12px 8px;box-shadow:0 8px 22px rgba(0,0,0,.16)}
+.wbugt{display:flex;align-items:center;gap:10px;padding-bottom:7px;margin-bottom:4px;border-bottom:1px solid var(--rule)}
+.wbugc{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.06em;color:var(--hi)}
+.wbug.live .wbugc{color:var(--alert-t)}
+.wbugd{font-size:12.5px;color:var(--mute);flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbugg{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--n),30px) 46px;align-items:center;row-gap:2px}
+.wbugh{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.1em;color:var(--dim);text-align:center}
+.wbugh.tot{text-align:right}
+.wbugn{display:flex;align-items:center;gap:8px;min-width:0;padding:4px 0 4px 8px;border-left:3px solid var(--tc)}
+.wbugn img{width:24px;height:24px;object-fit:contain}
+.wbugn b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:15px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbugn small{font-size:11px;color:var(--dim)}
+.wbugball{width:7px;height:7px;border-radius:50%;background:var(--brass);flex:0 0 auto}
+.wbugq{text-align:center;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.wbugs{text-align:right;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--hi);font-variant-numeric:tabular-nums}
+.wbugs.behind{color:var(--mute)}
+.wleft .lastplay{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-height:760px){ .wleft .lastplay{-webkit-line-clamp:2;padding:8px 12px} .wleft .lplab{display:inline;margin-right:6px} }
+
+.wleft .lastplay{padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--rule);
+  font-size:13px;line-height:1.45;color:var(--chalk)}
+.lplab{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--brass);margin-bottom:4px}
+
 /* ---------- game view tabs, as in the NBA app ---------- */
 .wtabmark{height:0}
 .wtabs{display:flex;gap:3px;padding:3px;margin:14px 0 12px;background:var(--panel);
@@ -3229,25 +3263,88 @@ svg.tiers{display:block;width:100%;height:auto}
 .tsbar i.a{background:var(--ac)} .tsbar i.h{background:var(--hc)}
 .tsbar i.dim{opacity:.38}
 
-.glrow{display:grid;grid-template-columns:1fr 1fr;column-gap:0;border-top:1px solid var(--rule);padding:4px 0 2px}
-.glrow:nth-of-type(2){border-top:0}
-.glcat{grid-column:1/-1;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:11.5px;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:8px 0 4px}
-.glp{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:6px 10px 10px 0;
-  text-align:left;min-width:0;border-radius:10px;color:inherit}
-.glp.h{align-items:flex-end;text-align:right;padding:6px 0 10px 10px;border-left:1px solid var(--rule)}
-.glp.a{border-right:0}
+.glcard{background:linear-gradient(90deg,color-mix(in srgb,var(--acf) 22%,var(--panel)),var(--panel) 38%,var(--panel) 62%,color-mix(in srgb,var(--hcf) 22%,var(--panel)))}
+.glhead{display:flex;justify-content:space-between;margin:-2px 0 6px}
+.glteam{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--hi)}
+.glteam.h{flex-direction:row-reverse}
+.glteam img{width:26px;height:26px;object-fit:contain}
+.glrow{display:grid;grid-template-columns:minmax(0,1fr) 78px minmax(0,1fr);align-items:center;column-gap:8px;
+  border-top:1px solid color-mix(in srgb,var(--rule) 80%,transparent);padding:10px 0}
+.glmid{display:flex;flex-direction:column;align-items:center;gap:7px}
+.glcat{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.glvs{display:flex;gap:2px;width:100%;height:5px}
+.glvs i{display:block;height:100%;border-radius:3px;min-width:3px}
+.glvs i.a{background:var(--ac)} .glvs i.h{background:var(--hc)}
+.glvs i.dim{opacity:.35}
+.glp{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:2px 0;text-align:left;min-width:0;border-radius:10px;color:inherit;background:transparent}
+.glp.h{align-items:flex-end;text-align:right}
 .glp:not(:disabled){cursor:pointer}
 @media (hover:hover){ .glp:not(:disabled):hover .gln{color:var(--team-accent)} }
 .gltop{display:flex;align-items:center;gap:10px}
 .glp.h .gltop{flex-direction:row-reverse}
+.glp .bxface{width:44px;height:44px}
 .glp.a .bxface{box-shadow:0 0 0 2px var(--ac)} .glp.h .bxface{box-shadow:0 0 0 2px var(--hc)}
 .glbig{font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--hi);font-variant-numeric:tabular-nums}
-.glbig small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--dim);margin-left:3px}
+.glbig small{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-left:3px}
 .gln{font-size:14px;font-weight:600;color:var(--hi);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gln.none{color:var(--dim);padding-top:14px}
+.glnone{font-size:12px;color:var(--dim);padding:14px 0}
 .gll{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+@media (max-width:480px){
+  .glrow{grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);column-gap:6px}
+  .glp .bxface{width:36px;height:36px}
+  .glbig{font-size:20px}
+  .glcat{font-size:10.5px;letter-spacing:.08em}
+}
+
+/* overview tab */
+.ovgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+.ovgrid > *{margin-bottom:0}
+@media (min-width:1150px){ .ovgrid{grid-template-columns:1fr 1fr;align-items:start} }
+.ovwpt{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ovwpt img{width:34px;height:34px;object-fit:contain}
+.ovwpt b{display:block;font-family:'Archivo Black',sans-serif;font-weight:400;font-size:26px;line-height:1;color:var(--tc)}
+.ovwpt small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:3px}
+.ovmore{display:block;width:100%;margin-top:10px;padding:8px;border-radius:10px;border:1px solid var(--rule);background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);cursor:pointer}
+@media (hover:hover){ .ovmore:hover{color:var(--hi);border-color:var(--team-accent)} }
+
+/* leaders tab */
+.lbwrap{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:1150px){ .lbwrap{grid-template-columns:1fr 1fr;align-items:start} .lbwrap > .tvnote{grid-column:1/-1} }
+.lbcard{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:12px 14px 10px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.lbh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--chalk);
+  display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.lbh::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--team-accent)}
+.lbtwo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lbcol{min-width:0}
+.lbcol.h{border-left:1px solid var(--rule);padding-left:12px}
+.lbteam{display:flex;align-items:center;gap:6px;padding-bottom:6px;margin-bottom:4px;border-bottom:2px solid var(--ac);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.lbcol.h .lbteam{border-bottom-color:var(--hc)}
+.lbteam img{width:20px;height:20px;object-fit:contain}
+.lbrow{display:flex;align-items:center;gap:8px;width:100%;padding:7px 0;text-align:left;color:inherit;background:transparent;border-radius:8px}
+.lbrow + .lbrow{border-top:1px solid color-mix(in srgb,var(--rule) 70%,transparent)}
+.lbrow:not(:disabled){cursor:pointer}
+@media (hover:hover){ .lbrow:not(:disabled):hover b{color:var(--team-accent)} }
+.lbrow .bxface{width:32px;height:32px;font-size:12px}
+.lbrow.top .bxface{width:38px;height:38px}
+.lbcol.a .lbrow.top .bxface{box-shadow:0 0 0 2px var(--ac)} .lbcol.h .lbrow.top .bxface{box-shadow:0 0 0 2px var(--hc)}
+.lbw{flex:1 1 auto;min-width:0}
+.lbw b{display:block;font-size:13px;font-weight:600;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbw small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.05em;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbbar{display:block;height:4px;margin-top:5px;border-radius:2px;background:color-mix(in srgb,var(--mute) 14%,transparent);overflow:hidden}
+.lbbar i{display:block;height:100%;border-radius:2px;background:var(--ac)}
+.lbcol.h .lbbar i{background:var(--hc)}
+.lbbig{flex:0 0 auto;font-family:'Archivo Black',sans-serif;font-size:17px;color:var(--hi);text-align:right;line-height:1;font-variant-numeric:tabular-nums}
+.lbrow.top .lbbig{font-size:21px}
+.lbbig small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+.lbnone{font-size:12px;color:var(--dim);padding:10px 0}
+@media (max-width:480px){
+  .lbtwo{gap:8px} .lbcol.h{padding-left:8px}
+  .lbrow .bxface,.lbrow.top .bxface{width:28px;height:28px}
+  .lbrow{gap:6px} .lbbig,.lbrow.top .lbbig{font-size:15px}
+}
 .bxface{flex:0 0 auto;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--well);
   display:flex;align-items:center;justify-content:center;color:var(--dim);font-weight:700}
 .bxface img{width:100%;height:100%;object-fit:cover}
@@ -6777,6 +6874,8 @@ async function fetchLive(){
           // Season record going into (or out of) this game, as the NFL app shows.
           rec: ((t.records || []).find(r => r.type === "total" || r.name === "overall")
                 || (t.records || [])[0] || {}).summary || null,
+          // Points by quarter, for the line score in the game view.
+          line: (t.linescores || []).map(x => num(x.value)),
           })),
         };
       });
@@ -6937,6 +7036,14 @@ async function fetchGame(gameId){
     LIVE.active = active;
     LIVE.box = box;
     LIVE.teamStats = teamStats;
+    // Points by quarter from the summary too, for a game that is not on today's
+    // scoreboard (one opened from another week).
+    LIVE.lines = {};
+    ((((j.header || {}).competitions || [])[0] || {}).competitors || []).forEach(c => {
+      const ab = normTeam(((c.team || {}).abbreviation) || "");
+      const ln = (c.linescores || []).map(x => num(x.value != null ? x.value : x.displayValue));
+      if(ab && ln.length) LIVE.lines[ab] = ln;
+    });
     LIVE.gameId = gameId;
     liveLog("box score:", box.map(b => b.team + " " + b.cats.length + " cats").join(", "));
     return true;
@@ -8921,12 +9028,6 @@ function renderDrive(d){
 
    Columns are looked up by their label rather than by position, because ESPN
    orders them differently between categories and occasionally between seasons. */
-const BOX_VIEWS = [
-  {key:"passing",   name:"Passing",   cols:["C/ATT","YDS","TD","INT"], take:2},
-  {key:"rushing",   name:"Rushing",   cols:["CAR","YDS","TD"],         take:3},
-  {key:"receiving", name:"Receiving", cols:["REC","YDS","TD"],         take:3},
-  {key:"defensive", name:"Defence",   cols:["TOT","SACKS","TFL"],      take:3},
-];
 
 function pickCols(cat, wanted){
   return wanted.map(w=>{
@@ -8979,11 +9080,12 @@ function teamStatShown(v, def){
 /* Both teams' totals head to head: the figures either side of the label, and a
    bar split between them in the two teams' colours. The better side's figure is
    bright; for turnovers, penalties and sacks that is the lower one. */
-function teamStatsCompare(aAb, hAb){
+function teamStatsCompare(aAb, hAb, only){
   const ts = LIVE.teamStats || [];
   if(ts.length !== 2) return null;
   const A = ts.find(x => x.team === aAb) || ts[0], H = ts.find(x => x.team === hAb) || ts[1];
-  const rows = TEAM_ROWS.map(def => ({def, a: teamStat(A, def), h: teamStat(H, def)}))
+  const rows = TEAM_ROWS.filter(def => !only || only.includes(def.k))
+    .map(def => ({def, a: teamStat(A, def), h: teamStat(H, def)}))
     .filter(r => r.a != null || r.h != null);
   if(!rows.length) return null;
   const ta = DATA.teams[A.team] || {}, th = DATA.teams[H.team] || {};
@@ -9064,10 +9166,22 @@ function boxFace(r, mine, size){
 function gameLeaders(aAb, hAb){
   const sideA = LIVE.box.find(b => b.team === aAb), sideH = LIVE.box.find(b => b.team === hAb);
   if(!sideA && !sideH) return null;
+  const ta = DATA.teams[aAb] || {}, th = DATA.teams[hAb] || {};
   const card = el("div","glcard");
-  card.style.setProperty("--ac", stripeColor(DATA.teams[aAb] || {}));
-  card.style.setProperty("--hc", stripeColor(DATA.teams[hAb] || {}));
+  card.style.setProperty("--ac", stripeColor(ta));
+  card.style.setProperty("--hc", stripeColor(th));
+  card.style.setProperty("--acf", ta.c1 || "#444");
+  card.style.setProperty("--hcf", th.c1 || "#444");
   card.appendChild(el("div","bxh","Game leaders"));
+  // The two sides as a header, so every row below reads away on the left.
+  const hd = el("div","glhead");
+  [[aAb, ta, "a"], [hAb, th, "h"]].forEach(([ab, t, side]) => {
+    const c = el("div","glteam " + side);
+    if(t.logo){ const im = new Image(); im.src = t.logo; im.alt = ""; im.loading = "lazy"; c.appendChild(im); }
+    c.appendChild(el("span", null, t.nick || ab));
+    hd.appendChild(c);
+  });
+  card.appendChild(hd);
   let any = false;
   LEAD_VIEWS.forEach(v => {
     const pick = side => {
@@ -9075,42 +9189,129 @@ function gameLeaders(aAb, hAb){
       if(!cat) return null;
       const r = rankRows(cat, v.key)[0];
       if(!r || !r.stats.some(x => num(x))) return null;
-      return {cat, r};
+      const bi = cat.labels.findIndex(l => l.toUpperCase() === v.big);
+      return {cat, r, big: bi >= 0 ? num(r.stats[bi]) : null, shown: bi >= 0 ? r.stats[bi] : null};
     };
     const L = pick(sideA), R = pick(sideH);
     if(!L && !R) return;
     any = true;
     const row = el("div","glrow");
-    row.appendChild(el("div","glcat", v.name));
-    [[L, "a"], [R, "h"]].forEach(([hit, side]) => {
-      const cell = el("button","glp " + side);
-      cell.type = "button";
-      if(!hit){ cell.disabled = true; cell.appendChild(el("div","gln none","–")); row.appendChild(cell); return; }
+    const cell = (hit, side) => {
+      const c = el("button","glp " + side);
+      c.type = "button";
+      if(!hit){ c.disabled = true; c.appendChild(el("span","glnone","No " + v.name.toLowerCase())); return c; }
       const {cat, r} = hit;
       const mine = playerFor(r.eid);
-      const bi = cat.labels.findIndex(l => l.toUpperCase() === v.big);
       const top = el("div","gltop");
       top.appendChild(boxFace(r, mine, 96));
-      const big = el("div","glbig", bi >= 0 ? (r.stats[bi] ?? "–") : "–");
+      const big = el("div","glbig", hit.shown ?? "–");
       big.appendChild(el("small", null, v.unit));
       top.appendChild(big);
-      cell.appendChild(top);
-      cell.appendChild(el("div","gln", r.name));
-      const bits = pickCols(cat, v.cols).map(c => {
-        const val = r.stats[c.i];
+      c.appendChild(top);
+      c.appendChild(el("div","gln", r.name));
+      const bits = pickCols(cat, v.cols).map(col => {
+        const val = r.stats[col.i];
         if(val == null || val === "") return null;
-        if(c.label === "C/ATT") return val;
-        if(num(val) === 0 && c.label !== "TD") return null;
-        return val + " " + c.label.toLowerCase().replace("sacks", "sk");
+        if(col.label === "C/ATT") return val;
+        if(num(val) === 0 && col.label !== "TD") return null;
+        return val + " " + col.label.toLowerCase().replace("sacks", "sk");
       }).filter(Boolean);
-      cell.appendChild(el("div","gll", bits.join(" · ")));
-      if(mine) cell.onclick = () => { closeBox(); if(watchOn) closeWatch(); goPlayer(mine.id); };
-      else cell.disabled = true;
-      row.appendChild(cell);
-    });
+      c.appendChild(el("div","gll", bits.join(" · ")));
+      if(mine) c.onclick = () => { closeBox(); if(watchOn) closeWatch(); goPlayer(mine.id); };
+      else c.disabled = true;
+      return c;
+    };
+    row.appendChild(cell(L, "a"));
+    // The category between them, with a bar split by their headline numbers.
+    const mid = el("div","glmid");
+    mid.appendChild(el("span","glcat", v.name));
+    const x = Math.max(0, (L && L.big) || 0), y = Math.max(0, (R && R.big) || 0);
+    const bar = el("span","glvs");
+    const ia = el("i","a"), ih = el("i","h");
+    const sa = x + y > 0 ? x / (x + y) : 0.5;
+    ia.style.width = (sa * 100).toFixed(0) + "%"; ih.style.width = ((1 - sa) * 100).toFixed(0) + "%";
+    if(x < y) ia.classList.add("dim"); else if(y < x) ih.classList.add("dim");
+    bar.append(ia, ih);
+    mid.appendChild(bar);
+    row.appendChild(mid);
+    row.appendChild(cell(R, "h"));
     card.appendChild(row);
   });
   return any ? card : null;
+}
+
+/* The Leaders tab: each category as a card, the two sides next to each other,
+   every man with a bar against the category's best so the gaps show. */
+const LB_VIEWS = [
+  {key:"passing",       name:"Passing",       big:"YDS", unit:"yds", cols:["C/ATT","TD","INT","QBR"], take:2},
+  {key:"rushing",       name:"Rushing",       big:"YDS", unit:"yds", cols:["CAR","AVG","TD","LONG"], take:3},
+  {key:"receiving",     name:"Receiving",     big:"YDS", unit:"yds", cols:["REC","TGTS","TD","LONG"], take:4},
+  {key:"defensive",     name:"Defence",       big:"TOT", unit:"tkl", cols:["SOLO","SACKS","TFL","QB HTS"], take:4},
+  {key:"interceptions", name:"Interceptions", big:"INT", unit:"int", cols:["YDS","TD"], take:2},
+  {key:"kicking",       name:"Kicking",       big:"PTS", unit:"pts", cols:["FG","XP","LONG"], take:1},
+];
+function leadersBoard(aAb, hAb){
+  const sides = [[aAb, "a"], [hAb, "h"]].map(([ab, k]) => ({ab, k, t: DATA.teams[ab] || {}, side: LIVE.box.find(b => b.team === ab)}));
+  const wrap = el("div","lbwrap");
+  wrap.style.setProperty("--ac", stripeColor(sides[0].t));
+  wrap.style.setProperty("--hc", stripeColor(sides[1].t));
+  LB_VIEWS.forEach(v => {
+    const cols = sides.map(s => {
+      const cat = s.side && boxCat(s.side, v.key);
+      if(!cat) return {s, rows: [], cat: null};
+      const bi = cat.labels.findIndex(l => l.toUpperCase() === v.big);
+      const rows = (v.key === "kicking" || v.key === "interceptions"
+        ? cat.rows.slice().sort((x, y) => (num(y.stats[bi]) || 0) - (num(x.stats[bi]) || 0))
+        : rankRows(cat, v.key))
+        .filter(r => r.stats.some(x => num(x))).slice(0, v.take);
+      return {s, rows, cat, bi};
+    });
+    if(!cols.some(c => c.rows.length)) return;
+    const most = Math.max(1, ...cols.flatMap(c => c.rows.map(r => num(r.stats[c.bi]) || 0)));
+    const card = el("div","lbcard");
+    card.appendChild(el("div","lbh", v.name));
+    const two = el("div","lbtwo");
+    cols.forEach(({s, rows, cat, bi}) => {
+      const col = el("div","lbcol " + s.k);
+      const th = el("div","lbteam");
+      if(s.t.logo){ const im = new Image(); im.src = s.t.logo; im.alt = ""; im.loading = "lazy"; th.appendChild(im); }
+      th.appendChild(el("span", null, s.t.nick || s.ab));
+      col.appendChild(th);
+      if(!rows.length) col.appendChild(el("div","lbnone","Nobody yet"));
+      rows.forEach((r, i) => {
+        const mine = playerFor(r.eid);
+        const row = el("button","lbrow" + (i === 0 ? " top" : ""));
+        row.type = "button";
+        row.appendChild(boxFace(r, mine, 64));
+        const w = el("span","lbw");
+        w.appendChild(el("b", null, r.name));
+        const bits = pickCols(cat, v.cols).map(c => {
+          const val = r.stats[c.i];
+          if(val == null || val === "" || (num(val) === 0 && c.label !== "TD")) return null;
+          return c.label === "C/ATT" || c.label === "FG" || c.label === "XP" ? val + (c.label === "C/ATT" ? "" : " " + c.label) : val + " " + c.label.toLowerCase();
+        }).filter(Boolean);
+        w.appendChild(el("small", null, bits.join(" · ")));
+        const bar = el("span","lbbar");
+        const f = el("i"); f.style.width = Math.max(3, (num(r.stats[bi]) || 0) / most * 100) + "%";
+        bar.appendChild(f);
+        w.appendChild(bar);
+        row.appendChild(w);
+        const big = el("span","lbbig", bi >= 0 ? (r.stats[bi] ?? "–") : "–");
+        big.appendChild(el("small", null, v.unit));
+        row.appendChild(big);
+        if(mine) row.onclick = () => { closeBox(); if(watchOn) closeWatch(); goPlayer(mine.id); };
+        else row.disabled = true;
+        col.appendChild(row);
+      });
+      two.appendChild(col);
+    });
+    card.appendChild(two);
+    wrap.appendChild(card);
+  });
+  if(!wrap.children.length) return null;
+  wrap.appendChild(tvNote("Live from ESPN. Bars compare each player with the best in that category from either side. "
+    + "Tap a player with a headshot to open his profile."));
+  return wrap;
 }
 
 /* Rank within a category by the number that actually matters there, so the two
@@ -9125,103 +9326,6 @@ function rankRows(cat, key){
   return cat.rows.slice().sort((a, b) => by(b) - by(a));
 }
 
-function renderLiveBox(host, teamsInGame){
-  host.innerHTML = "";
-  if(!LIVE.box || !LIVE.box.length){
-    host.appendChild(el("div","carnote", liveDelay && LIVE.delayWait
-      ? "The box score catches up with your feed delay in " + LIVE.delayWait + "s."
-      : "Box score appears once the game starts."));
-    return;
-  }
-
-  // Team totals as a header strip: the shape of the game in four numbers.
-  if(LIVE.teamStats && LIVE.teamStats.length === 2){
-    const [A, B] = LIVE.teamStats;
-    const want = ["totalYards", "firstDowns", "thirdDownEff", "turnovers"];
-    const rows = want.map(k=>{
-      const def = TEAM_ROWS.find(d => d.k === k);
-      return {l: def.short || def.l, a: teamStat(A, def), b: teamStat(B, def)};
-    }).filter(r => r.a != null || r.b != null);
-    if(rows.length){
-      const grid = el("div","btot");
-      const hd = el("div","btrow bthd");
-      hd.appendChild(el("span","bta", A.team));
-      hd.appendChild(el("span","btl",""));
-      hd.appendChild(el("span","btb", B.team));
-      grid.appendChild(hd);
-      rows.forEach(r=>{
-        const row = el("div","btrow");
-        row.appendChild(el("span","bta", r.a ?? "\u2013"));
-        row.appendChild(el("span","btl", r.l));
-        row.appendChild(el("span","btb", r.b ?? "\u2013"));
-        grid.appendChild(row);
-      });
-      host.appendChild(grid);
-    }
-  }
-
-  BOX_VIEWS.forEach(view=>{
-    // Only draw a category somebody has actually done something in.
-    const sides = LIVE.box.map(side=>{
-      const cat = side.cats.find(c => (c.name || "").toLowerCase() === view.key
-        || (view.key === "defensive" && /def/i.test(c.name || "")));
-      return cat ? {team: side.team, cat} : null;
-    }).filter(Boolean);
-    if(!sides.length) return;
-
-    const block = el("div","bcat");
-    block.appendChild(el("div","bcathd", view.name));
-
-    sides.forEach(({team: tm, cat})=>{
-      const cols = pickCols(cat, view.cols);
-      const rows = rankRows(cat, view.key).slice(0, view.take)
-        .filter(r => r.stats.some(v => num(v)));
-      if(!rows.length) return;
-
-      const tw = el("div","bteam");
-      const lg = el("img","blogo");
-      const t = DATA.teams[tm] || {};
-      if(t.logo){ lg.src = t.logo; lg.alt = ""; lg.loading = "lazy"; }
-      tw.appendChild(lg);
-      tw.appendChild(el("span", null, t.nick || tm));
-      block.appendChild(tw);
-
-      rows.forEach(r=>{
-        const mine = r.eid && Object.values(DATA.players).find(p => p.eid === r.eid);
-        const row = el("button","brow");
-        const f = el("div","bface");
-        const im = mine ? faceImg(mine, 96, {lazy: true}) : null;
-        if(im) f.appendChild(im);
-        else f.appendChild(el("div","bfb", (r.name || "?").slice(0, 1)));
-        row.appendChild(f);
-
-        const who = el("div","bwho");
-        who.appendChild(el("div","bname", r.name));
-        const line = cols.map(c => r.stats[c.i] + " " + c.label).join("   ");
-        who.appendChild(el("div","bline", line));
-        row.appendChild(who);
-
-        // The headline number. Yards where a category has them, otherwise the
-        // first column -- which for defence is tackles. Falling through to the
-        // second column instead printed "0.0 sacks" as the headline for a man
-        // with eight tackles.
-        const key = cols.find(c => c.label === "YDS") || cols[0];
-        if(key) row.appendChild(el("div","bbig", r.stats[key.i]));
-
-        if(mine) row.onclick = () => { closeWatch(); goPlayer(mine.id); };
-        else row.disabled = true;
-        block.appendChild(row);
-      });
-    });
-
-    if(block.children.length > 1) host.appendChild(block);
-  });
-
-  const n = el("div","carnote");
-  n.textContent = "Leaders in each category. Names in white are on a depth chart "
-    + "here \u2014 tap for the full profile.";
-  host.appendChild(n);
-}
 
 /* ---------------- hold to swap ----------------
    Switching to a backup used to mean: tap the chip, scroll the panel, find the
@@ -10927,8 +11031,57 @@ function switchGame(id){
 /* ---------------- line score ----------------
    Quarter by quarter, which is a basic scoreboard element and tells you how a
    game actually unfolded rather than only where it ended up. */
+/* The desktop scoreboard: clock, down and distance on top, then a row per team
+   with its points by quarter and the total. One block where the phone has
+   three, so the left column fits beneath the stream. */
+function scoreBug(g, offAb, sit, pos){
+  const bug = el("div","wbug" + (g.state === "in" ? " live" : ""));
+  const top = el("div","wbugt");
+  top.appendChild(el("span","wbugc", clockFromDetail(g)));
+  const bits = [];
+  if(sit && (sit.downDistanceText || sit.shortDownDistanceText)) bits.push(sit.shortDownDistanceText || sit.downDistanceText);
+  if(pos) bits.push(pos.toGoal + " to go for six");
+  if(bits.length) top.appendChild(el("span","wbugd", bits.join(" \u00b7 ")));
+  if(pos && pos.redZone) top.appendChild(el("span","possrz","Red zone"));
+  bug.appendChild(top);
+  const fill = t => ((t.line || []).length || !LIVE.lines || String(LIVE.gameId) !== String(g.id)) ? t
+    : Object.assign({}, t, {line: LIVE.lines[t.ab] || []});
+  const A = fill(g.teams.find(t => !t.home) || {}), H = fill(g.teams.find(t => t.home) || {});
+  const n = Math.max(4, (A.line || []).length, (H.line || []).length);
+  const grid = el("div","wbugg");
+  grid.style.setProperty("--n", n);
+  grid.appendChild(el("span","wbugh"));
+  for(let i = 0; i < n; i++) grid.appendChild(el("span","wbugh", i < 4 ? "Q" + (i + 1) : (n > 5 ? "OT" + (i - 3) : "OT")));
+  grid.appendChild(el("span","wbugh tot", "T"));
+  const sa = num(A.score), sh = num(H.score);
+  [A, H].forEach(t => {
+    const tm = DATA.teams[t.ab] || {};
+    const nm = el("span","wbugn");
+    nm.style.setProperty("--tc", stripeColor(tm));
+    if(tm.logo){ const im = new Image(); im.src = tm.logo; im.alt = ""; nm.appendChild(im); }
+    nm.appendChild(el("b", null, tm.nick || t.ab));
+    if(t.rec) nm.appendChild(el("small", null, t.rec));
+    if(offAb && offAb === t.ab) nm.appendChild(el("i","wbugball"));
+    grid.appendChild(nm);
+    for(let i = 0; i < n; i++){
+      const v = (t.line || [])[i];
+      grid.appendChild(el("span","wbugq", v == null ? "\u2013" : String(v)));
+    }
+    const mine = num(t.score), other = t === A ? sh : sa;
+    const tot = el("span","wbugs" + (g.state !== "pre" && mine != null && other != null && mine < other ? " behind" : ""),
+      g.state === "pre" ? "\u2013" : String(t.score ?? 0));
+    grid.appendChild(tot);
+  });
+  bug.appendChild(grid);
+  return bug;
+}
+
 function lineScore(g){
-  const a = g.teams.find(t=>!t.home) || {}, h = g.teams.find(t=>t.home) || {};
+  const fill = t => {
+    if((t.line || []).length || !LIVE.lines || String(LIVE.gameId) !== String(g.id)) return t;
+    return Object.assign({}, t, {line: LIVE.lines[t.ab] || []});
+  };
+  const a = fill(g.teams.find(t=>!t.home) || {}), h = fill(g.teams.find(t=>t.home) || {});
   if(!(a.line || []).length && !(h.line || []).length) return null;
   const n = Math.max((a.line || []).length, (h.line || []).length);
   const wrap = el("div","lsc");
@@ -11216,9 +11369,14 @@ function restoreRows(root, saved){
 function renderWatch(gRaw){
   const outer0 = document.getElementById("watchbody");
   const keep = outer0 ? outer0.scrollTop : 0;
+  // On a desktop the tabs scroll inside the right column instead.
+  const main0 = document.getElementById("watchmain");
+  const keepMain = main0 ? main0.scrollTop : 0;
   const rows = saveRows(outer0);
   const r = renderWatchBody(gRaw);
   if(outer0 && keep && outer0.scrollTop !== keep) outer0.scrollTop = keep;
+  const main1 = document.getElementById("watchmain");
+  if(main1 && keepMain && main1.scrollTop !== keepMain) main1.scrollTop = keepMain;
   restoreRows(outer0, rows);
   return r;
 }
@@ -11267,13 +11425,19 @@ function renderWatchBody(gRaw){
 
   renderDelayHost(gRaw.state === "in");
 
-  // score
-  // The scoreboard, as the Scores page's live card; filled in once possession
-  // and the down are known below.
+  // The scoreboard: on a desktop it is the narrow left column, sized to stay in
+  // the window, and everything else sits to its right; on a phone it heads the
+  // single column above the tabs.
+  const desk = watchDesk();
+  const top = desk ? aside : b;
+  aside.classList.toggle("wleft", desk);
+  // The Scores page's live card; filled in once possession and the down are
+  // known below. On a desktop a compact scoreboard with the quarters built in
+  // takes its place, so the whole column fits under the stream.
   const cardHost = el("div","wcardhost");
-  b.appendChild(cardHost);
-  const ls = lineScore(g);
-  if(ls && g.state !== "pre") b.appendChild(ls);
+  top.appendChild(cardHost);
+  const ls = desk ? null : lineScore(g);
+  if(ls && g.state !== "pre") top.appendChild(ls);
 
 
 
@@ -11284,12 +11448,16 @@ function renderWatchBody(gRaw){
   const defAb = offAb ? (offAb === h.ab ? a.ab : h.ab) : null;
   const pos = fieldPosition(sit, offAb);
 
-  cardHost.appendChild(scoreCard(g, {poss: offAb, sit, pos}));
+  cardHost.appendChild(desk ? scoreBug(g, offAb, sit, pos) : scoreCard(g, {poss: offAb, sit, pos}));
   if(sit){
-    if(offAb) b.appendChild(possessionChip(offAb, sit, pos));
-    b.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
-    if(sit.lastPlay && sit.lastPlay.text)
-      b.appendChild(el("div","lastplay", sit.lastPlay.text));
+    if(offAb && !desk) top.appendChild(possessionChip(offAb, sit, pos));
+    top.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
+    if(sit.lastPlay && sit.lastPlay.text){
+      const lp = el("div","lastplay");
+      if(desk) lp.appendChild(el("span","lplab","Last play"));
+      lp.appendChild(document.createTextNode(sit.lastPlay.text));
+      top.appendChild(lp);
+    }
   }
 
   // Data fetched for this game, not left over from another one or from before
@@ -11304,10 +11472,11 @@ function renderWatchBody(gRaw){
     .find(x => x.a === a.ab && x.h === h.ab)) || {a: a.ab, h: h.ab};
 
   // ---- the tabs, as in the NBA app
-  if(!wTab) wTab = g.state === "pre" ? "preview" : "pbp";
+  if(!wTab) wTab = g.state === "pre" ? "preview" : "overview";
   const nClips = have ? (LIVE.videos || []).length : 0;
-  const TABS = [["preview", "Preview"], ["pbp", "Play by play"],
-                ["hl", "Highlights", nClips], ["box", "Box score"], ["flow", "Game flow"]];
+  const TABS = [["preview", "Preview"], ["overview", "Overview"], ["pbp", "Play by play"],
+                ["leaders", "Leaders"], ["box", "Box score"], ["hl", "Highlights", nClips],
+                ["flow", "Game flow"]];
   const mark = el("div","wtabmark");
   b.appendChild(mark);
   const bar = el("div","wtabs");
@@ -11336,6 +11505,14 @@ function renderWatchBody(gRaw){
     what + " once the game kicks off" + (g.detail ? " (" + g.detail + ")" : "") + "."));
 
   if(wTab === "preview") body.appendChild(watchPreview(g, a, h, fixture));
+  else if(wTab === "overview"){
+    if(!have) waiting("Leaders, win probability and the team totals appear here");
+    else gameOverview(body, g, a, h, idx);
+  }
+  else if(wTab === "leaders"){
+    if(!have || !LIVE.box || !LIVE.box.length) waiting("The leaders fill in");
+    else { const lb = leadersBoard(a.ab, h.ab); if(lb) body.appendChild(lb); else waiting("The leaders fill in"); }
+  }
   else if(wTab === "pbp"){
     if(!have) waiting("Plays appear here");
     else renderPlayByPlay(body, g, a, h, idx, clipMatches);
@@ -11344,13 +11521,8 @@ function renderWatchBody(gRaw){
   else if(wTab === "box"){
     if(!have || !LIVE.box || !LIVE.box.length) waiting("The box score fills in");
     else {
-      // Side by side on a wide screen, stacked on a phone.
-      const top = el("div","bxtop");
       const ts = teamStatsCompare(a.ab, h.ab);
-      if(ts) top.appendChild(ts);
-      const gl = gameLeaders(a.ab, h.ab);
-      if(gl) top.appendChild(gl);
-      body.appendChild(top);
+      if(ts) body.appendChild(ts);
       pickBoxTeam();
       const full = el("div","wtbox");
       body.appendChild(full);
@@ -11361,19 +11533,55 @@ function renderWatchBody(gRaw){
     if(!have) waiting("Win probability, the biggest swings and every drive appear here");
     else gameFlow(body, g, a, h, idx);
   }
+}
 
-  // ---- beside the tabs on a wide screen: the leaders, which is what you
-  // glance at between plays. Hidden on a phone, where the Box score tab has them.
-  if(have){
-    const boxHd = el("div","wsub","Leaders");
-    const full = el("button","boxfull","Full");
-    full.onclick = () => setWatchTab("box");
-    boxHd.appendChild(full);
-    aside.appendChild(boxHd);
-    const boxHost = el("div","wboxwrap");
-    aside.appendChild(boxHost);
-    renderLiveBox(boxHost, [a.ab, h.ab].filter(Boolean));
+/* Desktop or phone layout, and a redraw when the window crosses between them. */
+const WATCH_MQ = matchMedia("(min-width:900px)");
+const watchDesk = () => WATCH_MQ.matches;
+WATCH_MQ.addEventListener("change", () => { if(watchOn) renderWatch(liveGame(watchGame)); });
+
+/* The Overview tab: who is carrying each side, how the odds have moved, the
+   totals that matter and the plays that swung it. */
+function gameOverview(body, g, a, h, idx){
+  const gl = gameLeaders(a.ab, h.ab);
+  if(gl) body.appendChild(gl);
+  const grid = el("div","ovgrid");
+  if(LIVE.wp){
+    const card = el("div","tscard ovwp");
+    card.appendChild(el("div","bxh","Win probability"));
+    const home = LIVE.wp.home, lead = home >= 50 ? h : a, pct = home >= 50 ? home : 100 - home;
+    const lt = DATA.teams[lead.ab] || {};
+    const top = el("div","ovwpt");
+    top.style.setProperty("--tc", stripeColor(lt));
+    if(lt.logo){ const im = new Image(); im.src = lt.logo; im.alt = ""; im.loading = "lazy"; top.appendChild(im); }
+    const t = el("div");
+    const big = el("b", null, Math.round(pct) + "%");
+    t.appendChild(big);
+    t.appendChild(el("small", null, (lt.nick || lead.ab) + (g.state === "post" ? " won" : " to win")));
+    top.appendChild(t);
+    card.appendChild(top);
+    const chart = winChart(h.ab, a.ab, LIVE.wp.series, LIVE.wp.home);
+    if(chart) card.appendChild(chart);
+    grid.appendChild(card);
   }
+  const ts = teamStatsCompare(a.ab, h.ab,
+    ["totalYards", "netPassingYards", "rushingYards", "firstDowns", "thirdDownEff", "turnovers", "possessionTime"]);
+  if(ts){
+    const more = el("button","ovmore","Full box score \u2192");
+    more.type = "button";
+    more.onclick = () => setWatchTab("box");
+    ts.appendChild(more);
+    grid.appendChild(ts);
+  }
+  if(grid.children.length) body.appendChild(grid);
+  const sw = biggestSwings(idx, 3);
+  if(sw){
+    const card = el("div","tscard ovswing");
+    card.appendChild(el("div","bxh","Biggest swings"));
+    card.appendChild(sw);
+    body.appendChild(card);
+  }
+  if(!body.children.length) body.appendChild(el("div","carnote wtwait","Nothing from ESPN for this game yet."));
 }
 
 /* Switching tabs redraws at once. If the tab bar had stuck to the top, the new
@@ -11381,7 +11589,7 @@ function renderWatchBody(gRaw){
 function setWatchTab(k){
   wTab = k;
   renderWatch(liveGame(watchGame));
-  const outer = document.getElementById("watchbody");
+  const outer = document.getElementById(watchDesk() ? "watchmain" : "watchbody");
   const mark = outer && outer.querySelector(".wtabmark");
   if(!mark) return;
   const off = mark.getBoundingClientRect().top - outer.getBoundingClientRect().top;
