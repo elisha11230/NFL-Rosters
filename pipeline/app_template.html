@@ -1319,17 +1319,15 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
      over -- about 290px on a laptop, which is not enough to read anything. Now
      the left column is as long as it needs to be and the box score stays put
      beside it. */
-  /* Two columns, 45/55. The left holds what you watch: the stream, the delay
-     control, the score, points by quarter, the current play and the field, and
-     it never scrolls away. The right holds the tabs and scrolls on its own.
-     The stream is always exactly 16:9 at the column's width, so there are no
-     black bars; on a short window the left column narrows instead, by as much
-     as it takes for everything under the stream to stay in view. */
+  /* The page: a header with the score across the top, then two columns,
+     45/55, with a slim ticker of the other games heading the right one. The left holds what you watch (the
+     stream at exactly 16:9, its controls, the play on the field and points by
+     quarter) and never scrolls away; the right holds the tabs and scrolls on
+     its own. On a short window the left column narrows instead of the stream
+     letterboxing, by as much as it takes for the rest to stay in view. */
   #watchbody{
     display:grid;overflow:hidden;
-    grid-template-columns:minmax(0,max(360px,min(45%,calc((100dvh - 430px) * 16 / 9)))) minmax(0,1fr);
-    /* The row of today's games sits over the right column, so the left starts
-       at the top with the stream. */
+    grid-template-columns:minmax(0,max(360px,min(45%,calc((100dvh - 482px) * 16 / 9)))) minmax(0,1fr);
     grid-template-areas:
       "player strip"
       "player main"
@@ -1339,28 +1337,75 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
     column-gap:22px;
     max-width:1700px;margin:0 auto;width:100%;
   }
-  #striphost{grid-area:strip}
+  #striphost{grid-area:strip;max-width:none;margin:0 0 12px}
   #playerhost{grid-area:player}
   #delayhost{grid-area:delay}
   #watchmain{grid-area:main;overflow-y:auto;min-height:0;padding-right:6px;scrollbar-width:thin}
   #watchaside{grid-area:aside;overflow-y:auto;min-height:0;scrollbar-width:thin;
-    display:flex;flex-direction:column;gap:8px;padding:0 2px 8px 0}
-  #striphost,#playerhost,#watchmain,#watchaside{max-width:none;margin:0}
-  #playerhost{margin-bottom:8px}
-  /* 16:9 when there is room; on a short window it gives up height (the video
-     letterboxes) so the scoreboard below still fits. */
-  #playerhost #streamdock.docked{max-height:none;aspect-ratio:16/9}
-  /* The delay control on one line under the stream. */
+    display:flex;flex-direction:column;gap:10px;padding:10px 2px 8px 0}
+  #playerhost,#watchmain,#watchaside{max-width:none;margin:0}
+  #watchmain::-webkit-scrollbar,#watchaside::-webkit-scrollbar{width:4px}
+  #watchmain::-webkit-scrollbar-thumb,#watchaside::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+  #watchaside > *{margin-top:0;margin-bottom:0;flex:0 0 auto}
+  #watchmain .wtabs{margin-top:0}
+  .wleft .mfield{height:62px}
+
+  /* The stream with its controls in one strip underneath. */
+  #playerhost{display:flex;flex-direction:column;margin:0}
+  #playerhost #streamdock.docked{max-height:none;aspect-ratio:16/9;border-radius:12px 12px 0 0}
+  #playerhost .pbar{order:2;margin:0;padding:5px 10px;background:var(--panel);border:1px solid var(--rule);border-top:0}
+  #playerhost .plab{font-size:0}
+  #playerhost:not(:has(#streamdock.docked)) .pbar{border-top:1px solid var(--rule);border-radius:12px 12px 0 0}
+  #delayhost{padding:3px 10px 6px;background:var(--panel);border:1px solid var(--rule);border-top:0;border-radius:0 0 12px 12px}
+  #delayhost[hidden] + #watchaside{padding-top:10px}
   #delayhost .dlbar{flex-wrap:nowrap}
   #delayhost .dlylab{display:none}
   #delayhost .dlrow{flex:1 1 auto;min-width:70px}
   #delayhost .dlrange{min-width:40px}
   #delayhost .pbtn{white-space:nowrap}
-  #watchmain::-webkit-scrollbar,#watchaside::-webkit-scrollbar{width:4px}
-  #watchmain::-webkit-scrollbar-thumb,#watchaside::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
-  #watchaside > *{margin-top:0;margin-bottom:0;flex:0 0 auto}
-  #watchmain .wtabs{margin-top:0}
-  .wleft .mfield{height:58px}
+
+  /* The header: live marker, the score in the middle, Close. */
+  #watch .whead{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:10px;min-height:56px}
+  #watch .whead .qx{justify-self:end}
+  .whscore{display:flex;align-items:center;gap:18px}
+  .whteam{display:flex;align-items:center;gap:10px}
+  .whteam.h{flex-direction:row-reverse;text-align:right}
+  .whteam img{width:40px;height:40px;object-fit:contain}
+  .whteam b{display:flex;align-items:center;gap:7px;font-family:'Archivo Black',sans-serif;font-weight:400;font-size:19px;color:var(--hi);line-height:1.1}
+  .whteam.h b{flex-direction:row-reverse}
+  .whteam small{display:block;font-size:11.5px;color:var(--dim);margin-top:2px}
+  .whsc{font-family:'Archivo Black',sans-serif;font-size:38px;line-height:1;color:var(--hi);min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+  .whsc.behind{color:var(--mute)}
+  .whmid{display:flex;flex-direction:column;align-items:center;min-width:96px;padding:6px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--rule)}
+  .whmid b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.06em;color:var(--hi);white-space:nowrap}
+  .whmid.live b{color:var(--alert-t)}
+  .whmid small{font-size:11.5px;color:var(--mute);white-space:nowrap}
+  .wlive.off{color:var(--dim)} .wlive.off i{background:var(--dim);animation:none}
+
+  /* Other games as a slim ticker. */
+  #striphost .gsrail{gap:6px;padding:0 0 4px}
+  #striphost .gstile{display:flex;align-items:center;gap:0;padding:0;min-width:0;border-radius:10px;height:36px}
+  #striphost .gsside{padding:0 9px 0 12px;gap:6px;height:100%}
+  #striphost .gsside + .gsside{border-left:1px solid var(--rule)}
+  #striphost .gsside .gcstripe{width:3px;top:6px;bottom:6px}
+  #striphost .gslogo{width:16px;height:16px}
+  #striphost .gsab{font-size:12.5px;flex:0 0 auto}
+  #striphost .gssc{font-size:13px;min-width:16px;text-align:right}
+  #striphost .gsfoot{margin:0;border-top:0;border-left:1px solid var(--rule);padding:0 10px;height:100%;font-size:11px;white-space:nowrap}
+
+  /* The play on the field. */
+  .wnow{border-radius:14px;background:var(--panel);border:1px solid var(--rule);padding:11px 12px 12px;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+  .wnowh{display:flex;align-items:center;gap:9px;margin-bottom:9px;min-width:0}
+  .wnowh img{width:24px;height:24px;object-fit:contain}
+  .wnowh b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--hi);white-space:nowrap}
+  .wnowh span:not(.possrz){font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .wnowh .possrz{margin-left:auto}
+  .wnow .mfield{height:62px}
+  .wnow .lastplay{margin-top:9px;padding:0;background:none;border:0;font-size:13px;line-height:1.45;color:var(--chalk);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .wnow .winchart,.wnow svg{max-width:100%}
+  .wbug.qonly{padding-top:8px}
+  .wbug.qonly .wbugt{display:none}
 }
 
 /* There is room to breathe on a wide screen, so use it. */
@@ -3185,6 +3230,7 @@ svg.tiers{display:block;width:100%;height:auto}
 .tiers .tpt:hover circle{stroke-width:3.5}
 
 /* ---------- game view: the scoreboard column on a desktop ---------- */
+@media (max-width:899px){ .whscore{display:none} }
 .wbug{border-radius:14px;background:var(--panel);border:1px solid var(--rule);padding:9px 12px 8px;box-shadow:0 8px 22px rgba(0,0,0,.16)}
 .wbugt{display:flex;align-items:center;gap:10px;padding-bottom:7px;margin-bottom:4px;border-bottom:1px solid var(--rule)}
 .wbugc{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.06em;color:var(--hi)}
@@ -3201,11 +3247,8 @@ svg.tiers{display:block;width:100%;height:auto}
 .wbugq{text-align:center;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
 .wbugs{text-align:right;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--hi);font-variant-numeric:tabular-nums}
 .wbugs.behind{color:var(--mute)}
-.wleft .lastplay{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-@media (max-height:760px){ .wleft .lastplay{-webkit-line-clamp:2;padding:8px 12px} .wleft .lplab{display:inline;margin-right:6px} }
+@media (min-width:900px) and (max-height:960px){ .wnow .lastplay{-webkit-line-clamp:2} .wnow .lplab{display:inline;margin-right:6px} }
 
-.wleft .lastplay{padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--rule);
-  font-size:13px;line-height:1.45;color:var(--chalk)}
 .lplab{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--brass);margin-bottom:4px}
 
@@ -11036,12 +11079,51 @@ function switchGame(id){
 /* ---------------- line score ----------------
    Quarter by quarter, which is a basic scoreboard element and tells you how a
    game actually unfolded rather than only where it ended up. */
+/* The game view's header on a desktop: both teams and the score across the
+   top of the page, with the clock and the down between them. */
+function renderWatchHead(g, offAb, sit){
+  const head = document.querySelector("#watch .whead");
+  if(!head) return;
+  let box = head.querySelector(".whscore");
+  if(!box){ box = el("div","whscore"); head.insertBefore(box, document.getElementById("watchclose")); }
+  box.innerHTML = "";
+  const lv = head.querySelector(".wlive");
+  if(lv){
+    lv.classList.toggle("off", !!g && g.state !== "in");
+    lv.lastChild.textContent = !g ? "Live" : g.state === "in" ? "Live" : g.state === "post" ? "Final" : "Upcoming";
+  }
+  if(!g) return;
+  const A = g.teams.find(t => !t.home) || {}, H = g.teams.find(t => t.home) || {};
+  const sa = num(A.score), sh = num(H.score);
+  const team = (t, k) => {
+    const tm = DATA.teams[t.ab] || {};
+    const c = el("div","whteam " + k);
+    c.style.setProperty("--tc", stripeColor(tm));
+    if(tm.logo){ const im = new Image(); im.src = tm.logo; im.alt = ""; c.appendChild(im); }
+    const w = el("div");
+    const nm = el("b", null, tm.nick || t.ab);
+    if(offAb && offAb === t.ab) nm.appendChild(el("i","wbugball"));
+    w.appendChild(nm);
+    if(t.rec) w.appendChild(el("small", null, t.rec));
+    c.appendChild(w);
+    return c;
+  };
+  const score = (t, mine, other) => el("span","whsc" + (g.state !== "pre" && mine != null && other != null && mine < other ? " behind" : ""),
+    g.state === "pre" ? "" : String(t.score ?? 0));
+  const mid = el("div","whmid" + (g.state === "in" ? " live" : ""));
+  mid.appendChild(el("b", null, g.state === "pre" ? (g.detail || "").replace(/^.*?-\s*/, "") : clockFromDetail(g)));
+  const dd = sit && g.state === "in" ? (sit.shortDownDistanceText || sit.downDistanceText) : null;
+  if(dd) mid.appendChild(el("small", null, dd));
+  box.append(team(A, "a"), score(A, sa, sh), mid, score(H, sh, sa), team(H, "h"));
+}
+
 /* The desktop scoreboard: clock, down and distance on top, then a row per team
    with its points by quarter and the total. One block where the phone has
    three, so the left column fits beneath the stream. */
-function scoreBug(g, offAb, sit, pos){
-  const bug = el("div","wbug" + (g.state === "in" ? " live" : ""));
+function scoreBug(g, offAb, sit, pos, quartersOnly){
+  const bug = el("div","wbug" + (g.state === "in" ? " live" : "") + (quartersOnly ? " qonly" : ""));
   const top = el("div","wbugt");
+  if(quartersOnly) top.hidden = true;
   top.appendChild(el("span","wbugc", clockFromDetail(g)));
   const bits = [];
   if(sit && (sit.downDistanceText || sit.shortDownDistanceText)) bits.push(sit.shortDownDistanceText || sit.downDistanceText);
@@ -11408,6 +11490,7 @@ function renderWatchBody(gRaw){
   mainHost.innerHTML = ""; asideHost.innerHTML = "";
   if(!gRaw){
     clearPlayer();
+    renderWatchHead(null);
     mainHost.appendChild(el("div","carnote","No game to follow right now."));
     return;
   }
@@ -11436,32 +11519,67 @@ function renderWatchBody(gRaw){
   const desk = watchDesk();
   const top = desk ? aside : b;
   aside.classList.toggle("wleft", desk);
-  // The Scores page's live card; filled in once possession and the down are
-  // known below. On a desktop a compact scoreboard with the quarters built in
-  // takes its place, so the whole column fits under the stream.
-  const cardHost = el("div","wcardhost");
-  top.appendChild(cardHost);
-  const ls = desk ? null : lineScore(g);
-  if(ls && g.state !== "pre") top.appendChild(ls);
-
-
-
   // Who has it, where it is, and which way they are going.
   const sit = LIVE.situation;
   const offAb = sit && sit.possession
     ? (g.teams.find(t => String(t.id) === String(sit.possession)) || {}).ab : null;
   const defAb = offAb ? (offAb === h.ab ? a.ab : h.ab) : null;
   const pos = fieldPosition(sit, offAb);
+  renderWatchHead(g, offAb, sit);
 
-  cardHost.appendChild(desk ? scoreBug(g, offAb, sit, pos) : scoreCard(g, {poss: offAb, sit, pos}));
-  if(sit){
-    if(offAb && !desk) top.appendChild(possessionChip(offAb, sit, pos));
-    top.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
-    if(sit.lastPlay && sit.lastPlay.text){
-      const lp = el("div","lastplay");
-      if(desk) lp.appendChild(el("span","lplab","Last play"));
-      lp.appendChild(document.createTextNode(sit.lastPlay.text));
-      top.appendChild(lp);
+  if(desk){
+    // On a desktop the score itself is in the header. The left column below
+    // the stream: what is happening on the field, then points by quarter, and
+    // when there is no play to follow, how the odds moved instead.
+    if(sit && g.state === "in"){
+      const now = el("div","wnow");
+      const hd = el("div","wnowh");
+      const ot = DATA.teams[offAb] || {};
+      if(offAb){
+        if(ot.logo){ const im = new Image(); im.src = ot.logo; im.alt = ""; hd.appendChild(im); }
+        hd.appendChild(el("b", null, (ot.nick || offAb) + " ball"));
+      } else hd.appendChild(el("b", null, "On the field"));
+      const bits = [];
+      if(sit.downDistanceText || sit.shortDownDistanceText) bits.push(sit.shortDownDistanceText || sit.downDistanceText);
+      if(pos) bits.push(pos.toGoal + " to go for six");
+      if(bits.length) hd.appendChild(el("span", null, bits.join(" \u00b7 ")));
+      if(pos && pos.redZone) hd.appendChild(el("span","possrz","Red zone"));
+      now.appendChild(hd);
+      now.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
+      if(sit.lastPlay && sit.lastPlay.text){
+        const lp = el("div","lastplay");
+        lp.appendChild(el("span","lplab","Last play"));
+        lp.appendChild(document.createTextNode(sit.lastPlay.text));
+        now.appendChild(lp);
+      }
+      top.appendChild(now);
+    }
+    if(g.state !== "pre") top.appendChild(scoreBug(g, offAb, sit, pos, true));
+    else {
+      const pre = el("div","wnow wpre");
+      pre.appendChild(el("div","wnowh")).appendChild(el("b", null, "Kickoff " + (g.detail || "").replace(/^.*?-\s*/, "")));
+      pre.appendChild(el("div","tvnote","The Preview tab has the matchup, the odds and the injury report."));
+      top.appendChild(pre);
+    }
+    if(g.state !== "in" && LIVE.wp && String(LIVE.gameId) === String(g.id)){
+      const card = el("div","wnow");
+      card.appendChild(el("div","wnowh")).appendChild(el("b", null, "Win probability"));
+      const chart = winChart(h.ab, a.ab, LIVE.wp.series, LIVE.wp.home);
+      if(chart) card.appendChild(chart);
+      top.appendChild(card);
+    }
+  } else {
+    // The Scores page's live card; filled in once possession and the down are
+    // known.
+    const cardHost = el("div","wcardhost");
+    top.appendChild(cardHost);
+    const ls = lineScore(g);
+    if(ls && g.state !== "pre") top.appendChild(ls);
+    cardHost.appendChild(scoreCard(g, {poss: offAb, sit, pos}));
+    if(sit){
+      if(offAb) top.appendChild(possessionChip(offAb, sit, pos));
+      top.appendChild(miniField(offAb || a.ab, defAb || h.ab, pos));
+      if(sit.lastPlay && sit.lastPlay.text) top.appendChild(el("div","lastplay", sit.lastPlay.text));
     }
   }
 
