@@ -261,6 +261,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   flex:0 0 336px;border-left:1px solid var(--line);background:var(--panel);
   overflow-y:auto;padding:20px;
 }
+/* Beside the field on a desktop the panel takes everything the field does not
+   need: the field keeps about 880px (what five linemen at true spacing need)
+   and the panel grows to as much as 45% of the window. */
+@media (min-width:1251px){
+  #detail{flex:0 0 clamp(380px, calc(100vw - 880px), 45vw)}
+}
+/* At that width the linemen sit about 70px apart, so a long name is trimmed
+   rather than running into the next man's. */
+@media (min-width:1251px) and (max-width:1800px){
+  .pname{width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 #empty{color:var(--dim);font-size:13.5px;line-height:1.65;padding-top:8px}
 #empty b{display:block;color:var(--mute);font-family:'Barlow Condensed',sans-serif;
   text-transform:uppercase;letter-spacing:.11em;font-size:12px;margin-bottom:8px;font-weight:600}
@@ -1330,12 +1341,15 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
      letterboxing, by as much as it takes for the rest to stay in view. */
   #watchbody{
     display:grid;overflow:hidden;
-    grid-template-columns:minmax(0,max(360px,min(48%,calc((100dvh - 470px) * 16 / 9)))) minmax(0,1fr);
+    /* The left column is as wide as 48%, or as wide as lets the stream's
+       height and the cards under it fit the window, whichever is less. */
+    grid-template-columns:minmax(0,max(360px,min(48%,calc((100dvh - 370px) * 16 / 9)))) minmax(0,1fr);
     grid-template-rows:minmax(0,1fr);
     column-gap:22px;
     max-width:1760px;margin:0 auto;width:100%;
   }
   #wcolL,#wcolR{display:flex;flex-direction:column;min-height:0;min-width:0}
+  #wcolL{container-type:inline-size;container-name:wleft}
   #wcolL > *,#wcolR > *{flex:0 0 auto}
   #striphost{order:0;max-width:none;margin:0 0 12px}
   #watchmain{flex:1 1 auto;overflow-y:auto;min-height:0;padding-right:6px;scrollbar-width:thin}
@@ -1407,6 +1421,17 @@ svg.rkspark{width:100%;height:auto;max-width:320px;display:block;margin:8px 0 2p
   .wnow .lastplay{margin-top:9px;padding:0;background:none;border:0;font-size:13px;line-height:1.45;color:var(--chalk);
     display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .wnow .winchart,.wnow svg{max-width:100%}
+  /* A wide left column puts the field card and the quarter scores side by
+     side, which is what lets the stream above them keep growing. */
+  @container wleft (min-width:540px){
+    #watchaside{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start;align-content:start;gap:10px}
+    #watchaside > .wbug.qonly{align-self:stretch}
+    .wbug.qonly .wbugn b{font-size:14px}
+    .wbug.qonly .wbugn b.full{display:none}
+    .wbug.qonly .wbugn b.abbr{display:inline}
+    .wbug.qonly .wbugg{grid-template-columns:minmax(0,1fr) repeat(var(--n),24px) 38px}
+    .wbug.qonly .wbugs{font-size:21px}
+  }
   .wbug.qonly{padding-top:8px}
   .wbug.qonly .wbugt{display:none}
 }
@@ -3246,6 +3271,7 @@ svg.tiers{display:block;width:100%;height:auto}
 .wbugn img{width:24px;height:24px;object-fit:contain}
 .wbugn b{font-family:'Archivo Black',sans-serif;font-weight:400;font-size:15px;color:var(--hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wbugn small{font-size:11px;color:var(--dim)}
+.wbugn b.abbr{display:none}
 .wbugball{width:7px;height:7px;border-radius:50%;background:var(--brass);flex:0 0 auto}
 .wbugq{text-align:center;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
 .wbugs{text-align:right;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--hi);font-variant-numeric:tabular-nums}
@@ -3452,8 +3478,18 @@ svg.tiers{display:block;width:100%;height:auto}
   text-transform:uppercase;color:var(--mute);white-space:nowrap;transition:background .15s,color .15s}
 @media (hover:hover){ .ptabs button:hover{color:var(--hi);background:var(--hover)} }
 .ptabs button[aria-pressed="true"]{background:var(--team);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-#detail > .ptoff{display:none !important}
-#detail > .ptabs + .sect{margin-top:0}
+#detail > .ptoff,#detail .pbody > .ptoff{display:none !important}
+#detail .pgroup{break-inside:avoid;margin-bottom:16px}
+#detail .pgroup > :first-child{margin-top:0}
+/* A wide panel (a desktop, or a tablet with the panel under the field) puts
+   its cards in two columns; the player card and the tabs stay full width. */
+#detail{container-type:inline-size;container-name:panel}
+@container panel (min-width:640px){
+  #detail .pbody{column-count:2;column-gap:16px}
+}
+@container panel (min-width:1000px){
+  #detail .pbody{column-count:3}
+}
 /* Under the field the page scrolls, not the panel, so the panel must not be a
    scroll box of its own or the tab bar cannot stick. Beside the field the panel
    scrolls inside its 20px padding, so the bar sticks at its very top edge. */
@@ -3642,6 +3678,28 @@ svg.tiers{display:block;width:100%;height:auto}
 html[data-theme="light"] .tvten.new,html[data-theme="light"] .tvarw.newc,html[data-theme="light"] .tvt100{color:#fff}
 html[data-theme="light"] .tvnext{background:color-mix(in srgb,#fff 70%,transparent)}
 @media (max-width:420px){ .tvkey{grid-template-columns:repeat(3,minmax(0,1fr))} .tvagerow{grid-template-columns:84px minmax(0,1fr) 34px} .tvscale{padding-left:94px;padding-right:44px} }
+
+/* The top of the page on a desktop: search shares the menu's row instead of
+   taking one of its own, and the team header is tighter, so the field and the
+   panel get the height. */
+@media (min-width:1251px){
+  #app{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,24vw,400px);
+    grid-template-areas:"rail rail" "menu search" "head head" "split split" "foot foot";
+    grid-template-rows:auto auto auto minmax(0,1fr) auto}
+  #rail{grid-area:rail} #menu{grid-area:menu} #head{grid-area:head} #split{grid-area:split} #foot{grid-area:foot}
+  #searchbar{grid-area:search;display:flex;align-items:center;padding:0 14px 0 0;background:var(--bar1);border-bottom:1px solid var(--line)}
+  #searchbar #q{border-radius:20px;background:color-mix(in srgb,var(--hi) 6%,transparent);border:1px solid var(--rule);padding:7px 30px 7px 32px}
+  #searchbar #q:focus{background:color-mix(in srgb,var(--hi) 9%,transparent);border-color:var(--team-accent)}
+  #searchbar .mag{left:13px}
+  #searchbar #qclear{right:22px}
+  #results{left:0;right:14px;top:calc(100% + 4px);border:1px solid var(--line);border-radius:12px}
+  #head{padding:10px 20px 10px}
+  #hlogo{width:50px;height:50px}
+  #tname{font-size:28px}
+  /* "NFC East \u00b7 58 players on the chart" repeats the division place above it. */
+  #tmeta{display:none}
+  #trec{margin-top:6px}
+}
 
 /* ---------- the field on a phone ----------
    Fits the screen width with no sideways scrolling; tall enough that rows of
@@ -5245,11 +5303,26 @@ function tabifyPanel(d, kind){
   const mark = el("div","ptabmark");
   d.insertBefore(mark, rest[0]);
   d.insertBefore(bar, rest[0]);
+  // Each section, with whatever belongs to it (a fold's body, a note under a
+  // table), becomes one group in a body below the tabs. The body is what flows
+  // into two columns when the panel is wide; a group never splits between them.
+  const pbody = el("div","pbody");
+  d.insertBefore(pbody, rest[0]);
+  let grp = null;
+  const startsGroup = n => n.classList.contains("sect") || n.classList.contains("advt");
+  rest.forEach(n => {
+    if(!grp || startsGroup(n) || n.dataset.ptab !== grp.dataset.ptab){
+      grp = el("div","pgroup");
+      grp.dataset.ptab = n.dataset.ptab;
+      pbody.appendChild(grp);
+    }
+    grp.appendChild(n);
+  });
 
   function show(){
     const on = PANEL_TAB[kind];
     bar.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.pt === on));
-    [...d.children].forEach(n => { if(n.dataset.ptab) n.classList.toggle("ptoff", n.dataset.ptab !== on); });
+    [...pbody.children].forEach(n => { if(n.dataset.ptab) n.classList.toggle("ptoff", n.dataset.ptab !== on); });
     const cur = bar.querySelector('[aria-pressed="true"]');
     if(cur && bar.scrollWidth > bar.clientWidth){
       const l = cur.offsetLeft - bar.offsetLeft, r = l + cur.offsetWidth;
@@ -5269,13 +5342,22 @@ function tabifyPanel(d, kind){
   }
   show();
 
-  // Sections that arrive after drawing join the tab of the one before them.
+  // Sections that arrive after drawing join the tab of the one before them,
+  // in a group of their own at the end of the body.
   d._tabObs = new MutationObserver(muts => {
     muts.forEach(m => m.addedNodes.forEach(n => {
-      if(n.nodeType !== 1 || n.parentNode !== d || n.dataset.ptab || n === bar || n === mark) return;
-      const before = n.previousElementSibling;
-      n.dataset.ptab = tabOf(n, (before && before.dataset.ptab) || defs[0][0]);
-      n.classList.toggle("ptoff", n.dataset.ptab !== PANEL_TAB[kind]);
+      if(n.nodeType !== 1 || n.parentNode !== d || n.dataset.ptab || n === bar || n === mark || n === pbody) return;
+      const last = pbody.lastElementChild;
+      const t = tabOf(n, (last && last.dataset.ptab) || defs[0][0]);
+      let g = last;
+      if(!g || startsGroup(n) || g.dataset.ptab !== t){
+        g = el("div","pgroup");
+        g.dataset.ptab = t;
+        pbody.appendChild(g);
+      }
+      n.dataset.ptab = t;
+      g.appendChild(n);
+      g.classList.toggle("ptoff", t !== PANEL_TAB[kind]);
     }));
   });
   d._tabObs.observe(d, {childList: true});
@@ -11149,7 +11231,8 @@ function scoreBug(g, offAb, sit, pos, quartersOnly){
     const nm = el("span","wbugn");
     nm.style.setProperty("--tc", stripeColor(tm));
     if(tm.logo){ const im = new Image(); im.src = tm.logo; im.alt = ""; nm.appendChild(im); }
-    nm.appendChild(el("b", null, tm.nick || t.ab));
+    nm.appendChild(el("b","full", tm.nick || t.ab));
+    nm.appendChild(el("b","abbr", t.ab || ""));
     if(t.rec) nm.appendChild(el("small", null, t.rec));
     if(offAb && offAb === t.ab) nm.appendChild(el("i","wbugball"));
     grid.appendChild(nm);
